@@ -1,35 +1,38 @@
-import game
+from game import Game
+from game_ui import GameUI
 import settings_ui
 from tkinter import Tk
 
 class App:
-  DIMENSIONS = "800x600"
+  WIDTH = 800
+  HEIGHT = 600
+  DIMENSIONS = F"{WIDTH}x{HEIGHT}"
 
   def __init__(self):
     self.root = Tk()
-    self.game = game.Game()
+    self.game = Game()
     self.settings = settings_ui.SettingsUI()
 
   def run_game(self):
     self.display_game()
-    self.root.title(game.Game.TITLE)
-    self.root.geometry(App.DIMENSIONS)
+    self.root.title(Game.TITLE)
+    self.root.geometry(self.DIMENSIONS)
     self.root.attributes('-toolwindow', True)
-    self.root.configure(background="#36393E")
+    self.root.configure(background=GameUI.COLOR_BACKGROUND_PRIMARY)
     self.root.mainloop()
 
   def display_game(self):
-    self.game.display(self.root, open_settings=self.open_settings)
+    self.game.display(self.root, handle_open_settings=self.open_settings)
 
   def open_settings(self):
     settings_window = Tk()
-    self.settings.display(settings_window, confirm_settings=lambda config: self.confirm_settings(settings_window, config))
     settings_window.title(settings_ui.SettingsUI.TITLE)
+    self.settings.display(settings_window, handle_confirm=lambda config: self.confirm_settings(settings_window, config))
 
   def confirm_settings(self, window, config):
     self.game.update_settings(config)
-    self.display_game()
-    window.destroy()
+    self.display_game()  # Redraw Game Window
+    window.destroy()  # Destroy Settings Window
 
 
 if __name__ == "__main__":

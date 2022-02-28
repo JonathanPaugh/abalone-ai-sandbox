@@ -3,21 +3,23 @@ from tkinter.ttk import Frame, Label, Button
 
 from config import Config
 
-
 class SettingsUI:
   TITLE = "Settings"
+
+  COL_SIZE = 200
+  ROW_SIZE = 40
 
   def __init__(self):
     self.config = Config.from_default()
 
-  def display(self, parent, **kwargs):
-    frame = Frame(parent, padding=10)
-    frame.grid()
-    self._render(frame, **kwargs)
-
   def on_confirm(self, config, callback):
     self.config = config
     callback(config)
+
+  def display(self, parent, **kwargs):
+    frame = Frame(parent)
+    frame.pack()
+    self._render(frame, **kwargs)
 
   def _render(self, parent, **kwargs):
     self._render_title(parent)
@@ -42,7 +44,7 @@ class SettingsUI:
       move_limits[1].get(),
       time_limits[0].get(),
       time_limits[1].get()
-    ), kwargs["confirm_settings"])).grid(column=0, row=6, columnspan=2)
+    ), kwargs["handle_confirm"])).grid(column=0, row=6, columnspan=2)
 
     self._render_grid(parent)
 
@@ -69,13 +71,13 @@ class SettingsUI:
     input_2.insert(0, default2)
     input_2.grid(column=1, row=0, sticky='w', padx=8)
 
-    return (input_1, input_2)
+    return input_1, input_2
 
   def _render_grid(self, parent):
     col_count, row_count = parent.grid_size()
 
     for col in range(col_count):
-      parent.grid_columnconfigure(col, minsize=200)
+      parent.grid_columnconfigure(col, minsize=self.COL_SIZE)
 
     for row in range(row_count):
-      parent.grid_rowconfigure(row, minsize=40)
+      parent.grid_rowconfigure(row, minsize=self.ROW_SIZE)
