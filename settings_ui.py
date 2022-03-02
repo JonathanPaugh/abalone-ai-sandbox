@@ -4,6 +4,9 @@ from tkinter.ttk import Frame, Label, Button
 from config import Config
 
 class SettingsUI:
+  """
+  This Class is the GUI representation of the settings for the application.
+  """
   TITLE = "Settings"
 
   COL_SIZE = 200
@@ -13,15 +16,32 @@ class SettingsUI:
     self.config = Config.from_default()
 
   def on_confirm(self, config, callback):
+    """
+    :param config: config
+    :param callback: callback
+    :return: none
+    """
     self.config = config
     callback(config)
 
   def display(self, parent, **kwargs):
+    """
+    Displays the GUI frame onto the container.
+    :param parent: the tkinter container
+    :param kwargs: dictionary of arguments
+    :return: none
+    """
     frame = Frame(parent)
     frame.pack()
     self._render(frame, **kwargs)
 
   def _render(self, parent, **kwargs):
+    """
+    Renders the settings GUI and defines the setting components.
+    :param parent: the tkinter container
+    :param kwargs: dictionary of arguments
+    :return: none
+    """
     self._render_title(parent)
 
     layout = self._render_dropdown(parent, 1, "Starting Layout", self.config.layout,
@@ -49,9 +69,24 @@ class SettingsUI:
     self._render_grid(parent)
 
   def _render_title(self, parent):
+    """
+    Renders the title of the settings GUI.
+    :param parent: the tkinter container
+    :return: none
+    """
     Label(parent, text="Settings", font="Helvetica 16 bold").grid(column=0, row=0, columnspan=2)
 
   def _render_dropdown(self, parent, row, label, default, value, *values):
+    """
+    Renders and defines a dropdown menu.
+    :param parent: the tkinter container
+    :param row: a grid row
+    :param label: a string
+    :param default: default value
+    :param value: a string
+    :param values: list of strings
+    :return: selected
+    """
     Label(parent, text=label).grid(column=0, row=row, sticky='e', ipadx=8)
     selected = StringVar(parent)
     selected.set(default)
@@ -59,6 +94,15 @@ class SettingsUI:
     return selected
 
   def _render_double_input(self, parent, row, label, default1, default2):
+    """
+    Renders the adjacent text inputs.
+    :param parent: the tkinter container
+    :param row: a grid row
+    :param label: a string
+    :param default1: a string
+    :param default2: a string
+    :return: chosen input
+    """
     Label(parent, text=label).grid(column=0, row=row, sticky='e', ipadx=8)
     sub_frame = Frame(parent)
     sub_frame.grid(column=1, row=row, sticky='w')
@@ -74,6 +118,11 @@ class SettingsUI:
     return input_1, input_2
 
   def _render_grid(self, parent):
+    """
+    Renders the grid for the settings
+    :param parent: a tkinter container
+    :return:  none
+    """
     col_count, row_count = parent.grid_size()
 
     for col in range(col_count):
