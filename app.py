@@ -25,7 +25,6 @@ class App:
         self.display_game()
         self.root.title(Game.TITLE)
         self.root.geometry(self.DIMENSIONS)
-        self.root.attributes('-toolwindow', True)
         self.root.configure(background=GameUI.COLOR_BACKGROUND_PRIMARY)
         self.root.mainloop()
 
