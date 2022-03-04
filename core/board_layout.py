@@ -19,7 +19,11 @@ class BoardLayout(Enum):
         for r, line in enumerate(board_layout.value):
             for q, val in enumerate(line):
                 q += board.offset(r)
-                board[Hex(q, r)] = Color(val)
+                cell = Hex(q, r)
+                try:
+                    board[cell] = Color(val)
+                except ValueError:
+                    board[cell] = None
         return board
 
     def num_units(board_layout, color):
