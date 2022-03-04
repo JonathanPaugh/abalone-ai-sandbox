@@ -5,8 +5,6 @@ Contains logic for board layout management.
 from json import loads
 from enum import Enum
 from core.board import Board
-from core.color import Color
-from core.hex import Hex
 
 def _load_board_data_from_file_path(file_path):
     """
@@ -35,13 +33,4 @@ class BoardLayout(Enum):
         :param board_layout: a BoardLayout
         :return: a Board
         """
-        board = Board(layout=board_layout)
-        for r, line in enumerate(board_layout.value):
-            for q, val in enumerate(line):
-                q += board.offset(r) # offset coords - board storage starts at x with size - 1
-                cell = Hex(q, r)
-                try:
-                    board[cell] = Color(val)
-                except ValueError:
-                    board[cell] = None
-        return board
+        return Board.create_from_data(data=board_layout.value)

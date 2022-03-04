@@ -1,3 +1,6 @@
+from core.board import Board
+
+
 def translate_to_board(string):
     pass
 
@@ -36,10 +39,9 @@ def translate_text_to_board(string):
         colour = 1
     return [mapping[string[0]], position, colour]
 
-
 class StateParser:
     @staticmethod
-    def convert_board_to_text(board) -> str:
+    def convert_board_to_text(board: Board) -> str:
         """
         convert the board ex:
 
@@ -103,3 +105,14 @@ class StateParser:
 
             print(board)
         return board, int(turn_color)
+
+    def convert_move_to_text(self, move) -> str:
+        """
+        Convert the move object to a move notation:
+        EX:
+
+        NW, C3, C4
+        """
+
+        text = ""
+        return text
