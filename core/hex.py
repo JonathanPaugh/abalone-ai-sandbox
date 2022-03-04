@@ -8,7 +8,7 @@ HEX_NEIGHBORS = {}
 
 class Hex(AxialHex):
 
-    def __repr__(self):
+    def __str__(self):
         return f"{chr(BOARD_MAXCOLS - self.y + ord('A') - 1)}{self.x + 1}"
 
     def lerp(self, other, time):

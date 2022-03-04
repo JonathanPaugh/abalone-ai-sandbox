@@ -8,11 +8,19 @@ class Board(HexGrid):
         super().__init__(size=BOARD_SIZE)
         self._layout = layout
 
+    @property
+    def layout(self):
+        return self._layout
+
+    def __str__(self):
+        # TODO: return a list of comma-separated "pieces", e.g. A1w
+        return super().__str__()
+
     def __setitem__(self, cell, value):
         super().__setitem__(cell, value)
         if cell in self:
-            # mark enumeration struct as in need of reevaluation
-            # TODO: only change the value for the associated item
+            # mark enumeration struct as in need of recalculation
+            # TODO(B): only change the value for the associated item
             self._items = None
 
     def enumerate(self):
