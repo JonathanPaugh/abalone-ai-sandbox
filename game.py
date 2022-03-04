@@ -12,7 +12,13 @@ class Game:
 
     def __init__(self):
         self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
-        self.game_ui = game_ui.GameUI(lambda: self.board)
+        self.game_ui = game_ui.GameUI(self.get_board)
+        self.state_generator = StateGenerator(self.get_board)
+        for move in self.state_generator.enumerate_board(1):
+            print(move)
+
+    def get_board(self):
+        return self.board
 
     def display(self, parent, **kwargs):
         """

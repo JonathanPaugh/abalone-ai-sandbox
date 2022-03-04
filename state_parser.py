@@ -1,6 +1,9 @@
+from core.board import Board
+
+
 class StateParser:
     @staticmethod
-    def convert_board_to_text(board) -> str:
+    def convert_board_to_text(board: Board) -> str:
         """
         convert the board ex:
 
@@ -53,3 +56,14 @@ class StateParser:
         turn = 0
 
         return board, turn
+
+    def convert_move_to_text(self, move) -> str:
+        """
+        Convert the move object to a move notation:
+        EX:
+
+        NW, C3, C4
+        """
+
+        text = ""
+        return text
