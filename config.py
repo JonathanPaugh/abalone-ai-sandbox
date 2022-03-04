@@ -1,10 +1,11 @@
+from core.board_layout import BoardLayout
 
 class Config:
     """
     Config defines the customization settings for the program.
     """
 
-    DEFAULT_LAYOUT = "Standard"
+    DEFAULT_LAYOUT = BoardLayout.STANDARD
     DEFAULT_GAME_MODE = "Human vs. Computer"
     DEFAULT_PLAYER_COLOR = "White"
     DEFAULT_MOVE_LIMIT_P1 = 50

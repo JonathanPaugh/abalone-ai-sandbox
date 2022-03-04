@@ -1,8 +1,14 @@
 from tkinter import OptionMenu, StringVar, Entry
 from tkinter.ttk import Frame, Label, Button
-
 from config import Config
+from core.board_layout import BoardLayout
 
+
+STARTING_LAYOUT_MAP = {
+    "Standard": BoardLayout.STANDARD,
+    "German Daisy": BoardLayout.GERMAN_DAISY,
+    "Belgian Daisy": BoardLayout.BELGIAN_DAISY,
+}
 
 class SettingsUI:
     """
@@ -45,8 +51,10 @@ class SettingsUI:
         """
         self._render_title(parent)
 
-        layout = self._render_dropdown(parent, 1, "Starting Layout", self.config.layout,
-                                       "Standard", "German Daisy", "Belgian Daisy")
+        DEFAULT_STARTING_LAYOUT = [*STARTING_LAYOUT_MAP.keys()][0]
+        layout = self._render_dropdown(parent, 1, "Starting Layout",
+                                       next((k for k, v in STARTING_LAYOUT_MAP.items() if v == self.config.layout), DEFAULT_STARTING_LAYOUT),
+                                       *STARTING_LAYOUT_MAP.keys())
 
         game_mode = self._render_dropdown(parent, 2, "Game Mode", self.config.game_mode,
                                           "Human vs. Computer", "Computer vs. Computer", "Human vs. Human")
@@ -61,7 +69,7 @@ class SettingsUI:
                                                 self.config.time_limit_p2)
 
         Button(parent, text="Confirm", command=lambda: self.on_confirm(Config(
-            layout.get(),
+            next((v for k, v in STARTING_LAYOUT_MAP.items() if layout.get() == k), DEFAULT_STARTING_LAYOUT),
             game_mode.get(),
             player_color.get(),
             move_limits[0].get(),

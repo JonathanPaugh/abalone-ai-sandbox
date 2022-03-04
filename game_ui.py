@@ -1,7 +1,6 @@
 from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
-from board_layout import BoardLayout
-
+from core.color import Color
 
 class GameUI:
     """
@@ -11,9 +10,9 @@ class GameUI:
     COLOR_BACKGROUND_PRIMARY = "#36393E"
     COLOR_BACKGROUND_SECONDARY = "#42464C"
 
-    COLOR_PLAYER_NONE = "#CCCCCC"
-    COLOR_PLAYER_1 = "#CC3366"
-    COLOR_PLAYER_2 = "#3366CC"
+    COLOR_PLAYER_NONE = "#48535A"
+    COLOR_PLAYER_1 = "#3366CC"
+    COLOR_PLAYER_2 = "#CC3366"
 
     FONT_FAMILY_PRIMARY = "Arial"
     FONT_FAMILY_SECONDARY = "Times New Roman"
@@ -215,22 +214,21 @@ class GameUI:
         pos = (self.MAIN_WIDTH / 2 - self.BOARD_WIDTH / 2,
                self.MAIN_HEIGHT / 2 - self.BOARD_HEIGHT / 2)
 
-        layout = self.handle_get_layout()
+        board = self.handle_get_layout()
 
-        for row, line in enumerate(layout):
-            for col, val in enumerate(line):
-                x = (col * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X)
-                     + (self.BOARD_MAX_COLS - len(line)) * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X) / 2
-                     + pos[0])
-                y = (row * (self.MARBLE_SIZE + self.MARBLE_MARGIN_Y)
-                     + pos[1])
-                cell_data = layout[row][col]
-                circle_color = {
-                    0: self.COLOR_PLAYER_NONE,
-                    1: self.COLOR_PLAYER_1,
-                    2: self.COLOR_PLAYER_2,
-                }[cell_data]
-                canvas.create_oval(x, y, x + self.MARBLE_SIZE, y + self.MARBLE_SIZE, fill=circle_color, outline="")
+        for cell, color in board.enumerate():
+            q, r = cell.x, cell.y
+            x = (q * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X)
+                    + (self.BOARD_MAX_COLS - board.width(r) - board.offset(r) * 2) * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X) / 2
+                    + pos[0])
+            y = (r * (self.MARBLE_SIZE + self.MARBLE_MARGIN_Y)
+                    + pos[1])
+            circle_color = {
+                None: self.COLOR_PLAYER_NONE,
+                Color.BLACK: self.COLOR_PLAYER_1,
+                Color.WHITE: self.COLOR_PLAYER_2,
+            }[color]
+            canvas.create_oval(x, y, x + self.MARBLE_SIZE, y + self.MARBLE_SIZE, fill=circle_color, outline="")
 
         return canvas
 

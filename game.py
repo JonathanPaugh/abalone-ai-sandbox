@@ -1,5 +1,5 @@
 import game_ui
-from board_layout import BoardLayout
+from core.board_layout import BoardLayout
 from state_generator import StateGenerator
 
 
@@ -11,7 +11,7 @@ class Game:
     TITLE = "Abalone"
 
     def __init__(self):
-        self.board = self.generate_board(BoardLayout.Standard)
+        self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
         self.game_ui = game_ui.GameUI(lambda: self.board)
 
     def display(self, parent, **kwargs):
@@ -29,72 +29,4 @@ class Game:
         :param config: a config.
         :return:
         """
-        layout = BoardLayout.from_string(config.layout)
-        self.board = self.generate_board(layout)
-
-    def generate_board(self, layout):
-        """
-        Sets the game layout based on the given parameter.
-        :param layout: an int
-        :return: None
-        """
-        layout_options = {
-            BoardLayout.Standard: self.generate_standard_layout,
-            BoardLayout.German: self.generate_german_layout,
-            BoardLayout.Belgian: self.generate_belgian_layout
-        }
-        return layout_options[layout]()
-
-    @staticmethod
-    def generate_standard_layout():
-        """
-        Represents a standard layout board.
-        :return: board as a 2d array.
-        """
-        return [
-            [1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1],
-            [0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 2, 2, 2, 0, 0],
-            [2, 2, 2, 2, 2, 2],
-            [2, 2, 2, 2, 2],
-        ]
-
-    @staticmethod
-    def generate_german_layout():
-        """
-        Represents a german layout board.
-        :return: board as a 2d array.
-        """
-        return [
-            [0, 0, 0, 0, 0],
-            [1, 1, 0, 0, 2, 2],
-            [1, 1, 1, 0, 2, 2, 2],
-            [0, 1, 1, 0, 0, 2, 2, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 2, 2, 0, 0, 1, 1, 0],
-            [2, 2, 2, 0, 1, 1, 1],
-            [2, 2, 0, 0, 1, 1],
-            [0, 0, 0, 0, 0],
-        ]
-
-    @staticmethod
-    def generate_belgian_layout():
-        """
-        Represents a belgian layout board.
-        :return: board as a 2d array.
-        """
-        return [
-            [1, 1, 0, 2, 2],
-            [1, 1, 1, 2, 2, 2],
-            [0, 1, 1, 0, 2, 2, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 2, 2, 0, 1, 1, 0],
-            [2, 2, 2, 1, 1, 1],
-            [2, 2, 0, 1, 1],
-        ]
+        self.board = BoardLayout.setup_board(config.layout)
