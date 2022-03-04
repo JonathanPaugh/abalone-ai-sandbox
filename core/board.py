@@ -16,6 +16,12 @@ class Board(HexGrid):
 
     @staticmethod
     def create_from_data(data):
+        """
+        Creates a board from the given board data.
+        The original board data is cached within the board for score calculations.
+        :param data: an array of arrays of domain 0..2
+        :return: a Board
+        """
         board = Board()
         board._layout = data
         for r, line in enumerate(data):
