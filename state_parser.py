@@ -92,6 +92,10 @@ class StateParser:
         with open(filename) as file:
             data = file.read().rstrip()
             turn_color = (data[0])
+            if turn_color == 'b':
+                turn_color = 2
+            else:
+                turn_color = 1
             untranslated_list = data[2:].split(",")
             for string in untranslated_list:
                 translated = translate_text_to_board(string)
