@@ -56,6 +56,7 @@ class SettingsUI:
 
         move_limits = self._render_double_input(parent, 4, "Move Limit", self.config.move_limit_p1,
                                                 self.config.move_limit_p2)
+
         time_limits = self._render_double_input(parent, 5, "Time Limit", self.config.time_limit_p1,
                                                 self.config.time_limit_p2)
 

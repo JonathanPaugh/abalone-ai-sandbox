@@ -13,9 +13,9 @@ class BoardLayout(enum.Enum):
     @classmethod
     def from_string(cls, string):
         """
-        Returns a dictionary containing the string name and its enum value.
+        Returns a BoardLayout from a string value.
         :param string: a string
-        :return: dictionary of layouts
+        :return: a BoardLayout value
         """
         return {
             "Standard": cls.Standard,

@@ -36,22 +36,9 @@ class GameUI:
     BOARD_WIDTH = (MARBLE_SIZE + MARBLE_MARGIN_X) * BOARD_MAX_COLS - MARBLE_MARGIN_X
     BOARD_HEIGHT = (MARBLE_SIZE + MARBLE_MARGIN_Y) * BOARD_MAX_COLS - MARBLE_MARGIN_Y
 
-    def __init__(self):
-        self.layout = self.generate_standard_layout()
+    def __init__(self, handle_get_layout):
         self.frame = None
-
-    def set_layout(self, layout):
-        """
-        Sets the game layout based on the given parameter.
-        :param layout: an int
-        :return: None
-        """
-        layout_options = {
-            BoardLayout.Standard: self.generate_standard_layout,
-            BoardLayout.German: self.generate_german_layout,
-            BoardLayout.Belgian: self.generate_belgian_layout
-        }
-        self.layout = layout_options[layout]()
+        self.handle_get_layout = handle_get_layout
 
     def display(self, parent, **kwargs):
         """
@@ -228,14 +215,16 @@ class GameUI:
         pos = (self.MAIN_WIDTH / 2 - self.BOARD_WIDTH / 2,
                self.MAIN_HEIGHT / 2 - self.BOARD_HEIGHT / 2)
 
-        for row, line in enumerate(self.layout):
+        layout = self.handle_get_layout()
+
+        for row, line in enumerate(layout):
             for col, val in enumerate(line):
                 x = (col * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X)
                      + (self.BOARD_MAX_COLS - len(line)) * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X) / 2
                      + pos[0])
                 y = (row * (self.MARBLE_SIZE + self.MARBLE_MARGIN_Y)
                      + pos[1])
-                cell_data = self.layout[row][col]
+                cell_data = layout[row][col]
                 circle_color = {
                     0: self.COLOR_PLAYER_NONE,
                     1: self.COLOR_PLAYER_1,
@@ -270,57 +259,3 @@ class GameUI:
             if i < size - 1:
                 board.append([0] * (size + i))
         return board
-
-    @staticmethod
-    def generate_standard_layout():
-        """
-        Represents a standard layout board.
-        :return: board as a 2d array.
-        """
-        return [
-            [1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1],
-            [0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 2, 2, 2, 0, 0],
-            [2, 2, 2, 2, 2, 2],
-            [2, 2, 2, 2, 2],
-        ]
-
-    @staticmethod
-    def generate_german_layout():
-        """
-        Represents a german layout board.
-        :return: board as a 2d array.
-        """
-        return [
-            [0, 0, 0, 0, 0],
-            [1, 1, 0, 0, 2, 2],
-            [1, 1, 1, 0, 2, 2, 2],
-            [0, 1, 1, 0, 0, 2, 2, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 2, 2, 0, 0, 1, 1, 0],
-            [2, 2, 2, 0, 1, 1, 1],
-            [2, 2, 0, 0, 1, 1],
-            [0, 0, 0, 0, 0],
-        ]
-
-    @staticmethod
-    def generate_belgian_layout():
-        """
-        Represents a belgian layout board.
-        :return: board as a 2d array.
-        """
-        return [
-            [1, 1, 0, 2, 2],
-            [1, 1, 1, 2, 2, 2],
-            [0, 1, 1, 0, 2, 2, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 2, 2, 0, 1, 1, 0],
-            [2, 2, 2, 1, 1, 1],
-            [2, 2, 0, 1, 1],
-        ]
