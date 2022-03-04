@@ -4,6 +4,7 @@ Contains Abalone-specific hex grid logic.
 
 from lib.hex_grid import HexGrid
 from core.hex import Hex
+from core.color import Color
 from constants import BOARD_SIZE
 
 class Board(HexGrid):
@@ -13,13 +14,26 @@ class Board(HexGrid):
     starting layout data for headlessly calculating game score.
     """
 
-    def __init__(self, layout):
+    @staticmethod
+    def create_from_data(data):
+        board = Board()
+        board._layout = data
+        for r, line in enumerate(data):
+            for q, val in enumerate(line):
+                q += board.offset(r) # offset coords - board storage starts at x with size - 1
+                cell = Hex(q, r)
+                try:
+                    board[cell] = Color(val)
+                except ValueError:
+                    board[cell] = None
+        return board
+
+    def __init__(self):
         """
         Initializes a game board.
-        :param layout: the starting BoardLayout
         """
         super().__init__(size=BOARD_SIZE)
-        self._layout = layout
+        self._layout = None
         self._items = None
 
     @property
