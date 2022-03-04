@@ -1,34 +1,47 @@
+"""
+Contains logic for board layout management.
+"""
+
 from json import loads
 from enum import Enum
 from core.board import Board
 from core.color import Color
 from core.hex import Hex
 
-def load_board_layout_from_file_name(file_name):
-    with open(file_name, mode="r") as file:
-        file_buffer = file.read()
-    return loads(file_buffer)
+def _load_board_data_from_file_path(file_path):
+    """
+    Loads a JSON file from the given file path.
+    :param file_path: The file path to load the JSON from.
+    :precondition file_path: a JSON file at `file_path` must exist relative to driver root
+    :return: a JSON object (str, list, or dict)
+    """
+    with open(file_path, mode="r", encoding="utf-8") as file:
+        return loads(file.read())
 
 class BoardLayout(Enum):
-    STANDARD = load_board_layout_from_file_name("layouts/standard.json")
-    GERMAN_DAISY = load_board_layout_from_file_name("layouts/german_daisy.json")
-    BELGIAN_DAISY = load_board_layout_from_file_name("layouts/belgian_daisy.json")
+    """
+    A collection of standard board layouts.
+    The value side of a board layout is an array of variable-length arrays
+    in the shape of an offset hex grid.
+    """
+
+    STANDARD = _load_board_data_from_file_path("layouts/standard.json")
+    GERMAN_DAISY = _load_board_data_from_file_path("layouts/german_daisy.json")
+    BELGIAN_DAISY = _load_board_data_from_file_path("layouts/belgian_daisy.json")
 
     def setup_board(board_layout):
+        """
+        Generates a board from the given board layout.
+        :param board_layout: a BoardLayout
+        :return: a Board
+        """
         board = Board(layout=board_layout)
         for r, line in enumerate(board_layout.value):
             for q, val in enumerate(line):
-                q += board.offset(r)
+                q += board.offset(r) # offset coords - board storage starts at x with size - 1
                 cell = Hex(q, r)
                 try:
                     board[cell] = Color(val)
                 except ValueError:
                     board[cell] = None
         return board
-
-    def num_units(board_layout, color):
-        num_units = 0
-        for line in board_layout.value:
-            for val in line:
-                num_units += val == color.value
-        return num_units
