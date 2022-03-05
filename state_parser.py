@@ -50,7 +50,7 @@ def translate_board_to_text(board: Board) -> str:
                 player = "b"
             else:
                 player = "w"
-            string_positions += marbles + player + ", "
+            string_positions += str(marbles) + player + ", "
     print(string_positions)
     return string_positions
 
@@ -128,5 +128,5 @@ class StateParser:
 
 if __name__ == "__main__":
     parser = StateParser
-    board = Board(get_board())
+    board = Board().create_from_data(get_board())
     parser.convert_board_to_text("Test1.board", board)
