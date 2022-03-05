@@ -12,7 +12,7 @@ class Tester:
     def test_file(self, file):
         text = ""  # Get text from file
 
-        initial_state = StateParser.convert_text_to_state()
+        initial_state = StateParser.convert_text_to_state(text)
 
         generator = StateGenerator()
 
