@@ -1,31 +1,51 @@
+import state_parser
 from state_generator import StateGenerator
 from state_parser import StateParser
+from core.board import Board
+
+
+def write_move_file(possible_moves, number):
+    file_move = open("Test" + str(number) + ".move", "w")
+    for moves in possible_moves:
+        file_move.write(moves.__str__())
+        file_move.write("\n")
+    file_move.close()
+
+
+def write_board_file(possible_boards, number):
+    file_board = open("Test" + str(number) + ".board", "w")
+    for board in possible_boards:
+        file_board.write(state_parser.translate_board_to_text(board))
+        file_board.write("\n")
+    file_board.close()
 
 
 class Tester:
     def run_tests(self):
-        files = []
+        input_amount = input("How many Test.input files?")
 
-        for file in files:
-            self.test_file(file)
+        for i in range(0, int(input_amount)):
+            file = "Test" + str(i+1) + ".input"
+            print(file)
+            self.test_file(file, i+1)
 
-    def test_file(self, file):
-        text = ""  # Get text from file
+    def test_file(self, file, number):
 
-        initial_state = StateParser.convert_text_to_state(text)
+        initial_state = StateParser.convert_text_to_state(file)
+        print(initial_state)
 
-        generator = StateGenerator()
+        the_board = Board.create_from_data(initial_state[0])
 
-        possible_states = generator.enumerate_board(initial_state[0], initial_state[1])
+        generator = StateGenerator(the_board)
 
-        representations = map(lambda state: StateParser.convert_board_to_text(state[0]), possible_states)
+        possible_moves = generator.enumerate_board(initial_state[1])
 
-        # Create and open output file
-        output_file = None
+        possible_boards = []
+        for move in possible_moves:
+            possible_boards.append(generator.generate_next_board(move))
 
-        for representation in representations:
-            # Append representations to output file
-            pass
+        write_move_file(possible_moves, number)
+        write_board_file(possible_boards, number)
 
 
 if __name__ == "__main__":

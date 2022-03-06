@@ -65,15 +65,15 @@ class StateParser:
             data = file.read().rstrip()
             turn_color = (data[0])
             if turn_color == 'b':
-                turn_color = 2
-            else:
                 turn_color = 1
+            else:
+                turn_color =2
             untranslated_list = data[2:].split(",")
             for string in untranslated_list:
                 translated = translate_text_to_board(string)
                 board[translated[0]][translated[1] - 1] = translated[2]
 
-            print(board)
+
         return board, int(turn_color)
 
     @staticmethod
@@ -118,15 +118,16 @@ def translate_text_to_board(string):
     else:
         position = int(string[1])
     if string[2] == "b":
-        colour = 2
-    else:
         colour = 1
+    else:
+        colour = 2
     return [mapping[string[0]], position, colour]
 
 
 def translate_board_to_text(board: Board) -> str:
     """Given a board representation, return a string containing all the occupied cells."""
     tempt_positions = ""
+
 
     current_state = Board.enumerate(board)
     for marbles, colour in current_state:
@@ -140,12 +141,41 @@ def translate_board_to_text(board: Board) -> str:
     positions_list.sort()
     string_positions = "".join(map(str, positions_list))
     #For testing.
-    # print(string_positions[:(len(string_positions) - 1)])
-    return string_positions[:(len(string_positions) - 1)]
+    return sort_text(string_positions[:(len(string_positions) - 1)])
+
+def sort_text(string):
+    list_text = string.split(",")
+    value = {
+        "b": 1000,
+        "w": 100,
+        "A": 90,
+        "B": 80,
+        "C": 70,
+        "D": 60,
+        "E": 50,
+        "F": 40,
+        "G": 30,
+        "H": 20,
+        "I": 10,
+    }
+    sorted_dict = {}
+    positions = []
+    for text in list_text:
+        position = int(value[text[0]]) + 10-int(text[1]) + int(value[text[2]])
+        positions.append(position)
+        sorted_dict[position] = text
+    positions.sort(reverse=True)
+    concat = ""
+    for pos in positions:
+        concat += sorted_dict[pos]+","
+    return concat[:-1]
 
 
 if __name__ == "__main__":
+
+    # board_layout = Board().create_from_data(parser.test_output_board_layout)
+    # parser.convert_board_to_text("Test.board", board_layout)
+    # parser.convert_text_to_state("Test1.input")
     parser = StateParser
     board_layout = Board().create_from_data(parser.test_output_board_layout)
-    parser.convert_board_to_text("Test1.board", board_layout)
-    parser.convert_text_to_state("Test1.input")
+    translate_board_to_text(board_layout)

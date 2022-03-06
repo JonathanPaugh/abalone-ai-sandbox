@@ -35,7 +35,7 @@ class StateGenerator:
         return states
 
     def generate_next_board(self, move: Move) -> Board:
-        board = Board.create_from_data(self.handle_get_board().to_array())
+        board = Board.create_from_data(self.handle_get_board.to_array())
 
         if move.is_sumito(board):
             return self._apply_sumito_move(board, move)
@@ -63,7 +63,7 @@ class StateGenerator:
         return board
 
     def enumerate_board(self, current_player: int) -> List[Move]:
-        board = self.handle_get_board()
+        board = self.handle_get_board
         selections = []
         for cell, color in board.enumerate():
             if self.contains_player_marble(color, current_player):

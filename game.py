@@ -1,6 +1,6 @@
 import game_ui
 from core.board_layout import BoardLayout
-from state_generator import StateGenerator
+import state_generator
 from state_parser import StateParser, translate_board_to_text
 
 
