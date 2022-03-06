@@ -1,8 +1,7 @@
 import game_ui
 from core.board_layout import BoardLayout
-import state_generator
-from state_parser import StateParser, translate_board_to_text
 
+import state_generator
 
 class Game:
     """
@@ -15,7 +14,7 @@ class Game:
     def __init__(self):
         self.board = BoardLayout.setup_board(BoardLayout.SUMITO_TEST)
         self.game_ui = game_ui.GameUI(self.get_board)
-        self.state_generator = StateGenerator(self.get_board)
+        self.state_generator = state_generator.StateGenerator(self.get_board)
         self.state_generator.test_generator(1)
 
     def get_board(self):

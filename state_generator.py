@@ -3,10 +3,11 @@ from typing import List
 from core.board import Board
 from core.color import Color
 from core.hex import HexDirection, Hex
-import game
 from move import Move
 from selection import Selection
-from state_parser import translate_board_to_text
+
+import game
+import state_parser
 
 
 class StateGenerator:
@@ -14,8 +15,6 @@ class StateGenerator:
         self.handle_get_board = handle_get_board
 
     def test_generator(self, current_player: int):
-
-
         moves = self.enumerate_board(current_player)
         boards = self.generate_state_space(moves)
         for i in range(len(moves)):
@@ -24,7 +23,7 @@ class StateGenerator:
 
         counter = 0
         for board in boards:
-            print(F"{counter + 1} => {translate_board_to_text(board)}")
+            print(F"{counter + 1} => {state_parser.StateParser.convert_board_to_text(board)}")
             counter += 1
 
     def generate_state_space(self, moves: List[Move]) -> List[Board]:
@@ -35,7 +34,7 @@ class StateGenerator:
         return states
 
     def generate_next_board(self, move: Move) -> Board:
-        board = Board.create_from_data(self.handle_get_board.to_array())
+        board = Board.create_from_data(self.handle_get_board().to_array())
 
         if move.is_sumito(board):
             return self._apply_sumito_move(board, move)
@@ -46,8 +45,24 @@ class StateGenerator:
     def _apply_sumito_move(self, board: Board, move: Move) -> Board:
         destination = move.get_front().add(move.direction.value)
 
-        while self.is_cell_in_bounds(board, destination) and board[destination]:
+        start = Hex(destination.x, destination.y)
+        while self.is_cell_in_bounds(board, destination.add(move.direction.value)) and board[destination.add(move.direction.value)]:
             destination = destination.add(move.direction.value)
+
+
+        sumito_move = Move(Selection(start, Hex(destination.x, destination.y)), move.direction)
+
+        player = sumito_move.selection.get_player(board)
+
+        for cell in sumito_move.selection.to_array():
+            if not self.is_cell_in_bounds(board, cell):
+                print(sumito_move.selection)
+            else:
+                board[cell] = None
+
+        for cell in sumito_move.get_destinations():
+            if self.is_cell_in_bounds(board, cell):
+                board[cell] = player
 
         return self._apply_base_move(board, move)
 
@@ -63,7 +78,7 @@ class StateGenerator:
         return board
 
     def enumerate_board(self, current_player: int) -> List[Move]:
-        board = self.handle_get_board
+        board = self.handle_get_board()
         selections = []
         for cell, color in board.enumerate():
             if self.contains_player_marble(color, current_player):
@@ -156,9 +171,10 @@ class StateGenerator:
             if board[destination] == Color(current_player):
                 return False
             else:
-                out_of_bounds_valid = True
                 if distance >= move.selection.get_size():
                     return False
+
+                out_of_bounds_valid = True
 
         return True
 

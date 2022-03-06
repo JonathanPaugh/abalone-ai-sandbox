@@ -9,7 +9,9 @@ from core.hex import HexDirection, Hex
 class Selection:
     def __init__(self, start: Hex, end: Hex=None):
         self.start = start
-        self.end = end
+        self.end = None
+        if start != end:
+            self.end = end
 
     def __str__(self):
         string = str(self.start)
@@ -28,6 +30,9 @@ class Selection:
 
         return {self.start, self.end} == {other.start, other.end}
 
+    def get_player(self, board: Board) -> int:
+        return board[self.start]
+
     def get_size(self) -> int:
         if not self.end:
             return 1
@@ -35,6 +40,9 @@ class Selection:
         return int(self.start.manhattan(self.end) + 1)
 
     def get_direction(self) -> HexDirection:
+        if not self.end:
+            return None
+
         for direction in HexDirection:
             origin = self.start
             for i in range(0, self.get_size() - 1):
@@ -44,11 +52,12 @@ class Selection:
 
         return None
 
-    def get_player(self, board: Board) -> int:
-        return board[self.start]
-
     def to_array(self) -> List[Hex]:
         cells = [self.start]
+
+        if not self.end:
+            return cells
+
         direction = self.get_direction()
         for i in range(0, self.get_size() - 1):
             next_cell = cells[len(cells) - 1].add(direction.value)
