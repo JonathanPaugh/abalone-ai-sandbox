@@ -22,12 +22,22 @@ def write_board_file(possible_boards, number):
 
 class Tester:
     def run_tests(self):
-        input_amount = input("How many Test.input files?")
+        input_amount = None
 
-        for i in range(0, int(input_amount)):
-            file = "Test" + str(i+1) + ".input"
-            print(file)
-            self.test_file(file, i+1)
+        while input_amount != 0:
+            user_input = input("How many Test.input files are there? Hint: enter 0 to exit: ")
+
+            try:
+                input_amount = int(user_input)
+                for i in range(0, input_amount):
+                    file = "Test" + str(i+1) + ".input"
+                    print(file)
+                    self.test_file(file, i+1)
+            except FileNotFoundError:
+                print("Number entered does not correspond to number of available Test.input files. Only available files"
+                      " processed.")
+            except ValueError:
+                print("Please enter a number for the number of Test.input files.")
 
     def test_file(self, file, number):
 
