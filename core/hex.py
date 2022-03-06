@@ -58,7 +58,7 @@ class HexDirection(Enum):
     SW = Hex(-1, 1)
     SE = Hex(0, 1)
 
-    def same_axis(self, other: HexDirection) -> bool:
+    def is_parallel(self, other: HexDirection) -> bool:
         return abs(self.value.x) == abs(other.value.x) and \
                abs(self.value.y) == abs(other.value.y)
 

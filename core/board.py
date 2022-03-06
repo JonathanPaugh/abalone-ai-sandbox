@@ -72,17 +72,21 @@ class Board(HexGrid):
         return self._items
 
     def cell_in_bounds(self, cell: Hex) -> bool:
-        try:
-            self[cell]
-        except IndexError:
-            return False
-
-        return True
+        """
+        :return: If the cell is in bounds.
+        """
+        return cell in self
 
     def cell_owned_by(self, cell: Hex, player: int) -> bool:
-        return self[cell] and self[cell].value == player
+        """
+        :return: If the cell is owned by the player.
+        """
+        return self.cell_in_bounds(cell) and self[cell] and self[cell].value == player
 
     def is_valid_move(self, move: Move, current_player: int) -> bool:
+        """
+        :return: If the move is valid.
+        """
         if move.is_single():
             return self._is_valid_single_move(move)
 
@@ -92,9 +96,16 @@ class Board(HexGrid):
         return self._is_valid_sidestep_move(move)
 
     def apply_move(self, move: Move):
+        """
+        Applies a move to the board, changing the position of cells.
+        """
         self._apply_sumito_move(move) if move.is_sumito(self) else self._apply_base_move(move)
 
     def _is_valid_single_move(self, move: Move) -> bool:
+        """
+        :return: Is a valid single cell move.
+        :precondition: Selection is a single cell.
+        """
         destination = move.selection.start.add(move.direction.value)
 
         if not self.cell_in_bounds(destination):
@@ -106,6 +117,10 @@ class Board(HexGrid):
         return True
 
     def _is_valid_inline_move(self, move: Move, current_player: int) -> bool:
+        """
+        :return: Is a valid inline move.
+        :precondition: Move is inline.
+        """
         destination = move.get_front()
         out_of_bounds_valid = False
         for i in range(1, self.MAX_SUMITO + 1):
@@ -125,6 +140,10 @@ class Board(HexGrid):
         return True
 
     def _is_valid_sidestep_move(self, move: Move) -> bool:
+        """
+        :return: Is a valid sidestep move.
+        :precondition: Move is sidestep.
+        """
         for cell in move.selection.to_array():
             destination = cell.add(move.direction.value)
 
@@ -137,6 +156,10 @@ class Board(HexGrid):
         return True
 
     def _apply_base_move(self, move: Move):
+        """
+        Applies a move to the board, moving cells at origin to destination.
+        :precondition: Move is not sumito.
+        """
         player = move.selection.get_player(self)
 
         for cell in move.selection.to_array():
@@ -146,9 +169,14 @@ class Board(HexGrid):
             self[cell] = player
 
     def _apply_sumito_move(self, move: Move):
+        """
+        Applies a sumito move to the board, first moves blocking cells in the direction of the move,
+        then applies the base move after.
+        :precondition: Move is sumito.
+        """
         destination = move.get_front().add(move.direction.value)
 
-        start = Hex(destination.x, destination.y)
+        start = destination
         while self.cell_in_bounds(destination.add(move.direction.value)) and self[destination.add(move.direction.value)]:
             destination = destination.add(move.direction.value)
 

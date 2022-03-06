@@ -7,8 +7,12 @@ from move import Move
 from selection import Selection
 from state_parser import StateParser
 
+
 class StateGenerator:
-    def test_generator(self, board, current_player: int):
+    def test_generator(self, board: Board, current_player: int):
+        """
+        Tests state generation functions on a board by printing out each resulting move and state.
+        """
         moves = self.enumerate_board(board, current_player)
         boards = self.generate(board, moves)
         for i in range(len(moves)):
@@ -17,54 +21,59 @@ class StateGenerator:
             print(F"{i + 1} => {StateParser.convert_board_to_text(board)}")
 
     def generate(self, board: Board, moves: List[Move]) -> List[Board]:
-        boards = []
-        for move in moves:
-            next_board = Board.create_from_data(board.to_array())
-            next_board.apply_move(move)
-            boards.append(next_board)
+        """
+        Applies every move in a list of moves to a board and gets a list of resulting boards.
+        :return: List of resulting boards for each move.
+        """
+        boards = [Board.create_from_data(board.to_array()) for _ in range(len(moves))]
+        for i in range(len(moves)):
+            boards[i].apply_move(moves[i])
 
         return boards
 
-    def enumerate_board(self, board, current_player: int) -> List[Move]:
+    def enumerate_board(self, board: Board, current_player: int) -> List[Move]:
+        """
+        Enumerates through every position on the board and finds every possible unique selection for a player.
+        From each selection, iterates through every possible move, finding only valid moves.
+        :return: List of valid moves for a board.
+        """
         selections = []
         for cell, _ in board.enumerate():
             if board.cell_owned_by(cell, current_player):
-                temp = self._get_possible_selections(board, cell, current_player)
-                for selection in temp:
-                    if selection not in selections:
-                        selections.append(selection)
+                possible_selections = self._get_possible_selections(board, cell, current_player)
+                selections.extend([selection for selection in possible_selections if selection not in selections])
 
         moves = []
-        for selection in selections:
-            moves.extend(self._get_valid_moves(board, selection, current_player))
+        for possible_selection in selections:
+            moves.extend(self._get_valid_moves(board, possible_selection, current_player))
 
         return moves
 
-    def _get_possible_selections(self, board: Board, cell: Hex, current_player: int) -> List[Selection]:
+    def _get_possible_selections(self, board: Board, origin_cell: Hex, current_player: int) -> List[Selection]:
+        """
+        Gets every possible selection from a cell of origin on the board.
+        :return: List of selections from an origin cell.
+        """
         selections = [
-            Selection(cell)
+            Selection(origin_cell)
         ]
 
         for direction in HexDirection:
-            next_cell = cell
-
+            next_cell = origin_cell
             for i in range(Selection.MAX_SIZE - 1):
                 next_cell = Hex.add(next_cell, direction.value)
-                next_cell = Hex(next_cell.x, next_cell.y)
 
-                if board.cell_in_bounds(next_cell) and board.cell_owned_by(next_cell, current_player):
-                    selections.append(Selection(cell, next_cell))
-                else:
+                if not board.cell_owned_by(next_cell, current_player):
                     break
+
+                selections.append(Selection(origin_cell, next_cell))
 
         return selections
 
     def _get_valid_moves(self, board: Board, selection: Selection, current_player: int) -> List[Move]:
-        moves = []
-
-        for direction in HexDirection:
-            move = Move(selection, direction)
-            if board.is_valid_move(move, current_player):
-                moves.append(move)
-
-        return moves
+        """
+        Iterates through a move in every direction from a selection on the board and filters for valid moves.
+        :return: List of valid moves from given selection.
+        """
+        moves = [Move(selection, direction) for direction in HexDirection]
+        return [move for move in moves if board.is_valid_move(move, current_player)]

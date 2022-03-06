@@ -27,7 +27,7 @@ class AxialHex:
         :param other: an AxialHex
         :return: an AxialHex
         """
-        return AxialHex(self.x + other.x, self.y + other.y)
+        return type(self)(self.x + other.x, self.y + other.y)
 
     def subtract(self, other):
         """
@@ -35,14 +35,14 @@ class AxialHex:
         :param other: an AxialHex
         :return: an AxialHex
         """
-        return AxialHex(self.x - other.x, self.y - other.y)
+        return type(self)(self.x - other.x, self.y - other.y)
 
     def invert(self):
         """
         Calculates the inversion of `self`.
         :return: an AxialHex
         """
-        return AxialHex(-self.x, -self.y)
+        return type(self)(-self.x, -self.y)
 
     def manhattan(self, other):
         """
