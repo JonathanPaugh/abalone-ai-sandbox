@@ -1,4 +1,5 @@
 """This module contains methods to read parse input/output files containing current board states."""
+from typing import Tuple
 
 from core.board import Board
 from core.color import Color
@@ -40,7 +41,7 @@ class StateParser:
         ]
 
     @classmethod
-    def convert_text_to_state(cls, filename) -> tuple[[], int]:
+    def convert_text_to_state(cls, filename) -> Tuple[Board, int]:
         """
         Convert the text in format (including turn) b=player 1, w=player 2:
         b
@@ -150,7 +151,7 @@ def translate_board_to_text(board: Board) -> str:
     positions_list.sort()
     string_positions = "".join(map(str, positions_list))
     #For testing.
-    print(string_positions[:(len(string_positions) - 1)])
+    # print(string_positions[:(len(string_positions) - 1)])
     return string_positions[:(len(string_positions) - 1)]
 
 
@@ -158,5 +159,4 @@ if __name__ == "__main__":
     parser = StateParser
     board_layout = Board().create_from_data(parser.test_output_board_layout)
     parser.convert_board_to_text("Test1.board", board_layout)
-
     parser.convert_text_to_state("Test1.input")

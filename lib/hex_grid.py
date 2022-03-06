@@ -49,6 +49,19 @@ class HexGrid:
             if r >= 0 and r < len(self._data)
             else None)
 
+    def to_array(self):
+        data = []
+        for row in self._data:
+            data_row = []
+            for color in row:
+                if color:
+                    data_row.append(color.value)
+                else:
+                    data_row.append(0)
+            data.append(data_row)
+
+        return data
+
     @property
     def height(self):
         """

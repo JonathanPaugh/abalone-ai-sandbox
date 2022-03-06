@@ -1,6 +1,7 @@
 import game_ui
 from core.board_layout import BoardLayout
 from state_generator import StateGenerator
+from state_parser import StateParser, translate_board_to_text
 
 
 class Game:
@@ -9,13 +10,13 @@ class Game:
     """
 
     TITLE = "Abalone"
+    MAX_SUMITO = 3
 
     def __init__(self):
         self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
         self.game_ui = game_ui.GameUI(self.get_board)
         self.state_generator = StateGenerator(self.get_board)
-        for move in self.state_generator.enumerate_board(1):
-            print(move)
+        self.state_generator.test_generator(1)
 
     def get_board(self):
         return self.board

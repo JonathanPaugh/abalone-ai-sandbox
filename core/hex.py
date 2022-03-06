@@ -2,6 +2,7 @@
 Contains Abalone-specific grid cell logic.
 """
 
+from __future__ import annotations
 from enum import Enum
 from lib.axial_hex import AxialHex
 from lib.lerp import lerp
@@ -57,8 +58,15 @@ class HexDirection(Enum):
     SW = Hex(-1, 1)
     SE = Hex(0, 1)
 
+    def same_axis(self, other: HexDirection) -> bool:
+        return abs(self.value.x) == abs(other.value.x) and \
+               abs(self.value.y) == abs(other.value.y)
+
+    def get_opposite(self) -> HexDirection:
+        return HexDirection(self.value.invert())
+
     @staticmethod
-    def resolve(direction):
+    def resolve(direction: Hex) -> HexDirection:
         """
         Resolves a direction from a Hex value.
         Use over `HexDirection(direction)` if working with calculated normals.
