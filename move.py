@@ -11,7 +11,7 @@ class Move:
         self.direction = direction
 
     def __str__(self):
-        string = F"{self.direction}, {self.selection}"
+        string = F"({self.direction}, {self.selection})"
         return string
 
     def is_single(self) -> bool:

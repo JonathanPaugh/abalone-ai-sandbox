@@ -99,17 +99,6 @@ class StateParser:
         with open(filename, mode="w") as f:
             f.write(translate_board_to_text(board))
 
-    @staticmethod
-    def convert_move_to_text(self, move) -> str:
-        """
-        Convert the move object to a move notation:
-        EX:
-        NW, C3, C4
-        """
-
-        text = ""
-        return text
-
 
 def translate_text_to_board(string):
     mapping = {
