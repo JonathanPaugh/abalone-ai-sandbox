@@ -1,12 +1,13 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, List
+if TYPE_CHECKING:
+    from core.board import Board
 
-from typing import List
-
-from core.board import Board
-from core.hex import HexDirection, Hex
-
+from core.hex import Hex, HexDirection
 
 class Selection:
+    MAX_SIZE = 3
+
     def __init__(self, start: Hex, end: Hex=None):
         self.start = start
         self.end = None
@@ -43,9 +44,10 @@ class Selection:
         if not self.end:
             return None
 
+        size = self.get_size() - 1
         for direction in HexDirection:
             origin = self.start
-            for i in range(0, self.get_size() - 1):
+            for i in range(size):
                 origin = origin.add(direction.value)
             if origin == self.end:
                 return direction

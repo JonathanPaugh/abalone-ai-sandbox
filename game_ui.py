@@ -35,11 +35,10 @@ class GameUI:
     BOARD_WIDTH = (MARBLE_SIZE + MARBLE_MARGIN_X) * BOARD_MAX_COLS - MARBLE_MARGIN_X
     BOARD_HEIGHT = (MARBLE_SIZE + MARBLE_MARGIN_Y) * BOARD_MAX_COLS - MARBLE_MARGIN_Y
 
-    def __init__(self, handle_get_layout):
+    def __init__(self):
         self.frame = None
-        self.handle_get_layout = handle_get_layout
 
-    def display(self, parent, **kwargs):
+    def display(self, parent, board, **kwargs):
         """
         Displays the GUI.
         :param parent: the tkinter container
@@ -51,9 +50,9 @@ class GameUI:
         self.frame = Frame(parent, background=self.COLOR_BACKGROUND_PRIMARY, padx=self.WINDOW_PADDING,
                            pady=self.WINDOW_PADDING)
         self.frame.pack(fill="both")
-        self._render(self.frame, **kwargs)
+        self._render(self.frame, board, **kwargs)
 
-    def _render(self, parent, **kwargs):
+    def _render(self, parent, board, **kwargs):
         """
         Renders all components required for the GUI.
         :param parent: the tkinter container
@@ -63,7 +62,7 @@ class GameUI:
         self._render_buttonbar(parent, **kwargs)
         self._render_score(parent)
         self._render_history(parent)
-        self._render_board(parent)
+        self._render_board(parent, board)
         self._render_grid(parent)
 
     def _render_buttonbar(self, parent, **kwargs):
@@ -201,7 +200,7 @@ class GameUI:
 
         return frame
 
-    def _render_board(self, parent):
+    def _render_board(self, parent, board):
         """
         Renders the layout board.
         :param parent: the tkinter container
@@ -213,8 +212,6 @@ class GameUI:
 
         pos = (self.MAIN_WIDTH / 2 - self.BOARD_WIDTH / 2,
                self.MAIN_HEIGHT / 2 - self.BOARD_HEIGHT / 2)
-
-        board = self.handle_get_layout()
 
         for cell, color in board.enumerate():
             q, r = cell.x, cell.y

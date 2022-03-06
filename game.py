@@ -1,7 +1,6 @@
 import game_ui
-from core.board_layout import BoardLayout
-
 import state_generator
+from core.board_layout import BoardLayout
 
 class Game:
     """
@@ -9,13 +8,12 @@ class Game:
     """
 
     TITLE = "Abalone"
-    MAX_SUMITO = 3
 
     def __init__(self):
-        self.board = BoardLayout.setup_board(BoardLayout.SUMITO_TEST)
-        self.game_ui = game_ui.GameUI(self.get_board)
-        self.state_generator = state_generator.StateGenerator(self.get_board)
-        self.state_generator.test_generator(1)
+        self.board = BoardLayout.setup_board(BoardLayout.TEST)
+        self.game_ui = game_ui.GameUI()
+        self.state_generator = state_generator.StateGenerator()
+        self.state_generator.test_generator(self.board, 1)
 
     def get_board(self):
         return self.board
@@ -27,7 +25,7 @@ class Game:
         :param kwargs: dictionary of arguments
         :return:
         """
-        self.game_ui.display(parent, **kwargs)
+        self.game_ui.display(parent, self.board, **kwargs)
 
     def update_settings(self, config):
         """

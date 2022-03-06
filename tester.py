@@ -15,6 +15,7 @@ class Tester:
                     filepath = "Test" + str(i + 1) + ".input"
                     print(filepath)
                     self.test_file(filepath, i + 1)
+                break
             except FileNotFoundError:
                 print("Number entered does not correspond to number of available Test.input files. "
                       "Only available files processed.")
@@ -28,13 +29,10 @@ class Tester:
 
         board = Board.create_from_data(state)
 
-        generator = state_generator.StateGenerator(lambda: board)
+        generator = state_generator.StateGenerator()
 
-        possible_moves = generator.enumerate_board(player)
-
-        possible_boards = []
-        for move in possible_moves:
-            possible_boards.append(generator.generate_next_board(move))
+        possible_moves = generator.enumerate_board(board, player)
+        possible_boards = generator.generate(board, possible_moves)
 
         self.write_move_file(possible_moves, number)
         self.write_board_file(possible_boards, number)
@@ -57,6 +55,8 @@ class Tester:
         input_data = FileHandler.read_file(input_filepath).splitlines()
         compare_data = FileHandler.read_file(compare_filepath).splitlines()
 
+        print(F"Comparing Files: {input_filepath} => {compare_filepath}")
+
         for i in range(0, len(input_data)):
             found = False
             for compare_line in compare_data:
@@ -67,8 +67,11 @@ class Tester:
             if not found:
                 print(F"Unable to find match for row: {i + 1}")
 
+        print(F"Comparison Complete")
+
 
 if __name__ == "__main__":
     app = Tester()
     app.run_tests()
+    app.compare_files("Test1.board", "Test1.ref")
     app.compare_files("Test2.board", "Test2.ref")
