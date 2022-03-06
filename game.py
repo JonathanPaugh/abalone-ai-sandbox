@@ -13,7 +13,7 @@ class Game:
     MAX_SUMITO = 3
 
     def __init__(self):
-        self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
+        self.board = BoardLayout.setup_board(BoardLayout.SUMITO_TEST)
         self.game_ui = game_ui.GameUI(self.get_board)
         self.state_generator = StateGenerator(self.get_board)
         self.state_generator.test_generator(1)

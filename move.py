@@ -24,7 +24,7 @@ class Move:
         return self.selection.get_direction().same_axis(self.direction)
 
     def is_sumito(self, board: Board) -> bool:
-        if self.is_inline():
+        if not self.is_inline():
             return False
 
         destination = self.get_front().add(self.direction.value)

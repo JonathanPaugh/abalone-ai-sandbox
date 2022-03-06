@@ -26,6 +26,7 @@ class BoardLayout(Enum):
     STANDARD = _load_board_data_from_file_path("layouts/standard.json")
     GERMAN_DAISY = _load_board_data_from_file_path("layouts/german_daisy.json")
     BELGIAN_DAISY = _load_board_data_from_file_path("layouts/belgian_daisy.json")
+    SUMITO_TEST = _load_board_data_from_file_path("layouts/test.json")
 
     def setup_board(board_layout):
         """

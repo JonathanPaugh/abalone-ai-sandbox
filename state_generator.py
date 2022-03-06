@@ -6,7 +6,7 @@ from core.hex import HexDirection, Hex
 import game
 from move import Move
 from selection import Selection
-from state_parser import StateParser, translate_board_to_text
+from state_parser import translate_board_to_text
 
 
 class StateGenerator:
@@ -14,10 +14,13 @@ class StateGenerator:
         self.handle_get_board = handle_get_board
 
     def test_generator(self, current_player: int):
+
+
         moves = self.enumerate_board(current_player)
         boards = self.generate_state_space(moves)
         for i in range(len(moves)):
-            print(F"{i + 1} => {moves[i]}")
+            if moves[i].is_sumito(self.handle_get_board()):
+                print(F"{i + 1} => {moves[i]}")
 
         counter = 0
         for board in boards:
@@ -32,15 +35,20 @@ class StateGenerator:
         return states
 
     def generate_next_board(self, move: Move) -> Board:
-        """
-        Need to add summito logic.
-        """
         board = Board.create_from_data(self.handle_get_board().to_array())
+
+        if move.is_sumito(board):
+            return self._apply_sumito_move(board, move)
 
         return self._apply_base_move(board, move)
 
 
     def _apply_sumito_move(self, board: Board, move: Move) -> Board:
+        destination = move.get_front().add(move.direction.value)
+
+        while self.is_cell_in_bounds(board, destination) and board[destination]:
+            destination = destination.add(move.direction.value)
+
         return self._apply_base_move(board, move)
 
     def _apply_base_move(self, board: Board, move: Move) -> Board:
@@ -135,23 +143,20 @@ class StateGenerator:
 
 
     def is_valid_inline_move(self, board: Board, move: Move, current_player: int) -> bool:
-        """
-        I think out of bounds logic doesnt make sense for sumitos that push off a marble,
-        they would not be valid but they should be. Need to fix.
-        """
         distance = 0
         destination = move.get_front()
-
+        out_of_bounds_valid = False
         while distance < game.Game.MAX_SUMITO:
             distance += 1
             destination = destination.add(move.direction.value)
             if not self.is_cell_in_bounds(board, destination):
-                return False
+                return out_of_bounds_valid
             if not board[destination]:
                 return True
             if board[destination] == Color(current_player):
                 return False
             else:
+                out_of_bounds_valid = True
                 if distance >= move.selection.get_size():
                     return False
 
