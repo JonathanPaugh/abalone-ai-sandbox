@@ -6,6 +6,10 @@ from core.color import Color
 
 
 class StateParser:
+    """
+    This class contains the functions and methods to parse Test.input files into a usable notation for our program
+    and vice versa.
+    """
     empty_board_layout = \
     [
         [0, 0, 0, 0, 0],
@@ -35,6 +39,11 @@ class StateParser:
 
     @classmethod
     def convert_text_to_state(cls, text) -> Tuple[Board, int]:
+        """
+        Converts Test.input state representation into our own representation.
+        :param text: a string containing Test.input state representation.
+        :return: a tuple containing our state representation
+        """
         board = cls.empty_board_layout
         data = text.rstrip()
         turn_color = (data[0])
@@ -51,7 +60,12 @@ class StateParser:
 
     @classmethod
     def convert_board_to_text(cls, board: Board):
-        """Given a board representation, return a string containing all the occupied cells."""
+        """
+        Given a board representation, return a string containing all the occupied cells.
+        :param board: a board in our state representation
+        :return: a string containing the state representation in the test.board notation
+        """
+
         temp_positions = ""
 
         current_state = Board.enumerate(board)
@@ -70,6 +84,11 @@ class StateParser:
 
     @staticmethod
     def _translate_text_to_board(string):
+        """
+        Translates a single piece from Test.input into our own piece notation.
+        :param string: a string containing information from Test.input
+        :return:
+        """
         mapping = {
             "A": 8,
             "B": 7,
@@ -94,6 +113,11 @@ class StateParser:
 
     @staticmethod
     def _sort_text(string):
+        """
+        Sorts the pieces based on the colour, Y-axis and X-axis.
+        :param string: a string of unsorted pieces
+        :return: a string of sorted pieces
+        """
         list_text = string.split(",")
         value = {
             "b": 1000,

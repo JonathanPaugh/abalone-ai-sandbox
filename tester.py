@@ -2,27 +2,38 @@ from file_handler import FileHandler
 from state_parser import StateParser
 import state_generator
 from core.board import Board
+import os
+import sys
+from glob import glob
+
 
 class Tester:
+    """
+    This class contains the methods needed to read input from test files and
+    generates files of all possible moves and their resulting board states.
+    """
     def run_tests(self):
-        input_amount = None
-        while input_amount != 0:
-            user_input = input("How many Test.input files are there? Hint: enter 0 to exit: ")
-
-            try:
-                input_amount = int(user_input)
-                for i in range(0, input_amount):
-                    filepath = "Test" + str(i + 1) + ".input"
-                    print(filepath)
-                    self.test_file(filepath, i + 1)
-                break
-            except FileNotFoundError:
-                print("Number entered does not correspond to number of available Test.input files. "
-                      "Only available files processed.")
-            except ValueError:
-                print("Please enter a number for the number of Test.input files.")
+        """
+        Creates output folder, finds and tests each test.input file.
+        :return: none
+        """
+        try:
+            if not os.path.exists('dist'):
+                os.makedirs('dist')
+            file_count = 0
+            for fileFound in glob("Test*.input"):
+                file_count += 1
+                self.test_file(fileFound, file_count)
+        except FileNotFoundError:
+            print("Test<#>.input file(s) not found.")
 
     def test_file(self, filepath, number):
+        """
+        Reads a text file and generates all moves and their resulting board states and writes them to output files.
+        :param filepath: a String containing path of file
+        :param number: an int representing the current test<#>.input
+        :return: none
+        """
         text = FileHandler.read_file(filepath)
 
         state, player = StateParser.convert_text_to_state(text)
@@ -38,20 +49,38 @@ class Tester:
         self.write_board_file(possible_boards, number)
 
     def write_move_file(self, possible_moves, number):
+        """
+        Writes the list of moves into an output file.
+        :param possible_moves: list of possible moves
+        :param number: an int representing the current test<#>.input
+        :return: none
+        """
         text = ""
         for move in possible_moves:
             text += F"{str(move)}\n"
 
-        FileHandler.write_file(F"Test{str(number)}.move", text)
+        FileHandler.write_file(F"dist/Test{str(number)}.move", text)
 
     def write_board_file(self, possible_boards, number):
+        """
+            Writes the list of boards into an output file.
+            :param possible_boards: list of possible boards
+            :param number: an int representing the current test<#>.input
+            :return: none
+            """
         text = ""
         for board in possible_boards:
             text += F"{StateParser.convert_board_to_text(board)}\n"
 
-        FileHandler.write_file(F"Test{str(number)}.board", text)
+        FileHandler.write_file(F"dist/Test{str(number)}.board", text)
 
     def compare_files(self, input_filepath, compare_filepath):
+        """
+        Compares 2 files containing lines of possible boards.
+        :param input_filepath: a string containing file path name
+        :param compare_filepath: a string containing file path name to be compared
+        :return: none
+        """
         input_data = FileHandler.read_file(input_filepath).splitlines()
         compare_data = FileHandler.read_file(compare_filepath).splitlines()
 
@@ -71,7 +100,7 @@ class Tester:
 
 
 if __name__ == "__main__":
+    print("Program Started")
     app = Tester()
     app.run_tests()
-    app.compare_files("Test1.board", "Test1.ref")
-    app.compare_files("Test2.board", "Test2.ref")
+    print("Program Completed: Output files generated in 'dist' folder.")
