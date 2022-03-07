@@ -1,3 +1,6 @@
+import re
+from os.path import splitext
+
 from file_handler import FileHandler
 from state_parser import StateParser
 import state_generator
@@ -17,13 +20,14 @@ class Tester:
         Creates output folder, finds and tests each test.input file.
         :return: none
         """
+        if not os.path.exists("dist"):
+            os.makedirs("dist")
+
         try:
-            if not os.path.exists('dist'):
-                os.makedirs('dist')
-            file_count = 0
-            for fileFound in glob("Test*.input"):
-                file_count += 1
-                self.test_file(fileFound, file_count)
+            for file in glob("Test*.input"):
+                path, ext = splitext(file)
+                number = re.search("\\d+$", path).group()
+                self.test_file(F"{path}{ext}", number)
         except FileNotFoundError:
             print("Test<#>.input file(s) not found.")
 

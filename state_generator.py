@@ -9,7 +9,7 @@ from state_parser import StateParser
 
 
 class StateGenerator:
-    def test_generator(self, board: Board, current_player: int):
+    def test(self, board: Board, current_player: int):
         """
         Tests state generation functions on a board by printing out each resulting move and state.
         """
@@ -18,7 +18,7 @@ class StateGenerator:
         for i in range(len(moves)):
             print(F"{i + 1} => {moves[i]}")
         for i in range(len(boards)):
-            print(F"{i + 1} => {StateParser.convert_board_to_text(board)}")
+            print(F"{i + 1} => {StateParser.convert_board_to_text(boards[i])}")
 
     def generate(self, board: Board, moves: List[Move]) -> List[Board]:
         """

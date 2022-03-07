@@ -11,6 +11,7 @@ from constants import BOARD_MAXCOLS
 # neighbor cache to avoid neighborhood recalculation
 HEX_NEIGHBORS = {}
 
+
 class Hex(AxialHex):
     """
     A hex cell specific to the game of Abalone.
@@ -42,9 +43,10 @@ class Hex(AxialHex):
         :return: a list[Hex]
         """
         self_tuple = (self.x, self.y)
-        if self_tuple not in HEX_NEIGHBORS: # cache neighbors (ok with 61 cells)
+        if self_tuple not in HEX_NEIGHBORS:  # cache neighbors (ok with 61 cells)
             HEX_NEIGHBORS[self_tuple] = [self.add(d.value) for d in HexDirection]
         return HEX_NEIGHBORS[self_tuple]
+
 
 class HexDirection(Enum):
     """

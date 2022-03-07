@@ -2,6 +2,7 @@ import game_ui
 import state_generator
 from core.board_layout import BoardLayout
 
+
 class Game:
     """
     This class represents a game object and contains methods for display and settings.
@@ -13,7 +14,7 @@ class Game:
         self.board = BoardLayout.setup_board(BoardLayout.TEST)
         self.game_ui = game_ui.GameUI()
         self.state_generator = state_generator.StateGenerator()
-        self.state_generator.test_generator(self.board, 1)
+        self.state_generator.test(self.board, 1)
 
     def get_board(self):
         return self.board

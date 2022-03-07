@@ -2,19 +2,6 @@
 Generic logic for a hexagon-shaped grid.
 """
 
-def generate_empty_board(size):
-    """
-    Generates an empty board with side length `size`.
-    :param size: an int
-    :precondition size: must be non-negative
-    :return: an array of variable-length arrays, each corresponding to a cell in the hex grid
-    """
-    board = []
-    for i in reversed(range(size)):
-        board.insert(0, [None] * (size + i))
-        if i < size - 1:
-            board.append([None] * (size + i))
-    return board
 
 class HexGrid:
     """
@@ -29,7 +16,7 @@ class HexGrid:
         Initializes a hexagon-shaped grid of the given size.
         :param size: the length of a side of the grid in cells
         """
-        self._data = generate_empty_board(size)
+        self._data = self.generate_empty(size)
 
     def offset(self, r):
         """
@@ -46,8 +33,8 @@ class HexGrid:
         :return: an int
         """
         return (len(self._data[r])
-            if r >= 0 and r < len(self._data)
-            else None)
+                if r >= 0 and r < len(self._data)
+                else None)
 
     def to_array(self):
         data = []
@@ -79,7 +66,7 @@ class HexGrid:
         q, r = cell.x, cell.y
         q -= self.offset(r)
         return (r >= 0 and r < self.height
-            and q >= 0 and q < self.width(r))
+                and q >= 0 and q < self.width(r))
 
     def __getitem__(self, cell):
         """
@@ -109,3 +96,18 @@ class HexGrid:
         q, r = cell.x, cell.y
         q -= self.offset(r)
         self._data[r][q] = value
+
+    @staticmethod
+    def generate_empty(size):
+        """
+        Generates an empty board with side length `size`.
+        :param size: an int
+        :precondition size: must be non-negative
+        :return: an array of variable-length arrays, each corresponding to a cell in the hex grid
+        """
+        board = []
+        for i in reversed(range(size)):
+            board.insert(0, [None] * (size + i))
+            if i < size - 1:
+                board.append([None] * (size + i))
+        return board

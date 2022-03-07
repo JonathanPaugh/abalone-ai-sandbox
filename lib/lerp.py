@@ -2,6 +2,7 @@
 Generic standard-issue interpolation logic.
 """
 
+
 def lerp(a, b, t):
     """
     Interpolates between `a` and `b` at `t`%.

@@ -2,6 +2,7 @@ from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
 from core.color import Color
 
+
 class GameUI:
     """
     This class creates the GUI using tkinter and contains methods to create and render the layout.
@@ -63,7 +64,7 @@ class GameUI:
         self._render_score(parent)
         self._render_history(parent)
         self._render_board(parent, board)
-        self._render_grid(parent)
+        self._configure_grid(parent)
 
     def _render_buttonbar(self, parent, **kwargs):
         """
@@ -83,7 +84,7 @@ class GameUI:
         frame.columnconfigure(5, weight=1)
         frame.columnconfigure(6, weight=1)
 
-        Label(frame, text="00:00\':00\"", font=(self.FONT_FAMILY_PRIMARY, 25),
+        Label(frame, text="00':00\".00", font=(self.FONT_FAMILY_PRIMARY, 25),
               foreground=self.COLOR_FOREGROUND_PRIMARY, background=self.COLOR_BACKGROUND_SECONDARY).grid(column=0,
                                                                                                          row=0)
         self._render_buttonbar_button(frame, 1, "Pause")
@@ -97,17 +98,17 @@ class GameUI:
 
         return frame
 
-    def _render_buttonbar_button(self, parent, column, label, **kwargs):
+    def _render_buttonbar_button(self, parent, col, label, **kwargs):
         """
 
         :param parent: the tkinter container
-        :param column: grid column
+        :param col: grid column
         :param label: a string
         :param kwargs: dictionary of arguments
         :return: None
         """
         Button(parent, text=label, fg=self.COLOR_FOREGROUND_PRIMARY,
-               bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=column, row=0)
+               bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=col, row=0)
 
     def _render_score(self, parent):
         """
@@ -216,10 +217,11 @@ class GameUI:
         for cell, color in board.enumerate():
             q, r = cell.x, cell.y
             x = (q * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X)
-                    + (self.BOARD_MAX_COLS - board.width(r) - board.offset(r) * 2) * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X) / 2
-                    + pos[0])
+                 + (self.BOARD_MAX_COLS - board.width(r) - board.offset(r) * 2)
+                 * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X) / 2
+                 + pos[0])
             y = (r * (self.MARBLE_SIZE + self.MARBLE_MARGIN_Y)
-                    + pos[1])
+                 + pos[1])
             circle_color = {
                 None: self.COLOR_PLAYER_NONE,
                 Color.BLACK: self.COLOR_PLAYER_1,
@@ -229,7 +231,7 @@ class GameUI:
 
         return canvas
 
-    def _render_grid(self, parent):
+    def _configure_grid(self, parent):
         """
         Defines and renders the main grid of the GUI.
         :param parent: the tkinter container

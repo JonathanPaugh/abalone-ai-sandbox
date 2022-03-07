@@ -4,6 +4,7 @@ Generic logic for an axial hex coordinate.
 
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class AxialHex:
     """
@@ -51,8 +52,8 @@ class AxialHex:
         :return: an AxialHex
         """
         return (abs(self.x - other.x)
-            + abs(self.y - other.y)
-            + abs(self.x + self.y - other.x - other.y)) / 2
+                + abs(self.y - other.y)
+                + abs(self.x + self.y - other.x - other.y)) / 2
 
     def adjacent(self, other):
         """

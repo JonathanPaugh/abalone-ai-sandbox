@@ -33,7 +33,7 @@ class Board(HexGrid):
         board._layout = data
         for r, line in enumerate(data):
             for q, val in enumerate(line):
-                q += board.offset(r) # offset coords - board storage starts at x with size - 1
+                q += board.offset(r)  # offset coords - board storage starts at x with size - 1
                 cell = Hex(q, r)
                 try:
                     board[cell] = Color(val)
@@ -174,11 +174,13 @@ class Board(HexGrid):
         then applies the base move after.
         :precondition: Move is sumito.
         """
-        destination = move.get_front().add(move.direction.value)
+        destination = move.get_front()
 
-        start = destination
-        while self.cell_in_bounds(destination.add(move.direction.value)) and self[destination.add(move.direction.value)]:
+        start = destination.add(move.direction.value)
+        while True:
             destination = destination.add(move.direction.value)
+            if not self.cell_in_bounds(destination) or self[destination]:
+                break
 
         sumito_move = Move(Selection(start, Hex(destination.x, destination.y)), move.direction)
 

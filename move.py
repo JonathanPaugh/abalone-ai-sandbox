@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
+
 if TYPE_CHECKING:
     from core.board import Board
     from core.hex import Hex, HexDirection
     from selection import Selection
+
 
 class Move:
     def __init__(self, selection: Selection, direction: HexDirection):

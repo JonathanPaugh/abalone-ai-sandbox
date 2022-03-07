@@ -6,6 +6,7 @@ from json import loads
 from enum import Enum
 from core.board import Board
 
+
 def _load_board_data_from_file_path(file_path):
     """
     Loads a JSON file from the given file path.
@@ -15,6 +16,7 @@ def _load_board_data_from_file_path(file_path):
     """
     with open(file_path, mode="r", encoding="utf-8") as file:
         return loads(file.read())
+
 
 class BoardLayout(Enum):
     """
