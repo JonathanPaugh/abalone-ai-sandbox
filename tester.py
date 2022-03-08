@@ -61,7 +61,7 @@ class Tester:
         """
         text = ""
         for move in possible_moves:
-            text += F"{str(move)}\n"
+            text += F"{StateParser.convert_move_to_text(move)}\n"
 
         FileHandler.write_file(F"dist/Test{str(number)}.move", text)
 

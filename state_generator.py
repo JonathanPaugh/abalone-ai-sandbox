@@ -16,7 +16,7 @@ class StateGenerator:
         moves = self.enumerate_board(board, current_player)
         boards = self.generate(board, moves)
         for i in range(len(moves)):
-            print(F"{i + 1} => {moves[i]}")
+            print(F"{i + 1} => {StateParser.convert_move_to_text(moves[i])}")
         for i in range(len(boards)):
             print(F"{i + 1} => {StateParser.convert_board_to_text(boards[i])}")
 

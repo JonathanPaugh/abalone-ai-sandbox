@@ -3,6 +3,7 @@ from typing import Tuple
 
 from core.board import Board
 from core.color import Color
+from move import Move
 
 
 class StateParser:
@@ -59,7 +60,7 @@ class StateParser:
         return board, int(turn_color)
 
     @classmethod
-    def convert_board_to_text(cls, board: Board):
+    def convert_board_to_text(cls, board: Board) -> str:
         """
         Given a board representation, return a string containing all the occupied cells.
         :param board: a board in our state representation
@@ -81,6 +82,14 @@ class StateParser:
         string_positions = "".join(map(str, positions_list))
 
         return cls._sort_text(string_positions[:(len(string_positions) - 1)])
+
+    @staticmethod
+    def convert_move_to_text(move: Move) -> str:
+        """
+        Converts a move object to text move notation.
+        :return: a string representing move notation
+        """
+        return str(move)
 
     @staticmethod
     def _translate_text_to_board(string):
