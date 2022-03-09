@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from enum import Enum
 from core.constants import BOARD_MAX_COLS
-from hex.axial_hex import AxialHex
+from lib.hex.axial_hex import AxialHex
 from lib.lerp import lerp
 
 # neighbor cache to avoid neighborhood recalculation

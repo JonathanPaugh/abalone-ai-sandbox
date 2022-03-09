@@ -1,5 +1,5 @@
 from ui import game_ui
-from state import state_generator
+from agent import state_generator
 from core.board_layout import BoardLayout
 
 

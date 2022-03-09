@@ -1,6 +1,5 @@
 """This module contains methods to read parse input/output files containing current board states."""
 from typing import Tuple
-
 from core.board import Board
 from core.color import Color
 from core.move import Move
@@ -41,9 +40,9 @@ class StateParser:
     @classmethod
     def convert_text_to_state(cls, text) -> Tuple[Board, int]:
         """
-        Converts Test.input state representation into our own representation.
-        :param text: a string containing Test.input state representation.
-        :return: a tuple containing our state representation
+        Converts Test.input agent representation into our own representation.
+        :param text: a string containing Test.input agent representation.
+        :return: a tuple containing our agent representation
         """
         board = cls.empty_board_layout
         data = text.rstrip()
@@ -63,8 +62,8 @@ class StateParser:
     def convert_board_to_text(cls, board: Board) -> str:
         """
         Given a board representation, return a string containing all the occupied cells.
-        :param board: a board in our state representation
-        :return: a string containing the state representation in the test.board notation
+        :param board: a board in our agent representation
+        :return: a string containing the agent representation in the test.board notation
         """
 
         temp_positions = ""

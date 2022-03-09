@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from core.board import Board
 
-from hex.hex import Hex, HexDirection
+from lib.hex.hex import Hex, HexDirection
 
 
 class Selection:

@@ -1,6 +1,6 @@
 from core.game import Game
 from ui.game_ui import GameUI
-from ui import settings_ui
+from ui.settings_ui import SettingsUI
 from tkinter import Tk
 
 
@@ -15,7 +15,7 @@ class App:
     def __init__(self):
         self.root = Tk()
         self.game = Game()
-        self.settings = settings_ui.SettingsUI()
+        self.settings = SettingsUI()
 
     def run_game(self):
         """

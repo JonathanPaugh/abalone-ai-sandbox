@@ -2,16 +2,16 @@ from __future__ import annotations
 from typing import List
 
 from core.board import Board
-from hex.hex import HexDirection, Hex
+from lib.hex.hex import HexDirection, Hex
 from core.move import Move
 from core.selection import Selection
-from state.state_parser import StateParser
+from parse.state_parser import StateParser
 
 
 class StateGenerator:
     def test(self, board: Board, current_player: int):
         """
-        Tests state generation functions on a board by printing out each resulting move and state.
+        Tests agent generation functions on a board by printing out each resulting move and agent.
         """
         moves = self.enumerate_board(board, current_player)
         boards = self.generate(board, moves)

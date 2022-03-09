@@ -1,5 +1,5 @@
 """
-A collection of app constants.
+A collection of ui constants.
 """
 
 BOARD_SIZE = 5

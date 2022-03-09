@@ -1,13 +1,14 @@
-import re
-from os.path import splitext
+from __future__ import absolute_import
 
+from os.path import splitext
 from lib.file_handler import FileHandler
-from state.state_parser import StateParser
-from state import state_generator
+from parse import state_parser
+from agent import state_generator
 from core.board import Board
-import os
 from glob import glob
 
+import re
+import os
 
 class Tester:
     """
@@ -39,7 +40,7 @@ class Tester:
         """
         text = FileHandler.read_file(filepath)
 
-        state, player = StateParser.convert_text_to_state(text)
+        state, player = state_parser.StateParser().convert_text_to_state(text)
 
         board = Board.create_from_data(state)
 
@@ -60,7 +61,7 @@ class Tester:
         """
         text = ""
         for move in possible_moves:
-            text += F"{StateParser.convert_move_to_text(move)}\n"
+            text += F"{state_parser.StateParser().convert_move_to_text(move)}\n"
 
         FileHandler.write_file(F"dist/Test{str(number)}.move", text)
 
@@ -73,7 +74,7 @@ class Tester:
             """
         text = ""
         for board in possible_boards:
-            text += F"{StateParser.convert_board_to_text(board)}\n"
+            text += F"{state_parser.StateParser().convert_board_to_text(board)}\n"
 
         FileHandler.write_file(F"dist/Test{str(number)}.board", text)
 

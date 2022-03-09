@@ -14,7 +14,7 @@ Download and run `Abalone.exe` from the latest release under [Releases](https://
 ## Development
 The GUI for this project has been prebuilt for Windows. To build the application locally, use [pyinstaller](https://pypi.org/project/pyinstaller/).
 ```sh
-> py -m PyInstaller -Fwn Abalone src/app.py
+> py -m PyInstaller -Fwn Abalone src/ui.py
 ```
 
 ## Contributors
