@@ -4,12 +4,12 @@ Contains Abalone-specific hex grid logic.
 
 from __future__ import annotations
 
-from selection import Selection
-from move import Move
+from core.constants import BOARD_SIZE
+from core.selection import Selection
+from core.move import Move
 from core.color import Color
-from core.hex import Hex
-from constants import BOARD_SIZE
-from lib.hex_grid import HexGrid
+from hex.hex import Hex
+from hex.hex_grid import HexGrid
 
 
 class Board(HexGrid):

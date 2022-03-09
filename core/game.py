@@ -1,5 +1,5 @@
-import game_ui
-import state_generator
+from ui import game_ui
+from state import state_generator
 from core.board_layout import BoardLayout
 
 
@@ -11,7 +11,7 @@ class Game:
     TITLE = "Abalone"
 
     def __init__(self):
-        self.board = BoardLayout.setup_board(BoardLayout.TEST)
+        self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
         self.game_ui = game_ui.GameUI()
         self.state_generator = state_generator.StateGenerator()
         self.state_generator.test(self.board, 1)

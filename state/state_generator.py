@@ -2,10 +2,10 @@ from __future__ import annotations
 from typing import List
 
 from core.board import Board
-from core.hex import HexDirection, Hex
-from move import Move
-from selection import Selection
-from state_parser import StateParser
+from hex.hex import HexDirection, Hex
+from core.move import Move
+from core.selection import Selection
+from state.state_parser import StateParser
 
 
 class StateGenerator:

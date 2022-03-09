@@ -1,6 +1,8 @@
 from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
+
 from core.color import Color
+from core import constants
 
 
 class GameUI:
@@ -31,8 +33,8 @@ class GameUI:
     MARBLE_MARGIN_X = 4
     MARBLE_MARGIN_Y = 1
 
-    BOARD_SIZE = 5
-    BOARD_MAX_COLS = BOARD_SIZE * 2 - 1
+    BOARD_SIZE = constants.BOARD_SIZE
+    BOARD_MAX_COLS = constants.BOARD_MAX_COLS
     BOARD_WIDTH = (MARBLE_SIZE + MARBLE_MARGIN_X) * BOARD_MAX_COLS - MARBLE_MARGIN_X
     BOARD_HEIGHT = (MARBLE_SIZE + MARBLE_MARGIN_Y) * BOARD_MAX_COLS - MARBLE_MARGIN_Y
 

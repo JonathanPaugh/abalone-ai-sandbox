@@ -3,10 +3,11 @@ Contains Abalone-specific grid cell logic.
 """
 
 from __future__ import annotations
+
 from enum import Enum
-from lib.axial_hex import AxialHex
+from core.constants import BOARD_MAX_COLS
+from hex.axial_hex import AxialHex
 from lib.lerp import lerp
-from constants import BOARD_MAXCOLS
 
 # neighbor cache to avoid neighborhood recalculation
 HEX_NEIGHBORS = {}
@@ -22,7 +23,7 @@ class Hex(AxialHex):
         Returns the current cell in Abalone move notation, e.g. A1 etc.
         :return: a string
         """
-        return f"{chr(BOARD_MAXCOLS - self.y + ord('A') - 1)}{self.x + 1}"
+        return f"{chr(BOARD_MAX_COLS - self.y + ord('A') - 1)}{self.x + 1}"
 
     def lerp(self, other, time):
         """

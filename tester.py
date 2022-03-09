@@ -1,12 +1,11 @@
 import re
 from os.path import splitext
 
-from file_handler import FileHandler
-from state_parser import StateParser
-import state_generator
+from lib.file_handler import FileHandler
+from state.state_parser import StateParser
+from state import state_generator
 from core.board import Board
 import os
-import sys
 from glob import glob
 
 

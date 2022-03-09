@@ -3,7 +3,7 @@ from typing import Tuple
 
 from core.board import Board
 from core.color import Color
-from move import Move
+from core.move import Move
 
 
 class StateParser:

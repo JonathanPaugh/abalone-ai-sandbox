@@ -1,6 +1,6 @@
-from game import Game
-from game_ui import GameUI
-import settings_ui
+from core.game import Game
+from ui.game_ui import GameUI
+from ui import settings_ui
 from tkinter import Tk
 
 

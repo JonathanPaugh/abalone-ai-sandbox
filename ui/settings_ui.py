@@ -1,6 +1,6 @@
 from tkinter import OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
-from config import Config
+from core.config import Config
 from core.board_layout import BoardLayout
 
 
