@@ -1,5 +1,4 @@
 """This module contains methods to read parse input/output files containing current board states."""
-from typing import Tuple
 from core.board import Board
 from core.color import Color
 from core.move import Move
@@ -38,7 +37,7 @@ class StateParser:
         ]
 
     @classmethod
-    def convert_text_to_state(cls, text) -> Tuple[Board, int]:
+    def convert_text_to_state(cls, text):
         """
         Converts Test.input agent representation into our own representation.
         :param text: a string containing Test.input agent representation.
@@ -127,6 +126,7 @@ class StateParser:
         :return: a string of sorted pieces
         """
         list_text = string.split(",")
+        # assigns certain attributes with a higher place value to sort them.
         value = {
             "b": 1000,
             "w": 100,
