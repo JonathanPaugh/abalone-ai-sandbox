@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List
 
 from core.board import Board
-from lib.hex.hex import HexDirection, Hex
+from core.hex import HexDirection, Hex
 from core.move import Move
 from core.selection import Selection
 from parse.state_parser import StateParser

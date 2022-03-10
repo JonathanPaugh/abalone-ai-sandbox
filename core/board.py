@@ -8,7 +8,7 @@ from core.constants import BOARD_SIZE
 from core.selection import Selection
 from core.move import Move
 from core.color import Color
-from lib.hex.hex import Hex
+from core.hex import Hex
 from lib.hex.hex_grid import HexGrid
 
 

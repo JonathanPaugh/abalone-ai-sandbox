@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from core.board import Board
-    from lib.hex.hex import Hex, HexDirection
+    from core.hex import Hex, HexDirection
     from selection import Selection
 
 
