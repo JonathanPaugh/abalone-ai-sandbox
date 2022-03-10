@@ -13,7 +13,7 @@ Download and run `Abalone.exe` from the release under [Releases](https://github.
 
 ## State Generator Installation and Instructions
 1. Download `StateGenerator.exe` from the latest release under [Releases](https://github.com/JonathanPaugh/COMP3981-Team4/releases) > Assets.
-2. Drag and drop the Test<#>.input files onto the executable or tester.py.
+2. Drag and drop the Test<#>.input files onto the executable.
 3. A 'dist' folder will be created in the same directory, it contains the output files for all the given input files.
 
 ## Development

@@ -9,6 +9,7 @@ from glob import glob
 
 import re
 import os
+import sys
 
 class Tester:
     """
@@ -22,9 +23,9 @@ class Tester:
         """
         if not os.path.exists("dist"):
             os.makedirs("dist")
-
+        filepath = sys.argv[1:]
         try:
-            for file in glob("Test*.input"):
+            for file in filepath:
                 path, ext = splitext(file)
                 number = re.search("\\d+$", path).group()
                 self.test_file(F"{path}{ext}", number)
