@@ -13,9 +13,8 @@ Download and run `Abalone.exe` from the release under [Releases](https://github.
 
 ## State Generator Installation and Instructions
 1. Download `StateGenerator.exe` from the latest release under [Releases](https://github.com/JonathanPaugh/COMP3981-Team4/releases) > Assets.
-2. You will need a folder named 'input' which contains test boards named Test<#>.input.
-3. You must run the executable at the same directory level as the 'input' folder. We recommend putting them both in the same folder.
-4. The executable should run, and a 'dist' folder will be created containing the output files.
+2. Drag and drop the Test<#>.input files onto the executable or tester.py.
+3. A 'dist' folder will be created in the same directory, it contains the output files for all the given input files.
 
 ## Development
 The GUI for this project has been prebuilt for Windows. To build the application locally, use [pyinstaller](https://pypi.org/project/pyinstaller/).
