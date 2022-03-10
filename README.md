@@ -8,18 +8,21 @@ The goal of our project is to develop an Abalone agent capable of playing agains
 
 The primary functions of this program are to allow a user to play a game of Abalone against a CPU opponent or to allow two users to play against each other.
 
-## Game Installation
+## Game installation and instructions
 Download and run `Abalone.exe` from the release under [Releases](https://github.com/JonathanPaugh/COMP3981-Team4/releases) > Assets.
 
-## State Generator Installation and Instructions
+## State generator installation and instructions
 1. Download `StateGenerator.exe` from the latest release under [Releases](https://github.com/JonathanPaugh/COMP3981-Team4/releases) > Assets.
-2. Drag and drop the Test<#>.input files onto the executable.
-3. A 'dist' folder will be created in the same directory, it contains the output files for all the given input files.
+2. Drag and drop the `Test<#>.input` files onto the executable.
+3. A `dist/` folder will be created in the same directory containing the output files for all the given input files.
+
+For more information on the state generator, view the state generator [README](https://github.com/JonathanPaugh/COMP3981-Team4/tree/main/parse/README.md).
 
 ## Development
 The GUI for this project has been prebuilt for Windows. To build the application locally, use [pyinstaller](https://pypi.org/project/pyinstaller/).
 ```sh
-> py -m PyInstaller -Fwn Abalone src/ui.py
+> py -m PyInstaller -Fwn Abalone src/app.py
+> py -m PyInstaller -Fwn StateGenerator src/tester.py
 ```
 
 ## Contributors
