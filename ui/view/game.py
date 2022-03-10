@@ -2,7 +2,7 @@ from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
 
 from core.color import Color
-from core import constants
+import core.constants as constants
 
 
 class GameUI:

@@ -1,57 +1,24 @@
-from core.game import Game
-from ui.game_ui import GameUI
-from ui.settings_ui import SettingsUI
-from tkinter import Tk
-
+from ui.model import Model
+from ui.view import View
 
 class App:
     """
     The App class is the driver of the program and contains the functions of the program.
     """
-    WIDTH = 800
-    HEIGHT = 600
-    DIMENSIONS = F"{WIDTH}x{HEIGHT}"
 
     def __init__(self):
-        self.root = Tk()
-        self.game = Game()
-        self.settings = SettingsUI()
+        self._model = Model()
+        self._view = View()
 
     def run_game(self):
         """
         Main driver of the program.
         :return: none
         """
-        self.display_game()
-        self.root.title(Game.TITLE)
-        self.root.geometry(self.DIMENSIONS)
-        self.root.configure(background=GameUI.COLOR_BACKGROUND_PRIMARY)
-        self.root.mainloop()
+        self._view.open()
+        self._view.display_board(self._view.window, self._model.game_board,
+            handle_open_settings=self._view.open_settings)
+        self._view.window.mainloop()
 
-    def display_game(self):
-        """
-        Displays the GUI.
-        :return: none
-        """
-        self.game.display(self.root, handle_open_settings=self.open_settings)
-
-    def open_settings(self):
-        """
-        Displays a settings pop up for user customization input.
-        :return: none
-        """
-        settings_window = Tk()
-        settings_window.title(SettingsUI.TITLE)
-        self.settings.display(settings_window,
-                              handle_confirm=lambda config: self.confirm_settings(settings_window, config))
-
-    def confirm_settings(self, window, config):
-        """
-        Creates a new game with the specified settings.
-        :param window: window
-        :param config: config
-        :return: none
-        """
-        self.game.update_settings(config)
-        self.display_game()  # Redraw Game Window
-        window.destroy()  # Destroy Settings Window
+    def select_cell(self, cell):
+        self._model.select_cell(cell)
