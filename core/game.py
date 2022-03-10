@@ -1,5 +1,4 @@
 from ui import game_ui
-from agent import state_generator
 from core.board_layout import BoardLayout
 
 
@@ -13,8 +12,6 @@ class Game:
     def __init__(self):
         self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
         self.game_ui = game_ui.GameUI()
-        self.state_generator = state_generator.StateGenerator()
-        self.state_generator.test(self.board, 1)
 
     def get_board(self):
         return self.board
