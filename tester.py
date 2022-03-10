@@ -24,7 +24,7 @@ class Tester:
             os.makedirs("dist")
 
         try:
-            for file in glob("Test*.input"):
+            for file in glob("input/Test*.input"):
                 path, ext = splitext(file)
                 number = re.search("\\d+$", path).group()
                 self.test_file(F"{path}{ext}", number)
