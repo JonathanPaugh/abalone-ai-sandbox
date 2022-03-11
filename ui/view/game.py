@@ -227,3 +227,6 @@ class GameUI:
         parent.rowconfigure(0, weight=2)
         parent.rowconfigure(1, weight=4)
         parent.rowconfigure(2, weight=4)
+
+    def perform_move(self, *args, **kwargs):
+        self._board_view.perform_move(*args, **kwargs)

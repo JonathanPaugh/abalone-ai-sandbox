@@ -82,6 +82,16 @@ class BoardView:
             marble.focused = is_marble_focused
             self._redraw_marble(marble, selected=is_marble_selected, focused=is_marble_focused)
 
+        marble_pos = hex_to_point((marble.cell.x, marble.cell.y), BOARD_CELL_SIZE / 2)
+        for object_id in marble.object_ids:
+            old_x, old_y = marble.pos
+            new_x, new_y = marble_pos
+            delta = (new_x - old_x, new_y - old_y)
+            if delta != (0, 0):
+                self._canvas.move(object_id, *delta)
+
+        marble.pos = marble_pos
+
     def _redraw_marble(self, marble, selected=False, focused=False):
         for object_id in marble.object_ids:
             self._canvas.delete(object_id)
@@ -100,6 +110,15 @@ class BoardView:
             self._redraw(board)
         else:
             self._setup(board)
+
+    def perform_move(self, move, board, on_end=None):
+        move_cells = move.selection.to_array()
+        marble_cells = [(marble, cell) for cell in move_cells if (marble := self._find_marble_by_cell(cell))]
+        for marble, cell in marble_cells:
+            marble.cell = cell.add(move.direction.value)
+
+    def _find_marble_by_cell(self, cell):
+        return next((marble for marble in self._marbles if marble.cell == cell), None)
 
     def update(self):
         pass

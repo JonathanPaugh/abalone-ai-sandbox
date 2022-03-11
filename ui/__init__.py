@@ -42,5 +42,7 @@ class App:
             self._view.update()
 
     def _select_cell(self, cell):
-        self._model.select_cell(cell)
+        move = self._model.select_cell(cell)
+        if move:
+            self._view.perform_move(move, board=self._model.game_board)
         self._view.render(self._model)
