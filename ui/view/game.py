@@ -1,11 +1,9 @@
 from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
-from lib.hex.transpose_hex import hex_to_point
 
-from core.color import Color
 import core.constants as constants
 import ui.view.colors.palette as palette
-from ui.view.marble import render_marble
+from ui.view.board import BoardView
 
 
 class GameUI:
@@ -15,10 +13,6 @@ class GameUI:
     COLOR_FOREGROUND_PRIMARY = "#FFFFFF"
     COLOR_BACKGROUND_PRIMARY = "#36393E"
     COLOR_BACKGROUND_SECONDARY = "#42464C"
-
-    COLOR_PLAYER_NONE = "#48535A"
-    COLOR_PLAYER_1 = palette.COLOR_BLUE
-    COLOR_PLAYER_2 = palette.COLOR_RED
 
     FONT_FAMILY_PRIMARY = "Arial"
     FONT_FAMILY_SECONDARY = "Times New Roman"
@@ -38,7 +32,7 @@ class GameUI:
 
     def __init__(self):
         self.frame = None
-        self._canvas = None
+        self._board_view = None
 
     def display(self, parent, **kwargs):
         """
@@ -211,35 +205,16 @@ class GameUI:
         :param parent: the tkinter container
         :return: canvas
         """
-        canvas = Canvas(parent, width=self.BOARD_WIDTH, height=self.BOARD_HEIGHT,
-                        highlightthickness=0, background=self.COLOR_BACKGROUND_SECONDARY)
+        board_view = BoardView()
+        self._board_view = board_view
+
+        canvas = board_view.setup(parent, on_click)
+        canvas.configure(background=self.COLOR_BACKGROUND_SECONDARY)
         canvas.grid(column=0, row=1, rowspan=2)
-        canvas.bind("<Button-1>", lambda event: on_click((event.x, event.y)))
-        self._canvas = canvas
         return canvas
 
     def _redraw_board(self, board):
-        canvas = self._canvas
-
-        MARBLE_COLORS = {
-            Color.BLACK: self.COLOR_PLAYER_1,
-            Color.WHITE: self.COLOR_PLAYER_2,
-        }
-
-        for cell, color in board.enumerate():
-            q, r = cell.x, cell.y
-            x, y = hex_to_point((q, r), self.BOARD_CELL_SIZE / 2)
-
-            canvas.create_oval(x, y, x + self.MARBLE_SIZE, y + self.MARBLE_SIZE, fill=self.COLOR_PLAYER_NONE, outline="")
-            if color not in MARBLE_COLORS:
-                continue
-
-            render_marble(canvas,
-                pos=(x + self.MARBLE_SIZE / 2, y + self.MARBLE_SIZE / 2),
-                color=MARBLE_COLORS[color],
-                size=self.MARBLE_SIZE)
-
-        return canvas
+        self._board_view.render(board)
 
     def _configure_grid(self, parent):
         """
