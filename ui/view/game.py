@@ -52,7 +52,7 @@ class GameUI:
         pass
 
     def render(self, model):
-        self._redraw_board(model)
+        self._board_view.render(model)
 
     def _render(self, parent, on_click_settings, on_click_board):
         """
@@ -215,9 +215,6 @@ class GameUI:
         canvas.configure(background=self.COLOR_BACKGROUND_SECONDARY)
         canvas.grid(column=0, row=1, rowspan=2)
         return canvas
-
-    def _redraw_board(self, model):
-        self._board_view.render(model)
 
     def _configure_grid(self, parent):
         """

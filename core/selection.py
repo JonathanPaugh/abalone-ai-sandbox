@@ -59,6 +59,9 @@ class Selection:
             return cells
 
         direction = self.get_direction()
+        if direction is None:
+            return []
+
         for i in range(0, self.get_size() - 1):
             next_cell = cells[len(cells) - 1].add(direction.value)
             cells.append(next_cell)

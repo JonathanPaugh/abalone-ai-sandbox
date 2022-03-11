@@ -17,8 +17,22 @@ class Model:
         return self.game.board
 
     def select_cell(self, cell):
-        self.selection = cell
-        print(cell)
+        selection = self.selection
+
+        if not selection:
+            self.selection = Selection(start=cell, end=cell)
+
+        elif selection and cell not in self.game_board:
+            self.selection = None
+
+        elif selection and self.game_board[cell] is None:
+            self.selection = None
+
+        else:
+            selection.start = selection.end or selection.start
+            selection.end = cell
+            if not selection.to_array():
+                self.selection = None
 
     def apply_config(self, config):
         self.game = Game(config.layout)

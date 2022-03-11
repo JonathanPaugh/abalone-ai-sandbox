@@ -16,6 +16,7 @@ class Marble:
     color: Color
     object_ids: list
     selected: bool = False
+    focused: bool = False
 
 class BoardView:
 
@@ -74,23 +75,25 @@ class BoardView:
             self._update_marble(model, marble)
 
     def _update_marble(self, model, marble):
-        is_marble_selected = model.selection == marble.cell
-        if marble.selected != is_marble_selected:
+        is_marble_selected = model.selection and marble.cell in model.selection.to_array()
+        is_marble_focused = model.selection and marble.cell == (model.selection.end or model.selection.start)
+        if (is_marble_selected, is_marble_focused) != (marble.selected, marble.focused):
             marble.selected = is_marble_selected
-            self._redraw_marble(model, marble)
+            marble.focused = is_marble_focused
+            self._redraw_marble(marble, selected=is_marble_selected, focused=is_marble_focused)
 
-    def _redraw_marble(self, model, marble):
+    def _redraw_marble(self, marble, selected=False, focused=False):
         for object_id in marble.object_ids:
             self._canvas.delete(object_id)
-        marble.object_ids.clear()
+
         marble.object_ids = render_marble(
             self._canvas,
             pos=marble.pos,
             color=BoardView.MARBLE_COLORS[marble.color],
             size=MARBLE_SIZE,
-            selected=(model.selection == marble.cell)
+            selected=selected,
+            focused=focused,
         )
-
 
     def render(self, board):
         if self._marbles:
