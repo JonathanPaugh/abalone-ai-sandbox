@@ -10,6 +10,7 @@ import re
 import os
 import sys
 
+
 class Tester:
     """
     This class contains the methods needed to read input from test files and
