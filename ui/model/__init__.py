@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from core.game import Game
+from core.color import Color
 from core.hex import HexDirection
 from core.selection import Selection
 from core.move import Move
@@ -26,10 +27,14 @@ class Model:
     def game_board(self):
         return self.game.board
 
+    @property
+    def game_turn(self):
+        return self.game.turn
+
     def select_cell(self, cell):
         selection = self.selection
 
-        if not selection:
+        if not selection and self.game_board[cell] == self.game_turn:
             self.selection = Selection(start=cell, end=cell)
 
         elif selection and cell not in self.game_board:
@@ -45,7 +50,7 @@ class Model:
                     return self.apply_selection(move)
             self.selection = None
 
-        else:
+        elif selection:
             selection.start = selection.end or selection.start
             selection.end = cell
             selection_cells = selection.to_array()
@@ -56,9 +61,9 @@ class Model:
                 self.selection = None
 
     def apply_selection(self, move):
-        self.game_board.apply_move(move)
         self.selection = None
-        return move
+        if self.game.apply_move(move):
+            return move
 
     def apply_config(self, config):
         self.game = Game(config.layout)

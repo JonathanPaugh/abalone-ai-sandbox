@@ -11,3 +11,7 @@ class Color(Enum):
     """
     BLACK = 1
     WHITE = 2
+
+    @staticmethod
+    def next(color):
+        return Color.WHITE if color == Color.BLACK else Color.BLACK
