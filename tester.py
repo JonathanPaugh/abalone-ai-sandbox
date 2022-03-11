@@ -5,7 +5,6 @@ from lib.file_handler import FileHandler
 from parse import state_parser
 from agent import state_generator
 from core.board import Board
-from glob import glob
 
 import re
 import os
