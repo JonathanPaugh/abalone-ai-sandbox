@@ -41,7 +41,7 @@ class App:
         :return: none
         """
         settings_window = Tk()
-        settings_window.title(settings_ui.SettingsUI.TITLE)
+        settings_window.title(SettingsUI.TITLE)
         self.settings.display(settings_window,
                               handle_confirm=lambda config: self.confirm_settings(settings_window, config))
 
