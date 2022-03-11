@@ -18,3 +18,6 @@ class Model:
 
     def select_cell(self, cell):
         pass
+
+    def apply_config(self, config):
+        self.game = Game(config.layout)

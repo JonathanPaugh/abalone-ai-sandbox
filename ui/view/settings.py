@@ -1,4 +1,4 @@
-from tkinter import OptionMenu, StringVar, Entry, CENTER
+from tkinter import Toplevel, OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
 from ui.config import Config
 from core.board_layout import BoardLayout
@@ -24,30 +24,20 @@ class SettingsUI:
         "Belgian Daisy": BoardLayout.BELGIAN_DAISY,
     }
 
-    def __init__(self):
+    def __init__(self, on_close):
         self.config = Config.from_default()
+        self._window = None
+        self._on_close = on_close
 
-    def on_confirm(self, config, callback):
-        """
-        :param config: config
-        :param callback: callback
-        :return: none
-        """
-        self.config = config
-        callback(config)
-
-    def display(self, parent, **kwargs):
-        """
-        Displays the GUI frame onto the container.
-        :param parent: the tkinter container
-        :param kwargs: dictionary of arguments
-        :return: none
-        """
-        frame = Frame(parent)
+    def open(self):
+        window = Toplevel()
+        frame = Frame(window)
         frame.pack()
-        self._render(frame, **kwargs)
+        self._window = window
+        self._render(frame)
+        return self
 
-    def _render(self, parent, **kwargs):
+    def _render(self, parent):
         """
         Renders the settings GUI and defines the setting components.
         :param parent: the tkinter container
@@ -67,14 +57,17 @@ class SettingsUI:
 
         time_limit_p1, time_limit_p2 = self._render_time_limits(parent, 5)
 
-        Button(parent, text="Confirm", command=lambda: self.on_confirm(Config(
-            next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
-            move_limit.get(),
-            player_type_p1.get(),
-            player_type_p2.get(),
-            time_limit_p1.get(),
-            time_limit_p2.get()
-        ), kwargs["handle_confirm"])).grid(column=0, row=6, columnspan=5)
+        Button(parent, text="Confirm", command=lambda: (
+            self._on_close(Config(
+                next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
+                move_limit.get(),
+                player_type_p1.get(),
+                player_type_p2.get(),
+                time_limit_p1.get(),
+                time_limit_p2.get()
+            )),
+            self._window.destroy(),
+        )).grid(column=0, row=6, columnspan=5)
 
         self._configure_grid(parent)
 

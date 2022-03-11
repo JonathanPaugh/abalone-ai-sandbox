@@ -15,9 +15,14 @@ class App:
         Main driver of the program.
         :return: none
         """
-        self._view.open()
-        self._view.display_board(self._view.window, self._model.game_board,
-            handle_open_settings=self._view.open_settings)
+        self._view.open(
+            can_open_settings=lambda: True,
+            on_confirm_settings=lambda config: (
+                self._model.apply_config(config),
+                self._view.redraw(self._model),
+            ),
+        )
+        self._view.redraw(self._model)
         self._view.window.mainloop()
 
     def select_cell(self, cell):

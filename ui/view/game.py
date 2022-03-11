@@ -41,7 +41,7 @@ class GameUI:
     def __init__(self):
         self.frame = None
 
-    def display(self, parent, board, **kwargs):
+    def display(self, parent, **kwargs):
         """
         Displays the GUI.
         :param parent: the tkinter container
@@ -53,22 +53,24 @@ class GameUI:
         self.frame = Frame(parent, background=self.COLOR_BACKGROUND_PRIMARY, padx=self.WINDOW_PADDING,
                            pady=self.WINDOW_PADDING)
         self.frame.pack(fill="both")
-        self._render(self.frame, board, **kwargs)
+        self._render(self.frame, **kwargs)
 
-    def _render(self, parent, board, **kwargs):
+    def redraw(self, model):
+        self._render_board(self.frame, model.game_board)
+
+    def _render(self, parent, handle_settings):
         """
         Renders all components required for the GUI.
         :param parent: the tkinter container
         :param kwargs: dictionary of arguments
         :return: None
         """
-        self._render_buttonbar(parent, **kwargs)
+        self._render_buttonbar(parent, handle_settings)
         self._render_score(parent)
         self._render_history(parent)
-        self._render_board(parent, board)
         self._configure_grid(parent)
 
-    def _render_buttonbar(self, parent, **kwargs):
+    def _render_buttonbar(self, parent, handle_settings):
         """
         Renders the button bar.
         :param parent: the tkinter container
@@ -86,13 +88,13 @@ class GameUI:
         frame.columnconfigure(5, weight=1)
         frame.columnconfigure(6, weight=1)
 
-        Label(frame, text="00':00\".00", font=(self.FONT_FAMILY_PRIMARY, 25),
+        Label(frame, text="00:00.00", font=(self.FONT_FAMILY_PRIMARY, 25),
               foreground=self.COLOR_FOREGROUND_PRIMARY, background=self.COLOR_BACKGROUND_SECONDARY).grid(column=0,
                                                                                                          row=0)
         self._render_buttonbar_button(frame, 1, "Pause")
         self._render_buttonbar_button(frame, 2, "Reset")
         self._render_buttonbar_button(frame, 3, "Undo")
-        self._render_buttonbar_button(frame, 5, "Settings", command=kwargs["handle_open_settings"])
+        self._render_buttonbar_button(frame, 5, "Settings", command=handle_settings)
         self._render_buttonbar_button(frame, 6, "Stop")
 
         for widget in frame.winfo_children():
@@ -244,17 +246,3 @@ class GameUI:
         parent.rowconfigure(0, weight=2)
         parent.rowconfigure(1, weight=4)
         parent.rowconfigure(2, weight=4)
-
-    @staticmethod
-    def generate_empty_board(size):
-        """
-        Generates an empty board.
-        :param size: an int
-        :return: a board
-        """
-        board = []
-        for i in reversed(range(size)):
-            board.insert(0, [0] * (size + i))
-            if i < size - 1:
-                board.append([0] * (size + i))
-        return board
