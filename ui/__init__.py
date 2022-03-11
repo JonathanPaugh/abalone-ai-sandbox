@@ -33,11 +33,14 @@ class App:
             can_open_settings=lambda: True,
             on_confirm_settings=lambda config: (
                 self._model.apply_config(config),
-                self._view.redraw(self._model),
+                self._view.render(self._model),
             ),
         )
-        self._view.redraw(self._model)
-        self._view.window.mainloop()
+        self._view.render(self._model)
+
+        while not self._view.closed:
+            self._view.update()
 
     def _select_cell(self, cell):
         self._model.select_cell(cell)
+        self._view.render(self._model)

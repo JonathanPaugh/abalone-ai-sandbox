@@ -17,6 +17,7 @@ class Model:
         return self.game.board
 
     def select_cell(self, cell):
+        self.selection = cell
         print(cell)
 
     def apply_config(self, config):

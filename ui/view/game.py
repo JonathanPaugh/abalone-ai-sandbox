@@ -48,8 +48,11 @@ class GameUI:
         self.frame.pack(fill="both")
         self._render(self.frame, **kwargs)
 
-    def redraw(self, model):
-        self._redraw_board(model.game_board)
+    def update(self):
+        pass
+
+    def render(self, model):
+        self._redraw_board(model)
 
     def _render(self, parent, on_click_settings, on_click_board):
         """
@@ -208,13 +211,13 @@ class GameUI:
         board_view = BoardView()
         self._board_view = board_view
 
-        canvas = board_view.setup(parent, on_click)
+        canvas = board_view.mount(parent, on_click)
         canvas.configure(background=self.COLOR_BACKGROUND_SECONDARY)
         canvas.grid(column=0, row=1, rowspan=2)
         return canvas
 
-    def _redraw_board(self, board):
-        self._board_view.render(board)
+    def _redraw_board(self, model):
+        self._board_view.render(model)
 
     def _configure_grid(self, parent):
         """
