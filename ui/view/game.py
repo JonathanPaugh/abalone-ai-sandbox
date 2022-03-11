@@ -4,6 +4,8 @@ from lib.hex.transpose_hex import hex_to_point
 
 from core.color import Color
 import core.constants as constants
+import ui.view.colors.palette as palette
+from ui.view.marble import render_marble
 
 
 class GameUI:
@@ -15,8 +17,8 @@ class GameUI:
     COLOR_BACKGROUND_SECONDARY = "#42464C"
 
     COLOR_PLAYER_NONE = "#48535A"
-    COLOR_PLAYER_1 = "#3366CC"
-    COLOR_PLAYER_2 = "#CC3366"
+    COLOR_PLAYER_1 = palette.COLOR_BLUE
+    COLOR_PLAYER_2 = palette.COLOR_RED
 
     FONT_FAMILY_PRIMARY = "Arial"
     FONT_FAMILY_SECONDARY = "Times New Roman"
@@ -28,7 +30,7 @@ class GameUI:
     WINDOW_PADDING = 16
 
     BOARD_CELL_SIZE = constants.BOARD_CELL_SIZE
-    MARBLE_SIZE = BOARD_CELL_SIZE * 7 / 8
+    MARBLE_SIZE = constants.MARBLE_SIZE
     BOARD_SIZE = constants.BOARD_SIZE
     BOARD_MAX_COLS = constants.BOARD_MAX_COLS
     BOARD_WIDTH = BOARD_CELL_SIZE * BOARD_MAX_COLS
@@ -219,15 +221,23 @@ class GameUI:
     def _redraw_board(self, board):
         canvas = self._canvas
 
+        MARBLE_COLORS = {
+            Color.BLACK: self.COLOR_PLAYER_1,
+            Color.WHITE: self.COLOR_PLAYER_2,
+        }
+
         for cell, color in board.enumerate():
             q, r = cell.x, cell.y
             x, y = hex_to_point((q, r), self.BOARD_CELL_SIZE / 2)
-            circle_color = {
-                None: self.COLOR_PLAYER_NONE,
-                Color.BLACK: self.COLOR_PLAYER_1,
-                Color.WHITE: self.COLOR_PLAYER_2,
-            }[color]
-            canvas.create_oval(x, y, x + self.MARBLE_SIZE, y + self.MARBLE_SIZE, fill=circle_color, outline="")
+
+            canvas.create_oval(x, y, x + self.MARBLE_SIZE, y + self.MARBLE_SIZE, fill=self.COLOR_PLAYER_NONE, outline="")
+            if color not in MARBLE_COLORS:
+                continue
+
+            render_marble(canvas,
+                pos=(x + self.MARBLE_SIZE / 2, y + self.MARBLE_SIZE / 2),
+                color=MARBLE_COLORS[color],
+                size=self.MARBLE_SIZE)
 
         return canvas
 
