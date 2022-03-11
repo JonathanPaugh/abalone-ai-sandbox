@@ -36,6 +36,7 @@ class GameUI:
 
     def __init__(self):
         self.frame = None
+        self._canvas = None
 
     def display(self, parent, **kwargs):
         """
@@ -52,21 +53,22 @@ class GameUI:
         self._render(self.frame, **kwargs)
 
     def redraw(self, model):
-        self._render_board(self.frame, model.game_board)
+        self._redraw_board(model.game_board)
 
-    def _render(self, parent, handle_settings):
+    def _render(self, parent, on_click_settings, on_click_board):
         """
         Renders all components required for the GUI.
         :param parent: the tkinter container
         :param kwargs: dictionary of arguments
         :return: None
         """
-        self._render_buttonbar(parent, handle_settings)
+        self._render_buttonbar(parent, on_click_settings)
         self._render_score(parent)
         self._render_history(parent)
+        self._render_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
 
-    def _render_buttonbar(self, parent, handle_settings):
+    def _render_buttonbar(self, parent, on_click_settings):
         """
         Renders the button bar.
         :param parent: the tkinter container
@@ -90,7 +92,7 @@ class GameUI:
         self._render_buttonbar_button(frame, 1, "Pause")
         self._render_buttonbar_button(frame, 2, "Reset")
         self._render_buttonbar_button(frame, 3, "Undo")
-        self._render_buttonbar_button(frame, 5, "Settings", command=handle_settings)
+        self._render_buttonbar_button(frame, 5, "Settings", command=on_click_settings)
         self._render_buttonbar_button(frame, 6, "Stop")
 
         for widget in frame.winfo_children():
@@ -201,7 +203,7 @@ class GameUI:
 
         return frame
 
-    def _render_board(self, parent, board):
+    def _render_board(self, parent, on_click):
         """
         Renders the layout board.
         :param parent: the tkinter container
@@ -210,8 +212,12 @@ class GameUI:
         canvas = Canvas(parent, width=self.BOARD_WIDTH, height=self.BOARD_HEIGHT,
                         highlightthickness=0, background=self.COLOR_BACKGROUND_SECONDARY)
         canvas.grid(column=0, row=1, rowspan=2)
+        canvas.bind("<Button-1>", lambda event: on_click((event.x, event.y)))
+        self._canvas = canvas
+        return canvas
 
-        pos = (0, 0)
+    def _redraw_board(self, board):
+        canvas = self._canvas
 
         for cell, color in board.enumerate():
             q, r = cell.x, cell.y

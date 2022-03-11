@@ -14,14 +14,17 @@ class View:
     def window(self):
         return self._window
 
-    def open(self, can_open_settings, on_confirm_settings):
+    def open(self, on_click_board, can_open_settings, on_confirm_settings):
         self._window = Tk()
         self._window.title(View.TITLE)
         self._window.configure(background=GameUI.COLOR_BACKGROUND_PRIMARY)
-        self._game_view.display(self._window, handle_settings=lambda: (
-            not self._settings_view and can_open_settings()
-                and self.open_settings(on_close=on_confirm_settings)
-        ))
+        self._game_view.display(self._window,
+            on_click_board=on_click_board,
+            on_click_settings=lambda: (
+                not self._settings_view and can_open_settings()
+                    and self.open_settings(on_close=on_confirm_settings)
+            ),
+        )
 
     def open_settings(self, on_close):
         """

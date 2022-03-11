@@ -16,6 +16,7 @@ class App:
         :return: none
         """
         self._view.open(
+            on_click_board=lambda pos: print(pos),
             can_open_settings=lambda: True,
             on_confirm_settings=lambda config: (
                 self._model.apply_config(config),
