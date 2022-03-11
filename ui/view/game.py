@@ -27,7 +27,7 @@ class GameUI:
 
     WINDOW_PADDING = 16
 
-    BOARD_CELL_SIZE = 48
+    BOARD_CELL_SIZE = constants.BOARD_CELL_SIZE
     MARBLE_SIZE = BOARD_CELL_SIZE * 7 / 8
     BOARD_SIZE = constants.BOARD_SIZE
     BOARD_MAX_COLS = constants.BOARD_MAX_COLS

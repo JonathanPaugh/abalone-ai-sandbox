@@ -1,5 +1,10 @@
+from math import sqrt
+from lib.hex.transpose_hex import point_to_hex
+
+from core.hex import Hex
 from ui.model import Model
 from ui.view import View
+from core.constants import BOARD_CELL_SIZE, BOARD_SIZE, BOARD_MAX_COLS
 
 class App:
     """
@@ -16,7 +21,15 @@ class App:
         :return: none
         """
         self._view.open(
-            on_click_board=lambda pos: print(pos),
+            on_click_board=lambda pos: (
+                hex_xradius := BOARD_CELL_SIZE / 2,
+                hex_yradius := BOARD_CELL_SIZE / sqrt(3),
+                x := pos[0] - hex_xradius - (BOARD_MAX_COLS - BOARD_SIZE) * hex_xradius,
+                y := pos[1] - hex_xradius,
+                cell := point_to_hex((x, y), hex_yradius),
+                hex := Hex(cell[0] + BOARD_MAX_COLS // 2, cell[1]),
+                self._select_cell(hex),
+            ),
             can_open_settings=lambda: True,
             on_confirm_settings=lambda config: (
                 self._model.apply_config(config),
@@ -26,5 +39,5 @@ class App:
         self._view.redraw(self._model)
         self._view.window.mainloop()
 
-    def select_cell(self, cell):
+    def _select_cell(self, cell):
         self._model.select_cell(cell)
