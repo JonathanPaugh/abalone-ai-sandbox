@@ -1,5 +1,6 @@
 from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
+from lib.hex.transpose_hex import hex_to_point
 
 from core.color import Color
 import core.constants as constants
@@ -26,17 +27,12 @@ class GameUI:
 
     WINDOW_PADDING = 16
 
-    MAIN_WIDTH = 480
-    MAIN_HEIGHT = 480
-
-    MARBLE_SIZE = 32
-    MARBLE_MARGIN_X = 4
-    MARBLE_MARGIN_Y = 1
-
+    BOARD_CELL_SIZE = 48
+    MARBLE_SIZE = BOARD_CELL_SIZE * 7 / 8
     BOARD_SIZE = constants.BOARD_SIZE
     BOARD_MAX_COLS = constants.BOARD_MAX_COLS
-    BOARD_WIDTH = (MARBLE_SIZE + MARBLE_MARGIN_X) * BOARD_MAX_COLS - MARBLE_MARGIN_X
-    BOARD_HEIGHT = (MARBLE_SIZE + MARBLE_MARGIN_Y) * BOARD_MAX_COLS - MARBLE_MARGIN_Y
+    BOARD_WIDTH = BOARD_CELL_SIZE * BOARD_MAX_COLS
+    BOARD_HEIGHT = BOARD_CELL_SIZE * BOARD_MAX_COLS * 7 / 8
 
     def __init__(self):
         self.frame = None
@@ -211,21 +207,15 @@ class GameUI:
         :param parent: the tkinter container
         :return: canvas
         """
-        canvas = Canvas(parent, width=self.MAIN_WIDTH, height=self.MAIN_HEIGHT,
+        canvas = Canvas(parent, width=self.BOARD_WIDTH, height=self.BOARD_HEIGHT,
                         highlightthickness=0, background=self.COLOR_BACKGROUND_SECONDARY)
         canvas.grid(column=0, row=1, rowspan=2)
 
-        pos = (self.MAIN_WIDTH / 2 - self.BOARD_WIDTH / 2,
-               self.MAIN_HEIGHT / 2 - self.BOARD_HEIGHT / 2)
+        pos = (0, 0)
 
         for cell, color in board.enumerate():
             q, r = cell.x, cell.y
-            x = (q * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X)
-                 + (self.BOARD_MAX_COLS - board.width(r) - board.offset(r) * 2)
-                 * (self.MARBLE_SIZE + self.MARBLE_MARGIN_X) / 2
-                 + pos[0])
-            y = (r * (self.MARBLE_SIZE + self.MARBLE_MARGIN_Y)
-                 + pos[1])
+            x, y = hex_to_point((q, r), self.BOARD_CELL_SIZE / 2)
             circle_color = {
                 None: self.COLOR_PLAYER_NONE,
                 Color.BLACK: self.COLOR_PLAYER_1,
