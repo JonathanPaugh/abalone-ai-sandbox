@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
+
 from core.game import Game
-from core.color import Color
 from core.hex import HexDirection
 from core.selection import Selection
 from core.move import Move
+from core.constants import MAX_SELECTION_SIZE
+
 from ui.config import Config
 from ui.game_history import GameHistory
-
 
 @dataclass
 class Model:
@@ -43,6 +44,7 @@ class Model:
             selection_cells = selection.to_array()
             selection_color = selection.get_player(self.game_board)
             if (not selection_cells
+            or len(selection_cells) > MAX_SELECTION_SIZE
             or next((True for c in selection_cells
                 if self.game_board[c] != selection_color), False)):
                 self.selection = None

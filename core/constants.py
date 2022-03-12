@@ -2,6 +2,8 @@
 A collection of ui constants.
 """
 
+MAX_SELECTION_SIZE = 3
+
 BOARD_CELL_SIZE = 48
 MARBLE_SIZE = BOARD_CELL_SIZE * 7 / 8
 
