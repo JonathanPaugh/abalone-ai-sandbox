@@ -92,10 +92,12 @@ class BoardView:
 
         marble.pos = marble_pos
 
-    def _redraw_marble(self, marble, selected=False, focused=False):
+    def _clear_marble(self, marble):
         for object_id in marble.object_ids:
             self._canvas.delete(object_id)
 
+    def _redraw_marble(self, marble, selected=False, focused=False):
+        self._clear_marble(marble)
         marble.object_ids = render_marble(
             self._canvas,
             pos=marble.pos,
@@ -105,17 +107,34 @@ class BoardView:
             focused=focused,
         )
 
+    def _delete_marble(self, marble):
+        self._clear_marble(marble)
+        self._marbles.remove(marble)
+
     def render(self, board):
         if self._marbles:
             self._redraw(board)
         else:
             self._setup(board)
 
-    def perform_move(self, move, board, on_end=None):
-        move_cells = move.selection.to_array()
+    def apply_move(self, move, board, on_end=None):
+        move_color = move.selection.get_player(board)
+        move_cells = move.selection.to_array() # TODO: demeter
+        move_head = move.get_front()
+        move_target = move_head and move_head.add(move.direction.value) # TODO: add method for target cell
+        if move_target and board[move_target] == Color.next(move_color): # TODO: demeter
+            sumito_selection = board.select_marbles_in_line(
+                start=move_target,
+                direction=move.direction
+            )
+            print(sumito_selection)
+            move_cells += sumito_selection.to_array() if sumito_selection else []
+
         marble_cells = [(marble, cell) for cell in move_cells if (marble := self._find_marble_by_cell(cell))]
         for marble, cell in marble_cells:
             marble.cell = cell.add(move.direction.value)
+            if marble.cell not in board:
+                self._delete_marble(marble)
 
     def _find_marble_by_cell(self, cell):
         return next((marble for marble in self._marbles if marble.cell == cell), None)

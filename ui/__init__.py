@@ -44,5 +44,6 @@ class App:
     def _select_cell(self, cell):
         move = self._model.select_cell(cell)
         if move:
-            self._view.perform_move(move, board=self._model.game_board)
+            self._view.apply_move(move, board=self._model.game_board)
+            self._model.apply_move(move)
         self._view.render(self._model)

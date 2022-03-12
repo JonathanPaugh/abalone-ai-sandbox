@@ -52,5 +52,5 @@ class View:
     def render(self, model):
         self._game_view.render(model)
 
-    def perform_move(self, *args, **kwargs):
-        self._game_view.perform_move(*args, **kwargs)
+    def apply_move(self, *args, **kwargs):
+        self._game_view.apply_move(*args, **kwargs)

@@ -168,21 +168,30 @@ class Board(HexGrid):
         for cell in move.get_destinations():
             self[cell] = player
 
+    def select_marbles_in_line(self, start, direction):
+        color = self[start]
+        if color == None:
+            return None
+
+        dest_cell = start
+        next_cell = start
+        while next_cell in self and self[next_cell] == color:
+            dest_cell = next_cell
+            next_cell = next_cell.add(direction.value)
+
+        return Selection(start, Hex(dest_cell.x, dest_cell.y))
+
     def _apply_sumito_move(self, move: Move):
         """
         Applies a sumito move to the board, first moves blocking cells in the direction of the move,
         then applies the base move after.
         :precondition: Move is sumito.
         """
-        destination = move.get_front()
-
-        start = destination.add(move.direction.value)
-        while True:
-            destination = destination.add(move.direction.value)
-            if not self.cell_in_bounds(destination) or self[destination]:
-                break
-
-        sumito_move = Move(Selection(start, Hex(destination.x, destination.y)), move.direction)
+        sumito_selection = self.select_marbles_in_line(
+            start=move.get_front().add(move.direction.value),
+            direction=move.direction,
+        )
+        sumito_move = Move(sumito_selection, move.direction)
 
         player = sumito_move.selection.get_player(self)
 

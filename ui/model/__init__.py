@@ -8,13 +8,6 @@ from ui.config import Config
 from ui.game_history import GameHistory
 
 
-def is_move_target_empty(board, move):
-    move_dests = move.get_destinations()
-    selection_cells = move.selection.to_array()
-    return next((False for dest in move_dests
-        if dest not in selection_cells and board[dest] is not None), True)
-
-
 @dataclass
 class Model:
     selection: Selection = None
@@ -33,24 +26,18 @@ class Model:
 
     def select_cell(self, cell):
         selection = self.selection
+        selection_head = selection and (selection.end or selection.start)
 
-        if not selection and self.game_board[cell] == self.game_turn:
-            self.selection = Selection(start=cell, end=cell)
+        if not selection:
+            if cell in self.game_board and self.game_board[cell] == self.game_turn:
+                self.selection = Selection(start=cell, end=cell)
+            return None
 
-        elif selection and cell not in self.game_board:
+        if cell not in self.game_board:
             self.selection = None
+            return None
 
-        elif selection and self.game_board[cell] is None:
-            selection_head = selection.end or selection.start
-            if selection_head.adjacent(cell):
-                normal = cell.subtract(selection_head)
-                direction = HexDirection.resolve(normal)
-                move = Move(selection, direction)
-                if is_move_target_empty(self.game_board, move):
-                    return self.apply_selection(move)
-            self.selection = None
-
-        elif selection:
+        if self.game_board[cell] == self.game_turn:
             selection.start = selection.end or selection.start
             selection.end = cell
             selection_cells = selection.to_array()
@@ -59,8 +46,19 @@ class Model:
             or next((True for c in selection_cells
                 if self.game_board[c] != selection_color), False)):
                 self.selection = None
+            return None
 
-    def apply_selection(self, move):
+        elif selection_head.adjacent(cell):
+            normal = cell.subtract(selection_head)
+            direction = HexDirection.resolve(normal)
+            move = Move(selection, direction)
+            if self.game_board.is_valid_move(move, self.game_turn.value): # TODO: use color enum
+                return move
+
+        self.selection = None
+        return None # explicit None return for consistency
+
+    def apply_move(self, move):
         self.selection = None
         if self.game.apply_move(move):
             return move

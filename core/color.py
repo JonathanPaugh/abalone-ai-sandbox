@@ -14,4 +14,8 @@ class Color(Enum):
 
     @staticmethod
     def next(color):
-        return Color.WHITE if color == Color.BLACK else Color.BLACK
+        if color == Color.BLACK:
+            return Color.WHITE
+
+        if color == Color.WHITE:
+            return Color.BLACK
