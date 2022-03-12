@@ -20,6 +20,7 @@ class Marble:
 
 class BoardView:
 
+    PADDING = 8
     COLOR_PLAYER_NONE = "#48535A"
     MARBLE_COLORS = {
         Color.BLACK: palette.COLOR_BLUE,
@@ -31,8 +32,8 @@ class BoardView:
         self._marbles = []
 
     def mount(self, parent, on_click):
-        canvas = Canvas(parent, width=BOARD_WIDTH, height=BOARD_HEIGHT, highlightthickness=0)
-        canvas.bind("<Button-1>", lambda event: on_click((event.x, event.y)))
+        canvas = Canvas(parent, width=BOARD_WIDTH + self.PADDING * 2, height=BOARD_HEIGHT + self.PADDING * 2, highlightthickness=0)
+        canvas.bind("<Button-1>", lambda event: on_click((event.x - self.PADDING, event.y - self.PADDING)))
         self._canvas = canvas
         return canvas
 
@@ -41,7 +42,7 @@ class BoardView:
 
         marble_items = []
         for cell, color in model.game_board.enumerate():
-            pos = hex_to_point((cell.x, cell.y), BOARD_CELL_SIZE / 2)
+            pos = self._find_marble_pos(cell)
             self._render_cell(canvas, pos)
             if not self._marbles and color:
                 marble_items.append((pos, cell, color))
@@ -60,6 +61,10 @@ class BoardView:
             ))
 
         return canvas
+
+    def _find_marble_pos(self, cell):
+        x, y = hex_to_point((cell.x, cell.y), BOARD_CELL_SIZE / 2)
+        return (x + self.PADDING, y + self.PADDING)
 
     def _render_cell(self, canvas, pos):
         x, y = pos
@@ -82,7 +87,7 @@ class BoardView:
             marble.focused = is_marble_focused
             self._redraw_marble(marble, selected=is_marble_selected, focused=is_marble_focused)
 
-        marble_pos = hex_to_point((marble.cell.x, marble.cell.y), BOARD_CELL_SIZE / 2)
+        marble_pos = self._find_marble_pos(marble.cell)
         for object_id in marble.object_ids:
             old_x, old_y = marble.pos
             new_x, new_y = marble_pos
@@ -118,11 +123,11 @@ class BoardView:
             self._setup(board)
 
     def apply_move(self, move, board, on_end=None):
-        move_color = move.selection.get_player(board)
+        move_color = move.selection.get_player(board) # TODO: demeter
         move_cells = move.selection.to_array() # TODO: demeter
         move_head = move.get_front()
         move_target = move_head and move_head.add(move.direction.value) # TODO: add method for target cell
-        if move_target and board[move_target] == Color.next(move_color): # TODO: demeter
+        if move_target and board[move_target] == Color.next(move_color):
             sumito_selection = board.select_marbles_in_line(
                 start=move_target,
                 direction=move.direction
