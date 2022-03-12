@@ -6,8 +6,8 @@ from core.selection import Selection
 from core.move import Move
 from core.constants import MAX_SELECTION_SIZE
 
-from ui.config import Config
-from ui.game_history import GameHistory
+from ui.model.config import Config
+from ui.model.game_history import GameHistory
 
 @dataclass
 class Model:

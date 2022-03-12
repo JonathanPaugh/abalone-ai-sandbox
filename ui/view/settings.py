@@ -1,6 +1,6 @@
 from tkinter import Toplevel, OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
-from ui.config import Config
+from ui.model.config import Config
 from core.board_layout import BoardLayout
 
 

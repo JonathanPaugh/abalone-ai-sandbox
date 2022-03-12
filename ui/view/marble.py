@@ -1,5 +1,18 @@
+from dataclasses import dataclass
+from core.color import Color
 import ui.view.colors.palette as palette
 from ui.view.colors.transform import darken_color, lighten_color
+
+
+@dataclass
+class Marble:
+    pos: tuple[float]
+    cell: tuple[int]
+    color: Color
+    object_ids: list
+    selected: bool = False
+    focused: bool = False
+
 
 def render_marble(canvas, pos, color, size, selected=False, focused=False):
     MARBLE_COLOR = darken_color(color) if selected else color

@@ -1,10 +1,9 @@
-from math import sqrt
-from lib.hex.transpose_hex import point_to_hex
+from time import sleep
 
-from core.hex import Hex
 from ui.model import Model
 from ui.view import View
-from core.constants import BOARD_CELL_SIZE, BOARD_SIZE, BOARD_MAX_COLS
+from ui.constants import FPS
+
 
 class App:
     """
@@ -15,35 +14,44 @@ class App:
         self._model = Model()
         self._view = View()
 
+    def _dispatch(self, action, *args, **kwargs):
+        action(*args, **kwargs)
+        self._view.render(self._model)
+
+    def _select_cell(self, cell):
+        move = self._model.select_cell(cell)
+        move and self._apply_move(move)
+
+    def _apply_move(self, move):
+        self._view.apply_move(move, board=self._model.game_board)
+        self._model.apply_move(move)
+
+        # STUB(agent): if model config's control mode for the current player is
+        # the CPU, call procedure for running agent and applying resulting move
+
+    def _update(self):
+        # STUB(agent): async agent move requests may be called from here
+        self._view.update()
+
+    def _run_main_loop(self):
+        while not self._view.closed:
+            self._update()
+            sleep(1 / FPS)
+
     def run_game(self):
         """
         Main driver of the program.
         :return: none
         """
         self._view.open(
-            on_click_board=lambda pos: (
-                hex_xradius := BOARD_CELL_SIZE / 2,
-                hex_yradius := BOARD_CELL_SIZE / sqrt(3),
-                x := pos[0] - hex_xradius - (BOARD_MAX_COLS - BOARD_SIZE) * hex_xradius,
-                y := pos[1] - hex_xradius,
-                cell := point_to_hex((x, y), hex_yradius),
-                hex := Hex(cell[0] + BOARD_MAX_COLS // 2, cell[1]),
-                self._select_cell(hex),
+            on_click_board=lambda cell: (
+                self._dispatch(self._select_cell, cell),
             ),
-            can_open_settings=lambda: True,
             on_confirm_settings=lambda config: (
-                self._model.apply_config(config),
-                self._view.render(self._model),
+                self._dispatch(self._model.apply_config, config),
             ),
+            # STUB: this should go through an `askokcancel` if game is running
+            can_open_settings=lambda: True,
         )
         self._view.render(self._model)
-
-        while not self._view.closed:
-            self._view.update()
-
-    def _select_cell(self, cell):
-        move = self._model.select_cell(cell)
-        if move:
-            self._view.apply_move(move, board=self._model.game_board)
-            self._model.apply_move(move)
-        self._view.render(self._model)
+        self._run_main_loop()

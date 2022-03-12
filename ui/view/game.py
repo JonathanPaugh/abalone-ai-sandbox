@@ -1,7 +1,7 @@
 from tkinter import Frame, Canvas, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
 
-import core.constants as constants
+import ui.constants as constants
 import ui.view.colors.palette as palette
 from ui.view.board import BoardView
 
@@ -34,7 +34,7 @@ class GameUI:
         self.frame = None
         self._board_view = None
 
-    def display(self, parent, **kwargs):
+    def mount(self, parent, **kwargs):
         """
         Displays the GUI.
         :param parent: the tkinter container
@@ -46,28 +46,25 @@ class GameUI:
         self.frame = Frame(parent, background=self.COLOR_BACKGROUND_PRIMARY, padx=self.WINDOW_PADDING,
                            pady=self.WINDOW_PADDING)
         self.frame.pack(fill="both")
-        self._render(self.frame, **kwargs)
-
-    def update(self):
-        pass
+        self._mount_widgets(self.frame, **kwargs)
 
     def render(self, model):
         self._board_view.render(model)
 
-    def _render(self, parent, on_click_settings, on_click_board):
+    def _mount_widgets(self, parent, on_click_settings, on_click_board):
         """
         Renders all components required for the GUI.
         :param parent: the tkinter container
         :param kwargs: dictionary of arguments
         :return: None
         """
-        self._render_buttonbar(parent, on_click_settings)
-        self._render_score(parent)
-        self._render_history(parent)
-        self._render_board(self.frame, on_click=on_click_board)
+        self._mount_buttonbar(parent, on_click_settings)
+        self._mount_score(parent)
+        self._mount_history(parent)
+        self._mount_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
 
-    def _render_buttonbar(self, parent, on_click_settings):
+    def _mount_buttonbar(self, parent, on_click_settings):
         """
         Renders the button bar.
         :param parent: the tkinter container
@@ -85,21 +82,25 @@ class GameUI:
         frame.columnconfigure(5, weight=1)
         frame.columnconfigure(6, weight=1)
 
-        Label(frame, text="00:00.00", font=(self.FONT_FAMILY_PRIMARY, 25),
-              foreground=self.COLOR_FOREGROUND_PRIMARY, background=self.COLOR_BACKGROUND_SECONDARY).grid(column=0,
-                                                                                                         row=0)
-        self._render_buttonbar_button(frame, 1, "Pause")
-        self._render_buttonbar_button(frame, 2, "Reset")
-        self._render_buttonbar_button(frame, 3, "Undo")
-        self._render_buttonbar_button(frame, 5, "Settings", command=on_click_settings)
-        self._render_buttonbar_button(frame, 6, "Stop")
+        Label(frame,
+              text="00:00.00",
+              font=(self.FONT_FAMILY_PRIMARY, 25),
+              foreground=self.COLOR_FOREGROUND_PRIMARY,
+              background=self.COLOR_BACKGROUND_SECONDARY
+        ).grid(column=0, row=0)
+
+        self._mount_buttonbar_button(frame, 1, "Pause")
+        self._mount_buttonbar_button(frame, 2, "Reset")
+        self._mount_buttonbar_button(frame, 3, "Undo")
+        self._mount_buttonbar_button(frame, 5, "Settings", command=on_click_settings)
+        self._mount_buttonbar_button(frame, 6, "Stop")
 
         for widget in frame.winfo_children():
             widget.grid(padx=3, pady=0)
 
         return frame
 
-    def _render_buttonbar_button(self, parent, col, label, **kwargs):
+    def _mount_buttonbar_button(self, parent, col, label, **kwargs):
         """
 
         :param parent: the tkinter container
@@ -111,7 +112,7 @@ class GameUI:
         Button(parent, text=label, fg=self.COLOR_FOREGROUND_PRIMARY,
                bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=col, row=0)
 
-    def _render_score(self, parent):
+    def _mount_score(self, parent):
         """
         Renders a score board.
         :param parent: the tkinter container
@@ -120,21 +121,21 @@ class GameUI:
         frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
         frame.grid(column=1, row=1)
 
-        self._render_score_heading(frame, 0, "Player 1")
-        self._render_score_field(frame, 1, "Score", "Test")
-        self._render_score_field(frame, 2, "Moves", "Test")
-        self._render_score_heading(frame, 4, "Player 2")
-        self._render_score_field(frame, 5, "Score", "Test")
-        self._render_score_field(frame, 6, "Moves", "Test")
+        self._mount_score_heading(frame, 0, "Player 1")
+        self._mount_score_field(frame, 1, "Score", "Test")
+        self._mount_score_field(frame, 2, "Moves", "Test")
+        self._mount_score_heading(frame, 4, "Player 2")
+        self._mount_score_field(frame, 5, "Score", "Test")
+        self._mount_score_field(frame, 6, "Moves", "Test")
 
-        self._render_score_grid(frame)
+        self._mount_score_grid(frame)
 
         for widget in frame.winfo_children():
             widget.grid(padx=2, pady=5)
 
         return frame
 
-    def _render_score_heading(self, parent, row, label):
+    def _mount_score_heading(self, parent, row, label):
         """
 
         :param parent: the tkinter container
@@ -145,7 +146,7 @@ class GameUI:
         Label(parent, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY, text=label,
               font=self.FONT_LARGE).grid(column=1, row=row, columnspan=2)
 
-    def _render_score_field(self, parent, row, label, value):
+    def _mount_score_field(self, parent, row, label, value):
         """
         :param parent: the tkinter container
         :param row: a grid row
@@ -158,7 +159,7 @@ class GameUI:
         Label(parent, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY, text=value,
               font=self.FONT_MEDIUM).grid(column=2, row=row)
 
-    def _render_score_grid(self, parent):
+    def _mount_score_grid(self, parent):
         """
         Defines and renders the grid for displaying score.
         Renders the score grid with
@@ -177,7 +178,7 @@ class GameUI:
         parent.rowconfigure(5, weight=8)
         parent.rowconfigure(6, weight=8)
 
-    def _render_history(self, parent):
+    def _mount_history(self, parent):
         """
         Renders the match history GUI portion.
         :param parent: the tkinter container
@@ -202,7 +203,7 @@ class GameUI:
 
         return frame
 
-    def _render_board(self, parent, on_click):
+    def _mount_board(self, parent, on_click):
         """
         Renders the layout board.
         :param parent: the tkinter container
