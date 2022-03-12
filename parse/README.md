@@ -3,8 +3,9 @@ This repository contains a state generator as part of the deliverable for Part 2
 
 ## Installation and instructions
 1. Download `StateGenerator.exe` from the latest release under [Releases](https://github.com/JonathanPaugh/COMP3981-Team4/releases) > Assets.
-2. Drag and drop the `Test<#>.input` files onto the executable.
-3. A `dist/` folder will be created in the same directory containing the output files for all the given input files.
+2. Drag and drop the `Test<#>.input` files directly onto `StateGenerator.exe`.
+3. A `dist/` folder will be created in the same directory where the input files where located.
+4. The `dist/` folder will contain the output files for all the given input files.
 
 ## Input formats
 The `.input` file that the state generator operates on must conform to the following format:

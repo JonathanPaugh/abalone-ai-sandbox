@@ -9,18 +9,21 @@ class StateParser:
     This class contains the functions and methods to parse Test.input files into a usable notation for our program
     and vice versa.
     """
-    empty_board_layout = \
-        [
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0]
-        ]
+    @staticmethod
+    def get_empty_board():
+        empty_board_layout = \
+            [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]
+            ]
+        return empty_board_layout
 
     # Keep for testing translate_board_to_text.
     test_output_board_layout = \
@@ -43,7 +46,7 @@ class StateParser:
         :param text: a string containing Test.input agent representation.
         :return: a tuple containing our agent representation
         """
-        board = cls.empty_board_layout
+        board = cls.get_empty_board()
         data = text.rstrip()
         turn_color = (data[0])
         if turn_color == 'b':
