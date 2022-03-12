@@ -67,7 +67,7 @@ class BoardView:
         for cell, color in model.game_board.enumerate(): # TODO(?): demeter
             pos = self._find_marble_pos(cell)
             self._render_cell(canvas, pos)
-            if not self._marbles and color:
+            if color:
                 marble_items.append((pos, cell, color))
 
         for pos, cell, color in marble_items:
@@ -223,6 +223,14 @@ class BoardView:
             self._update(model)
         else:
             self._setup(model)
+
+    def clear(self):
+        """
+        Clears the entire game board.
+        :return: None
+        """
+        self._canvas.delete("all")
+        self._marbles.clear()
 
     def apply_move(self, move, board):
         """

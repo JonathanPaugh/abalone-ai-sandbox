@@ -87,6 +87,13 @@ class View:
         """
         self._game_view.render(model)
 
+    def clear_game_board(self):
+        """
+        Clears the entire game board.
+        :return: None
+        """
+        self._game_view.clear_board()
+
     def apply_move(self, *args, **kwargs):
         """
         Visually moves the marbles affected by the given move.

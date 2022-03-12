@@ -239,6 +239,13 @@ class GameUI:
         parent.rowconfigure(1, weight=4)
         parent.rowconfigure(2, weight=4)
 
+    def clear_board(self):
+        """
+        Clears the entire game board.
+        :return: None
+        """
+        self._board_view.clear()
+
     def apply_move(self, *args, **kwargs):
         """
         Visually moves the marbles affected by the given move.

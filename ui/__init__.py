@@ -58,6 +58,15 @@ class App:
         # STUB(agent): if model config's control mode for the current player is
         # the CPU, call procedure for running agent and applying resulting move
 
+    def _apply_config(self, config):
+        """
+        Applies the given config and starts a new game.
+        :param config: the new Config to use
+        :return: None
+        """
+        self._model.apply_config(config)
+        self._view.clear_game_board()
+
     def _update(self):
         """
         Updates the application by one tick.
@@ -85,7 +94,7 @@ class App:
                 self._dispatch(self._select_cell, cell),
             ),
             on_confirm_settings=lambda config: (
-                self._dispatch(self._model.apply_config, config),
+                self._dispatch(self._apply_config, config),
             ),
             # STUB: this should go through an `askokcancel` if game is running
             can_open_settings=lambda: True,
