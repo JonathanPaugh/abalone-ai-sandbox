@@ -1,3 +1,8 @@
+"""
+A collection of constants defining the palette for the application.
+"""
+
+# TODO(?): remove `COLOR_` prefix?
 COLOR_BLACK = "#000"
 COLOR_WHITE = "#fff"
 COLOR_SILVER = "#cce"

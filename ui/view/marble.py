@@ -1,3 +1,7 @@
+"""
+Contains marble-specific view logic.
+"""
+
 from dataclasses import dataclass
 from core.color import Color
 import ui.view.colors.palette as palette
@@ -6,6 +10,9 @@ from ui.view.colors.transform import darken_color, lighten_color
 
 @dataclass
 class Marble:
+    """
+    Represents the view for a single marble.
+    """
     pos: tuple[float]
     cell: tuple[int]
     color: Color
@@ -15,6 +22,17 @@ class Marble:
 
 
 def render_marble(canvas, pos, color, size, selected=False, focused=False):
+    """
+    Renders a marble using the given paramters.
+    :param canvas: the Canvas to render to
+    :param pos: a tuple[int, int] denoting where on the canvas to draw
+    :param color: a str (hex color)
+    :param size: an int denoting how large the marble should be drawn
+    :param selected: a bool denoting whether or not to draw the marble as selected
+    :param focused: a bool denoting whether or not to draw the marble as focused
+    :return: a list[int] of Tk object ids
+    """
+
     MARBLE_COLOR = darken_color(color) if selected else color
 
     marble_shape_ids = []

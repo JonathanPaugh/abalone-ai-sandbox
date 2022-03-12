@@ -14,6 +14,12 @@ class Color(Enum):
 
     @staticmethod
     def next(color):
+        """
+        Determines the opposing color from the given color.
+        :param color: a Color
+        :return: a Color
+        """
+
         if color == Color.BLACK:
             return Color.WHITE
 

@@ -1,3 +1,7 @@
+"""
+Defines app-specific constants.
+"""
+
 from core.constants import *
 
 APP_NAME = "Abalone"

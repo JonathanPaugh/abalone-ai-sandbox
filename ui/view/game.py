@@ -1,15 +1,19 @@
-from tkinter import Frame, Canvas, Label, Button, WORD
+"""
+Defines the game view.
+"""
+
+from tkinter import Frame, Label, Button, WORD
 from tkinter.scrolledtext import ScrolledText
 
 import ui.constants as constants
-import ui.view.colors.palette as palette
 from ui.view.board import BoardView
 
 
 class GameUI:
     """
-    This class creates the GUI using tkinter and contains methods to create and render the layout.
+    The view for the game window.
     """
+
     COLOR_FOREGROUND_PRIMARY = "#FFFFFF"
     COLOR_BACKGROUND_PRIMARY = "#36393E"
     COLOR_BACKGROUND_SECONDARY = "#42464C"
@@ -49,6 +53,12 @@ class GameUI:
         self._mount_widgets(self.frame, **kwargs)
 
     def render(self, model):
+        """
+        Diffs the given model against game view state and queues up changes to
+        display on update.
+        :param model: the model to render
+        :return: None
+        """
         self._board_view.render(model)
 
     def _mount_widgets(self, parent, on_click_settings, on_click_board):
@@ -230,4 +240,9 @@ class GameUI:
         parent.rowconfigure(2, weight=4)
 
     def apply_move(self, *args, **kwargs):
+        """
+        Visually moves the marbles affected by the given move.
+        :param *args, **kwargs: the action parameters
+        :return: None
+        """
         self._board_view.apply_move(*args, **kwargs)

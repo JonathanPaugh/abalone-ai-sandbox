@@ -1,3 +1,7 @@
+"""
+Contains helpers for app-specific color transformations.
+"""
+
 import ui.view.colors.palette as palette
 
 COLORMAP_DARKEN = {
@@ -36,11 +40,23 @@ COLORMAP_LIGHTEN = {
 }
 
 def darken_color(color):
+    """
+    Selects the darkened shade of the given color.
+    Returns the color provided if a darker shade has not been registered.
+    :param color: a str
+    :return: a str
+    """
     return (COLORMAP_DARKEN[color]
         if color in COLORMAP_DARKEN
         else color)
 
 def lighten_color(color):
+    """
+    Selects the lightened shade of the given color.
+    Returns the color provided if a lighter shade has not been registered.
+    :param color: a str
+    :return: a str
+    """
     return (COLORMAP_LIGHTEN[color]
         if color in COLORMAP_LIGHTEN
         else color)

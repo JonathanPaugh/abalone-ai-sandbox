@@ -1,5 +1,5 @@
 """
-A collection of ui constants.
+A collection of Abalone-specific constants.
 """
 
 MAX_SELECTION_SIZE = 3
