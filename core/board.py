@@ -169,6 +169,14 @@ class Board(HexGrid):
             self[cell] = player
 
     def select_marbles_in_line(self, start, direction):
+        """
+        Selects all marbles in the line specified by the given start and direction.
+        Selection ends when the destination goes out of bounds or highlights a new color.
+        :param start: the Hex to start selecting from
+        :param direction: the HexDirection to select in
+        :return: a Selection
+        """
+
         color = self[start]
         if color == None:
             return None
