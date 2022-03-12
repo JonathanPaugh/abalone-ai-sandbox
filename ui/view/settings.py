@@ -1,6 +1,6 @@
-from tkinter import OptionMenu, StringVar, Entry, CENTER
+from tkinter import Toplevel, OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
-from core.config import Config
+from ui.model.config import Config
 from core.board_layout import BoardLayout
 
 
@@ -24,61 +24,58 @@ class SettingsUI:
         "Belgian Daisy": BoardLayout.BELGIAN_DAISY,
     }
 
-    def __init__(self):
+    def __init__(self, on_close):
         self.config = Config.from_default()
+        self._window = None
+        self._on_close = on_close
 
-    def on_confirm(self, config, callback):
+    def open(self):
         """
-        :param config: config
-        :param callback: callback
-        :return: none
+        Opens the settings window.
+        :return: None
         """
-        self.config = config
-        callback(config)
-
-    def display(self, parent, **kwargs):
-        """
-        Displays the GUI frame onto the container.
-        :param parent: the tkinter container
-        :param kwargs: dictionary of arguments
-        :return: none
-        """
-        frame = Frame(parent)
+        window = Toplevel()
+        frame = Frame(window)
         frame.pack()
-        self._render(frame, **kwargs)
+        self._window = window
+        self._mount(frame)
+        return self
 
-    def _render(self, parent, **kwargs):
+    def _mount(self, parent):
         """
         Renders the settings GUI and defines the setting components.
         :param parent: the tkinter container
         :param kwargs: dictionary of arguments
         :return: none
         """
-        self._render_title(parent, 0)
+        self._mount_title(parent, 0)
 
         starting_layout = [*self.STARTING_LAYOUT_MAP.keys()][0]
-        layout = self._render_starting_layout(parent, 1, starting_layout)
+        layout = self._mount_starting_layout(parent, 1, starting_layout)
 
-        move_limit = self._render_move_limit(parent, 2)
+        move_limit = self._mount_move_limit(parent, 2)
 
-        self._render_player_labels(parent, 3)
+        self._mount_player_labels(parent, 3)
 
-        player_type_p1, player_type_p2 = self._render_player_types(parent, 4)
+        player_type_p1, player_type_p2 = self._mount_player_types(parent, 4)
 
-        time_limit_p1, time_limit_p2 = self._render_time_limits(parent, 5)
+        time_limit_p1, time_limit_p2 = self._mount_time_limits(parent, 5)
 
-        Button(parent, text="Confirm", command=lambda: self.on_confirm(Config(
-            next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
-            move_limit.get(),
-            player_type_p1.get(),
-            player_type_p2.get(),
-            time_limit_p1.get(),
-            time_limit_p2.get()
-        ), kwargs["handle_confirm"])).grid(column=0, row=6, columnspan=5)
+        Button(parent, text="Confirm", command=lambda: (
+            self._on_close(Config(
+                next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
+                move_limit.get(),
+                player_type_p1.get(),
+                player_type_p2.get(),
+                time_limit_p1.get(),
+                time_limit_p2.get()
+            )),
+            self._window.destroy(),
+        )).grid(column=0, row=6, columnspan=5)
 
         self._configure_grid(parent)
 
-    def _render_title(self, parent, row):
+    def _mount_title(self, parent, row):
         """
         Renders the title of the settings GUI.
         :param parent: the tkinter container
@@ -86,36 +83,36 @@ class SettingsUI:
         """
         Label(parent, text="Settings", font=self.FONT_TITLE).grid(column=0, row=row, columnspan=5)
 
-    def _render_starting_layout(self, parent, row, default):
-        self._render_label(parent, row, 1, "e", "Starting Layout")
-        return self._render_dropdown(parent, row, 3, "w",
+    def _mount_starting_layout(self, parent, row, default):
+        self._mount_label(parent, row, 1, "e", "Starting Layout")
+        return self._mount_dropdown(parent, row, 3, "w",
                                      next((k for k, v in self.STARTING_LAYOUT_MAP.items() if v == self.config.layout),
                                      default), *self.STARTING_LAYOUT_MAP.keys())
 
-    def _render_player_labels(self, parent, row):
+    def _mount_player_labels(self, parent, row):
         Label(parent, text="Blue Player", font=self.FONT_HEADING, justify=CENTER).grid(column=1, row=row, pady=(8, 4))
         Label(parent, text="Red Player", font=self.FONT_HEADING, justify=CENTER).grid(column=3, row=row, pady=(8, 4))
 
-    def _render_move_limit(self, parent, row):
-        self._render_label(parent, row, 1, "e", "Move Limit")
-        return self._render_input(parent, row, 3, "w", self.config.move_limit)
+    def _mount_move_limit(self, parent, row):
+        self._mount_label(parent, row, 1, "e", "Move Limit")
+        return self._mount_input(parent, row, 3, "w", self.config.move_limit)
 
-    def _render_player_types(self, parent, row):
-        p1 = self._render_dropdown(parent, row, 1, "e", self.config.player_type_p1, "Human", "Computer")
-        self._render_label(parent, row, 2, "", "Player Type")
-        p2 = self._render_dropdown(parent, row, 3, "w", self.config.player_type_p2, "Human", "Computer")
+    def _mount_player_types(self, parent, row):
+        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.player_type_p1, "Human", "Computer")
+        self._mount_label(parent, row, 2, "", "Player Type")
+        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.player_type_p2, "Human", "Computer")
         return p1, p2
 
-    def _render_time_limits(self, parent, row):
-        p1 = self._render_input(parent, row, 1, "e", self.config.time_limit_p1)
-        self._render_label(parent, row, 2, "", "Time Limit")
-        p2 = self._render_input(parent, row, 3, "w", self.config.time_limit_p2)
+    def _mount_time_limits(self, parent, row):
+        p1 = self._mount_input(parent, row, 1, "e", self.config.time_limit_p1)
+        self._mount_label(parent, row, 2, "", "Time Limit")
+        p2 = self._mount_input(parent, row, 3, "w", self.config.time_limit_p2)
         return p1, p2
 
-    def _render_label(self, parent, row, col, anchor, label):
+    def _mount_label(self, parent, row, col, anchor, label):
         Label(parent, text=label).grid(column=col, row=row, sticky=anchor, padx=8)
 
-    def _render_dropdown(self, parent, row, col, anchor, default, value, *values):
+    def _mount_dropdown(self, parent, row, col, anchor, default, value, *values):
         """
         Renders and defines a dropdown menu.
         :param parent: the tkinter container
@@ -131,7 +128,7 @@ class SettingsUI:
         OptionMenu(parent, selected, value, *values).grid(column=col, row=row, sticky=anchor)
         return selected
 
-    def _render_input(self, parent, row, col, anchor, default):
+    def _mount_input(self, parent, row, col, anchor, default):
         """
         Renders the adjacent text inputs.
         :param parent: the tkinter container

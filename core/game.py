@@ -1,37 +1,47 @@
-from ui import game_ui
-from agent import state_generator
+"""
+Defines the game representation.
+"""
+
 from core.board_layout import BoardLayout
+from core.color import Color
 
 
 class Game:
     """
-    This class represents a game object and contains methods for display and settings.
+    The Game class. Analogous to the state representation in our problem
+    formulation.
     """
 
-    TITLE = "Abalone"
+    def __init__(self, board_layout=BoardLayout.STANDARD):
+        self._board = BoardLayout.setup_board(board_layout)
+        self._turn = Color.BLACK
 
-    def __init__(self):
-        self.board = BoardLayout.setup_board(BoardLayout.STANDARD)
-        self.game_ui = game_ui.GameUI()
-        self.state_generator = state_generator.StateGenerator()
-        self.state_generator.test(self.board, 1)
+    @property
+    def board(self):
+        """
+        Gets the game board.
+        :return: a Board
+        """
+        return self._board
 
-    def get_board(self):
-        return self.board
+    @property
+    def turn(self):
+        """
+        Gets the color indicating whose turn it is.
+        :return: a Color
+        """
+        return self._turn
 
-    def display(self, parent, **kwargs):
+    def apply_move(self, move):
         """
-        This method displays the GUI though a function call.
-        :param parent: the GUI base
-        :param kwargs: dictionary of arguments
-        :return:
+        Applies the given move to the game board.
+        :param move: the Move to apply
+        :return: True if successful, else False
         """
-        self.game_ui.display(parent, self.board, **kwargs)
 
-    def update_settings(self, config):
-        """
-        Sets up a new layout from the given config settings.
-        :param config: a config.
-        :return:
-        """
-        self.board = BoardLayout.setup_board(config.layout)
+        if self._turn != move.selection.get_player(self._board): # TODO: demeter
+            return False
+
+        self._board.apply_move(move)
+        self._turn = Color.next(self._turn)
+        return True
