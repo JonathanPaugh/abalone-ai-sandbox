@@ -1,9 +1,10 @@
 from __future__ import absolute_import
 
 from os.path import splitext
+
+from agent.state_generator import StateGenerator
 from lib.file_handler import FileHandler
 from parse import state_parser
-from agent import state_generator
 from core.board import Board
 
 import re
@@ -45,10 +46,8 @@ class Tester:
 
         board = Board.create_from_data(state)
 
-        generator = state_generator.StateGenerator()
-
-        possible_moves = generator.enumerate_board(board, player)
-        possible_boards = generator.generate(board, possible_moves)
+        possible_moves = StateGenerator.enumerate_board(board, player)
+        possible_boards = StateGenerator.generate(board, possible_moves)
 
         self.write_move_file(possible_moves, number)
         self.write_board_file(possible_boards, number)

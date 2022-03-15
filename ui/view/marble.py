@@ -3,6 +3,8 @@ Contains marble-specific view logic.
 """
 
 from dataclasses import dataclass
+from typing import Tuple
+
 from core.color import Color
 import ui.view.colors.palette as palette
 from ui.view.colors.transform import darken_color, lighten_color
@@ -13,8 +15,8 @@ class Marble:
     """
     Represents the view for a single marble.
     """
-    pos: tuple[float]
-    cell: tuple[int]
+    pos: Tuple[float]
+    cell: Tuple[int]
     color: Color
     object_ids: list
     selected: bool = False

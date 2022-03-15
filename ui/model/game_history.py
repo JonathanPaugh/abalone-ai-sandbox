@@ -3,6 +3,8 @@ Generic interface for game history.
 """
 
 from dataclasses import dataclass, field
+from typing import List
+
 from core.move import Move
 from core.color import Color
 
@@ -35,7 +37,7 @@ class GameHistory:
     (i.e. the more space-efficient implementation)
     """
 
-    actions: list[GameHistoryItem] = field(default_factory=list)
+    actions: List[GameHistoryItem] = field(default_factory=list)
 
     def __getitem__(self, index):
         """

@@ -4,6 +4,8 @@ Defines the driver logic for the application.
 
 from time import sleep
 
+from agent.agent import Agent
+from core.color import Color
 from ui.model import Model
 from ui.view import View
 from ui.constants import FPS
@@ -22,6 +24,7 @@ class App:
     def __init__(self):
         self._model = Model()
         self._view = View()
+        self._agent = Agent()
 
     def _dispatch(self, action, *args, **kwargs):
         """
@@ -54,6 +57,10 @@ class App:
         """
         self._view.apply_move(move, board=self._model.game_board)
         self._model.apply_move(move)
+
+        if self._model.game_turn == Color.WHITE: # TODO: hook up to config turn
+            next_move = self._agent.find_next_move(self._model.game_board, self._model.game_turn)
+            self._apply_move(next_move)
 
         # STUB(agent): if model config's control mode for the current player is
         # the CPU, call procedure for running agent and applying resulting move
