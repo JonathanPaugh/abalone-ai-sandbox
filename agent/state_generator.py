@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List
 
 from core.board import Board
+from core.color import Color
 from core.hex import HexDirection, Hex
 from core.move import Move
 from core.selection import Selection
@@ -11,7 +12,7 @@ from parse.state_parser import StateParser
 class StateGenerator:
 
     @classmethod
-    def test(cls, board: Board, current_player: int):
+    def test(cls, board: Board, current_player: Color):
         """
         Tests agent generation functions on a board by printing out each resulting move and agent.
         """
@@ -35,7 +36,7 @@ class StateGenerator:
         return boards
 
     @classmethod
-    def enumerate_board(cls, board: Board, current_player: int) -> List[Move]:
+    def enumerate_board(cls, board: Board, current_player: Color) -> List[Move]:
         """
         Enumerates through every position on the board and finds every possible unique selection for a player.
         From each selection, iterates through every possible move, finding only valid moves.
@@ -54,7 +55,7 @@ class StateGenerator:
         return moves
 
     @staticmethod
-    def _get_possible_selections(board: Board, origin_cell: Hex, current_player: int) -> List[Selection]:
+    def _get_possible_selections(board: Board, origin_cell: Hex, current_player: Color) -> List[Selection]:
         """
         Gets every possible selection from a cell of origin on the board.
         :return: List of selections from an origin cell.
@@ -76,7 +77,7 @@ class StateGenerator:
         return selections
 
     @staticmethod
-    def _get_valid_moves(board: Board, selection: Selection, current_player: int) -> List[Move]:
+    def _get_valid_moves(board: Board, selection: Selection, current_player: Color) -> List[Move]:
         """
         Iterates through a move in every direction from a selection on the board and filters for valid moves.
         :return: List of valid moves from given selection.

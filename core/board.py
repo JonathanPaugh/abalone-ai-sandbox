@@ -77,11 +77,11 @@ class Board(HexGrid):
         """
         return cell in self
 
-    def cell_owned_by(self, cell: Hex, player: int) -> bool:
+    def cell_owned_by(self, cell: Hex, player: Color) -> bool:
         """
         :return: If the cell is owned by the player.
         """
-        return self.cell_in_bounds(cell) and self[cell] and self[cell].value == player
+        return self.cell_in_bounds(cell) and self[cell] and self[cell] == player
 
     def is_valid_move(self, move: Move, current_player: int) -> bool:
         """

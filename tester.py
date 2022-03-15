@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from os.path import splitext
 
 from agent.state_generator import StateGenerator
+from core.color import Color
 from lib.file_handler import FileHandler
 from parse import state_parser
 from core.board import Board
@@ -46,7 +47,7 @@ class Tester:
 
         board = Board.create_from_data(state)
 
-        possible_moves = StateGenerator.enumerate_board(board, player)
+        possible_moves = StateGenerator.enumerate_board(board, Color(player))
         possible_boards = StateGenerator.generate(board, possible_moves)
 
         self.write_move_file(possible_moves, number)
