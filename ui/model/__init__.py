@@ -43,6 +43,14 @@ class Model:
         """
         return self.game.turn
 
+    @property
+    def game_config(self):
+        """
+        Gets the config of the game.
+        :return: a Config
+        """
+        return self.config
+
     def select_cell(self, cell):
         """
         Selects the given cell.
@@ -103,4 +111,5 @@ class Model:
         :param config: the new Config to use
         :return: None
         """
+        self.config = config
         self.game = Game(config.layout)

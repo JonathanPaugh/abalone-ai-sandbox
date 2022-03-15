@@ -1,4 +1,5 @@
 from core.board_layout import BoardLayout
+from core.player_type import PlayerType
 
 
 class Config:
@@ -8,8 +9,8 @@ class Config:
 
     DEFAULT_LAYOUT = BoardLayout.STANDARD
     DEFAULT_MOVE_LIMIT = 50
-    DEFAULT_PLAYER_TYPE_P1 = "Human"
-    DEFAULT_PLAYER_TYPE_P2 = "Computer"
+    DEFAULT_PLAYER_TYPE_P1 = PlayerType.HUMAN
+    DEFAULT_PLAYER_TYPE_P2 = PlayerType.COMPUTER
     DEFAULT_TIME_LIMIT_P1 = 20
     DEFAULT_TIME_LIMIT_P2 = 5
 

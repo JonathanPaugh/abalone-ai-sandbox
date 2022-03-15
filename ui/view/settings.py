@@ -1,5 +1,7 @@
 from tkinter import Toplevel, OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
+
+from core.player_type import PlayerType
 from ui.model.config import Config
 from core.board_layout import BoardLayout
 
@@ -65,8 +67,8 @@ class SettingsUI:
             self._on_close(Config(
                 next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
                 move_limit.get(),
-                player_type_p1.get(),
-                player_type_p2.get(),
+                PlayerType(player_type_p1.get()),
+                PlayerType(player_type_p2.get()),
                 time_limit_p1.get(),
                 time_limit_p2.get()
             )),
@@ -98,9 +100,10 @@ class SettingsUI:
         return self._mount_input(parent, row, 3, "w", self.config.move_limit)
 
     def _mount_player_types(self, parent, row):
-        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.player_type_p1, "Human", "Computer")
+        print(self.config.player_type_p2.value)
+        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.player_type_p1.value, "Human", "Computer")
         self._mount_label(parent, row, 2, "", "Player Type")
-        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.player_type_p2, "Human", "Computer")
+        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.player_type_p2.value, "Human", "Computer")
         return p1, p2
 
     def _mount_time_limits(self, parent, row):
