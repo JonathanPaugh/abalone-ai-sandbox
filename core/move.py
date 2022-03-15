@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from core.board import Board
+    from core.board import Board, Color
     from core.hex import Hex, HexDirection
     from selection import Selection
 
@@ -57,6 +57,12 @@ class Move:
 
         return self.selection.end
 
+    def get_front_target(self) -> Hex:
+        if not self.is_inline():
+            return None
+
+        return self.get_front().add(self.direction.value)
+
     def get_destinations(self) -> List[Hex]:
         """
         :return: List of destination cells for each origin cell from selection.
@@ -66,6 +72,18 @@ class Move:
             destinations.append(cell.add(self.direction.value))
 
         return destinations
+
+    def get_player(self, board: Board) -> Color:
+        """
+        :return: Player that owns the cells of the move selection.
+        """
+        return self.selection.get_player(board)
+
+    def get_cells(self) -> List[Hex]:
+        """
+        :return: List of the cells in the move selection.
+        """
+        return self.selection.to_array()
 
     def __str__(self):
         string = F"({self.direction.name}, {self.selection})"

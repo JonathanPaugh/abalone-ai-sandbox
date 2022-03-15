@@ -39,7 +39,7 @@ class Game:
         :return: True if successful, else False
         """
 
-        if self._turn != move.selection.get_player(self._board): # TODO: demeter
+        if self._turn != move.get_player(self._board):
             return False
 
         self._board.apply_move(move)

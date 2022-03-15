@@ -59,7 +59,7 @@ class Model:
         """
 
         selection = self.selection
-        selection_head = selection and (selection.end or selection.start) # TODO(?): add head method
+        selection_head = selection and selection.get_head()
 
         # select marbles corresponding to the current turn
         if not selection:
@@ -76,12 +76,7 @@ class Model:
         if self.game_board[cell] == self.game_turn:
             selection.start = selection.end or selection.start
             selection.end = cell
-            selection_cells = selection.to_array()
-            selection_color = selection.get_player(self.game_board)
-            if (not selection_cells # TODO: Selection.is_valid_selection(board)?
-            or len(selection_cells) > MAX_SELECTION_SIZE
-            or next((True for c in selection_cells
-                if self.game_board[c] != selection_color), False)):
+            if (selection.is_valid_selection(self.game_board)):
                 self.selection = None
             return None
 
@@ -90,7 +85,7 @@ class Model:
             normal = cell.subtract(selection_head)
             direction = HexDirection.resolve(normal)
             move = Move(selection, direction)
-            if self.game_board.is_valid_move(move, self.game_turn.value): # TODO: use color enum
+            if self.game_board.is_valid_move(move, self.game_turn):
                 return move
 
         self.selection = None

@@ -240,12 +240,9 @@ class BoardView:
         :return: None
         """
 
-        move_color = move.selection.get_player(board) # TODO: demeter
-        move_cells = move.selection.to_array() # TODO: demeter
-        move_head = move.get_front()
-
-        # TODO: add method for getting move target cell
-        move_target = move_head and move_head.add(move.direction.value)
+        move_color = move.get_player(board)
+        move_cells = move.get_cells()
+        move_target = move.get_front_target()
 
         # perform a sumito if target cell contains one of the opponent's marbles
         if move_target and board[move_target] == Color.next(move_color):

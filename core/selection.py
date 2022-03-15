@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
 
+from core.constants import MAX_SELECTION_SIZE
+
 if TYPE_CHECKING:
-    from core.board import Board
+    from core.board import Board, Color
 
 from core.hex import Hex, HexDirection
 
@@ -16,11 +18,27 @@ class Selection:
         if start != end:
             self.end = end
 
-    def get_player(self, board: Board) -> int:
+    def is_valid_selection(self, board: Board):
+        """
+        :return: If the selection is a valid selection given the board state for a player.
+        """
+        cells = self.to_array()
+        return (not cells
+            or len(cells) > MAX_SELECTION_SIZE
+            or next((True for cell in cells
+                if board[cell] != self.get_player(board)), False))
+
+    def get_player(self, board: Board) -> Color:
         """
         :return: Player that owns the cells of selection.
         """
         return board[self.start]
+
+    def get_head(self) -> Hex:
+        """
+        :return: The end cell in a selection of size greater than 1, else the start cell.
+        """
+        return self.end or self.start
 
     def get_size(self) -> int:
         """

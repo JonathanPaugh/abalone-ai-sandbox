@@ -83,7 +83,7 @@ class Board(HexGrid):
         """
         return self.cell_in_bounds(cell) and self[cell] and self[cell] == player
 
-    def is_valid_move(self, move: Move, current_player: int) -> bool:
+    def is_valid_move(self, move: Move, current_player: Color) -> bool:
         """
         :return: If the move is valid.
         """
@@ -116,7 +116,7 @@ class Board(HexGrid):
 
         return True
 
-    def _is_valid_inline_move(self, move: Move, current_player: int) -> bool:
+    def _is_valid_inline_move(self, move: Move, current_player: Color) -> bool:
         """
         :return: Is a valid inline move.
         :precondition: Move is inline.
@@ -129,7 +129,7 @@ class Board(HexGrid):
                 return out_of_bounds_valid
             if not self[destination]:
                 return True
-            if self[destination] == Color(current_player):
+            if self[destination] == current_player:
                 return False
             else:
                 if i >= move.selection.get_size():
