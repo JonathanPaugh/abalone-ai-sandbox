@@ -40,6 +40,10 @@ class GameUI:
 
     @property
     def animating(self):
+        """
+        Determines whether or not the game is being animated.
+        :return: a bool
+        """
         return self._board_view.animating
 
     def mount(self, parent, **kwargs):
@@ -251,6 +255,9 @@ class GameUI:
         self._board_view.clear()
 
     def update(self):
+        """
+        Updates the game view by one tick.
+        """
         self._board_view.update()
 
     def apply_move(self, *args, **kwargs):

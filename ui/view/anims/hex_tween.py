@@ -1,7 +1,16 @@
+"""
+Defines a tween animation for hex coordinates.
+"""
+
 from ui.view.anims.tween import TweenAnim
 from core.hex import Hex
 
 class HexTweenAnim(TweenAnim):
+    """
+    A tween animation for hex coordinates.
+    Inputs `src` and `dest` Hex instances and outputs a `cell`, handling
+    interpolation out of the box.
+    """
 
     def __init__(self, src, dest, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -14,9 +23,17 @@ class HexTweenAnim(TweenAnim):
 
     @property
     def cell(self):
+        """
+        Gets the animation's current hex position.
+        :return: a Hex
+        """
         return self._cell
 
     def update(self):
+        """
+        Updates the animation.
+        :return: a Hex denoting the animation's current hex position
+        """
         pos = super().update()
 
         if self.done:

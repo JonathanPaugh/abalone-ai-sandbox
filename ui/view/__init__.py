@@ -39,6 +39,10 @@ class View:
 
     @property
     def animating(self):
+        """
+        Determines whether or not the view is being animated.
+        :return: a bool
+        """
         return self._game_view.animating
 
     def _open_settings(self, on_close):

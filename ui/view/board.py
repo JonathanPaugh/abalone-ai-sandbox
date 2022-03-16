@@ -3,6 +3,7 @@ Defines the board view.
 """
 
 from math import sqrt
+from abc import ABC, abstractmethod
 from tkinter import Canvas
 from lib.hex.transpose_hex import hex_to_point, point_to_hex
 from lib.easing_expo import ease_out, ease_in
@@ -41,17 +42,52 @@ def point_to_hex_with_board_offsets(pos):
     return Hex(cell[0] + BOARD_MAX_COLS // 2, cell[1])
 
 
-class MarbleMoveAnim(HexTweenAnim):
+class MarbleAnim(ABC):
+    """
+    A generic marble animation.
+    Defines the `transform` method for composing marble drawing parameters.
+    For more complex operands, consider wrapping drawing parameters into their
+    own class.
+    """
+
+    @abstractmethod
+    def transform(self, cell, size):
+        """
+        Transforms the given marble drawing parameters using the animation state.
+        :param cell: a Hex
+        :param size: a float
+        :return: a tuple[Hex, float]
+        """
+
+class MarbleMoveAnim(MarbleAnim, HexTweenAnim):
+    """
+    A marble movement animation.
+    Usage requires a `src` and `dest` per `HexTweenAnim`.
+    """
     duration = 10
 
-    def transform(self, cell, size):
+    def transform(self, _, size):
+        """
+        Transforms the given marble drawing parameters using the animation state.
+        :param cell: a Hex
+        :param size: a float
+        :return: a tuple[Hex, float]
+        """
         return self.cell, size
 
-
-class MarbleShrinkAnim(TweenAnim):
+class MarbleShrinkAnim(MarbleAnim, TweenAnim):
+    """
+    A marble shrink animation.
+    """
     duration = 7
 
     def transform(self, cell, size):
+        """
+        Transforms the given marble drawing parameters using the animation state.
+        :param cell: a Hex
+        :param size: a float
+        :return: a tuple[Hex, float]
+        """
         return cell, size * (1 - self.pos)
 
 
@@ -75,6 +111,11 @@ class BoardView:
 
     @property
     def animating(self):
+        """
+        Determines whether or not the board is being animated.
+        :return: a bool
+        """
+        # TODO: performance bottleneck - use update flag or animation class
         return next((True for anim in self._anims if not anim.done), False)
 
     def _setup(self, model):
@@ -228,12 +269,20 @@ class BoardView:
         )
 
     def _update_anims(self):
+        """
+        Updates the board's animations by one tick.
+        :return: None
+        """
         self._anims = [anim for anim in self._anims if not anim.done]
         for anim in self._anims:
             if not anim.done:
                 anim.update()
 
     def _update_marbles(self):
+        """
+        Updates the board's marbles by one tick.
+        :return: None
+        """
         if not self._anims:
             return
 
@@ -261,6 +310,10 @@ class BoardView:
         return canvas
 
     def update(self):
+        """
+        Updates the game board view by a single tick.
+        :return: None
+        """
         self._update_anims()
         self._update_marbles()
 
@@ -323,7 +376,9 @@ class BoardView:
                     target=marble,
                     easing=ease_in,
                     delay=MarbleMoveAnim.duration,
-                    on_end=lambda: self._delete_marble(marble)
+                    on_end=(lambda marble: (
+                        lambda: self._delete_marble(marble)
+                    ))(marble)
                 ))
 
         self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
