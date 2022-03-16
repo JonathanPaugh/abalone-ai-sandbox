@@ -37,6 +37,10 @@ class View:
         """
         return self._done
 
+    @property
+    def animating(self):
+        return self._game_view.animating
+
     def _open_settings(self, on_close):
         """
         Displays a settings pop up for user customization input.
@@ -76,7 +80,7 @@ class View:
         :return: None
         """
         self._window.update()
-        # STUB: update animations
+        self._game_view.update()
 
     def render(self, model):
         """

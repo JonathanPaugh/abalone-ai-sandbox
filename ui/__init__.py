@@ -44,6 +44,9 @@ class App:
         :param cell: the Hex to select
         :return: None
         """
+        if self._view.animating:
+            return
+
         move = self._model.select_cell(cell)
         if move:
             self._apply_move(move)
@@ -55,9 +58,10 @@ class App:
         :param move: the Move to apply
         :return None:
         """
-        self._view.apply_move(move, board=self._model.game_board)
+        self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
         self._model.apply_move(move)
 
+    def _process_agent_move(self):
         config = self._model.config
 
         player_type = {

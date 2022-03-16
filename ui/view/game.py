@@ -38,6 +38,10 @@ class GameUI:
         self.frame = None
         self._board_view = None
 
+    @property
+    def animating(self):
+        return self._board_view.animating
+
     def mount(self, parent, **kwargs):
         """
         Displays the GUI.
@@ -245,6 +249,9 @@ class GameUI:
         :return: None
         """
         self._board_view.clear()
+
+    def update(self):
+        self._board_view.update()
 
     def apply_move(self, *args, **kwargs):
         """
