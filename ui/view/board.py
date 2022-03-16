@@ -6,11 +6,13 @@ from math import sqrt
 from tkinter import Canvas
 from lib.hex.transpose_hex import hex_to_point, point_to_hex
 from lib.easing_expo import ease_out, ease_in
+from lib.compose_fns import compose_fns
 
 from core.hex import Hex
 from core.color import Color
 
 import ui.view.colors.palette as palette
+from ui.view.anims.tween import TweenAnim
 from ui.view.anims.hex_tween import HexTweenAnim
 from ui.view.marble import Marble, render_marble
 from ui.constants import (
@@ -44,6 +46,13 @@ class MarbleMoveAnim(HexTweenAnim):
 
     def transform(self, cell, size):
         return self.cell, size
+
+
+class MarbleShrinkAnim(TweenAnim):
+    duration = 7
+
+    def transform(self, cell, size):
+        return cell, size * (1 - self.pos)
 
 
 class BoardView:
@@ -152,15 +161,19 @@ class BoardView:
             marble_cell, marble_size = anim.transform(marble_cell, marble_size)
 
         new_pos = self._find_marble_pos(marble_cell)
-
         old_x, old_y = marble.pos
         new_x, new_y = new_pos
+        marble.pos = new_pos
+
         delta = (new_x - old_x, new_y - old_y)
         if delta != (0, 0):
             for object_id in marble.object_ids:
                 self._canvas.move(object_id, *delta)
 
-        marble.pos = new_pos
+        if marble_size != MARBLE_SIZE:
+            for object_id in marble.object_ids:
+                marble_scale = marble_size / MARBLE_SIZE
+                self._canvas.scale(object_id, *new_pos, marble_scale, marble_scale)
 
     def _clear_marble(self, marble):
         """
@@ -306,6 +319,11 @@ class BoardView:
             ))
 
             if marble.cell not in board:
-                self._delete_marble(marble)
+                self._anims.append(MarbleShrinkAnim(
+                    target=marble,
+                    easing=ease_in,
+                    delay=MarbleMoveAnim.duration,
+                    on_end=lambda: self._delete_marble(marble)
+                ))
 
-        self._anims[-1].on_end = on_end
+        self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
