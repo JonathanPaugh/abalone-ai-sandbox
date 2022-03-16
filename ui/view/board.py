@@ -3,13 +3,18 @@ Defines the board view.
 """
 
 from math import sqrt
+from abc import ABC, abstractmethod
 from tkinter import Canvas
+from lib.compose_fns import compose_fns
+from lib.easing_expo import ease_out, ease_in
 from lib.hex.transpose_hex import hex_to_point, point_to_hex
+from lib.anims.tween import TweenAnim
 
 from core.hex import Hex
 from core.color import Color
 
 import ui.view.colors.palette as palette
+from ui.view.anims.hex_tween import HexTweenAnim
 from ui.view.marble import Marble, render_marble
 from ui.constants import (
     BOARD_SIZE, BOARD_MAX_COLS,
@@ -37,6 +42,55 @@ def point_to_hex_with_board_offsets(pos):
     return Hex(cell[0] + BOARD_MAX_COLS // 2, cell[1])
 
 
+class MarbleAnim(ABC):
+    """
+    A generic marble animation.
+    Defines the `transform` method for composing marble drawing parameters.
+    For more complex operands, consider wrapping drawing parameters into their
+    own class.
+    """
+
+    @abstractmethod
+    def transform(self, cell, size):
+        """
+        Transforms the given marble drawing parameters using the animation state.
+        :param cell: a Hex
+        :param size: a float
+        :return: a tuple[Hex, float]
+        """
+
+class MarbleMoveAnim(MarbleAnim, HexTweenAnim):
+    """
+    A marble movement animation.
+    Usage requires a `src` and `dest` per `HexTweenAnim`.
+    """
+    duration = 10
+
+    def transform(self, _, size):
+        """
+        Transforms the given marble drawing parameters using the animation state.
+        :param cell: a Hex
+        :param size: a float
+        :return: a tuple[Hex, float]
+        """
+        return self.cell, size
+
+class MarbleShrinkAnim(MarbleAnim, TweenAnim):
+    """
+    A marble shrink animation.
+    """
+    duration = 7
+
+    def transform(self, cell, size):
+        """
+        Transforms the given marble drawing parameters using the animation state.
+        :param cell: a Hex
+        :param size: a float
+        :return: a tuple[Hex, float]
+        """
+        return cell, size * (1 - self.pos)
+
+
 class BoardView:
     """
     The board view.
@@ -53,6 +107,16 @@ class BoardView:
     def __init__(self):
         self._canvas = None
         self._marbles = []
+        self._anims = []
+
+    @property
+    def animating(self):
+        """
+        Determines whether or not the board is being animated.
+        :return: a bool
+        """
+        # TODO: performance bottleneck - use update flag or animation class
+        return next((True for anim in self._anims if not anim.done), False)
 
     def _setup(self, model):
         """
@@ -103,18 +167,18 @@ class BoardView:
         """
         return next((marble for marble in self._marbles if marble.cell == cell), None)
 
-    def _update(self, model):
+    def _refresh(self, model):
         """
         Updates the board using the given model.
         :param model: the Model to diff against
         :return: None
         """
         for marble in self._marbles:
-            self._update_marble(model, marble)
+            self._refresh_marble(model, marble)
 
-    def _update_marble(self, model, marble):
+    def _refresh_marble(self, model, marble):
         """
-        Updates a marble using the given model.
+        Refreshes a marble using the given model.
         :param model: the Model to diff against
         :param marble: the Marble to clear
         :return: None
@@ -130,16 +194,27 @@ class BoardView:
             marble.focused = is_marble_focused
             self._redraw_marble(marble, selected=is_marble_selected, focused=is_marble_focused)
 
-        # adjust marble positions based on cell changes
-        marble_pos = self._find_marble_pos(marble.cell)
-        for object_id in marble.object_ids:
-            old_x, old_y = marble.pos
-            new_x, new_y = marble_pos
-            delta = (new_x - old_x, new_y - old_y)
-            if delta != (0, 0):
+    def _update_marble(self, marble, anims):
+        marble_cell = marble.cell
+        marble_size = MARBLE_SIZE
+
+        for anim in anims:
+            marble_cell, marble_size = anim.transform(marble_cell, marble_size)
+
+        new_pos = self._find_marble_pos(marble_cell)
+        old_x, old_y = marble.pos
+        new_x, new_y = new_pos
+        marble.pos = new_pos
+
+        delta = (new_x - old_x, new_y - old_y)
+        if delta != (0, 0):
+            for object_id in marble.object_ids:
                 self._canvas.move(object_id, *delta)
 
-        marble.pos = marble_pos
+        if marble_size != MARBLE_SIZE:
+            for object_id in marble.object_ids:
+                marble_scale = marble_size / MARBLE_SIZE
+                self._canvas.scale(object_id, *new_pos, marble_scale, marble_scale)
 
     def _clear_marble(self, marble):
         """
@@ -193,6 +268,29 @@ class BoardView:
             outline="",
         )
 
+    def _update_anims(self):
+        """
+        Updates the board's animations by one tick.
+        :return: None
+        """
+        self._anims = [anim for anim in self._anims if not anim.done]
+        for anim in self._anims:
+            if not anim.done:
+                anim.update()
+
+    def _update_marbles(self):
+        """
+        Updates the board's marbles by one tick.
+        :return: None
+        """
+        if not self._anims:
+            return
+
+        for marble in self._marbles:
+            marble_anims = [anim for anim in self._anims if anim.target is marble]
+            if marble_anims:
+                self._update_marble(marble, anims=marble_anims)
+
     def mount(self, parent, on_click):
         """
         Mounts the board view onto the given parent.
@@ -211,6 +309,14 @@ class BoardView:
         self._canvas = canvas
         return canvas
 
+    def update(self):
+        """
+        Updates the game board view by a single tick.
+        :return: None
+        """
+        self._update_anims()
+        self._update_marbles()
+
     def render(self, model):
         """
         Diffs the given model against view state and queues up changes to
@@ -220,7 +326,7 @@ class BoardView:
         :return: None
         """
         if self._marbles:
-            self._update(model)
+            self._refresh(model)
         else:
             self._setup(model)
 
@@ -232,7 +338,7 @@ class BoardView:
         self._canvas.delete("all")
         self._marbles.clear()
 
-    def apply_move(self, move, board):
+    def apply_move(self, move, board, on_end=None):
         """
         Visually moves the marbles affected by the given move.
         :param move: the Move to apply
@@ -258,5 +364,21 @@ class BoardView:
 
         for marble, cell in marble_cells:
             marble.cell = cell.add(move.direction.value)
+            self._anims.append(MarbleMoveAnim(
+                target=marble,
+                easing=ease_out,
+                src=cell,
+                dest=marble.cell,
+            ))
+
             if marble.cell not in board:
-                self._delete_marble(marble)
+                self._anims.append(MarbleShrinkAnim(
+                    target=marble,
+                    easing=ease_in,
+                    delay=MarbleMoveAnim.duration,
+                    on_end=(lambda marble: (
+                        lambda: self._delete_marble(marble)
+                    ))(marble)
+                ))
+
+        self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
