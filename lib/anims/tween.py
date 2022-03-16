@@ -2,7 +2,7 @@
 Defines a generic tween animation.
 """
 
-from ui.view.anims import Anim
+from lib.anims import Anim
 
 class TweenAnim(Anim):
     """

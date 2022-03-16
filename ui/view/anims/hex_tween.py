@@ -2,7 +2,7 @@
 Defines a tween animation for hex coordinates.
 """
 
-from ui.view.anims.tween import TweenAnim
+from lib.anims.tween import TweenAnim
 from core.hex import Hex
 
 class HexTweenAnim(TweenAnim):

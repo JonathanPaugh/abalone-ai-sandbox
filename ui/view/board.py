@@ -5,15 +5,15 @@ Defines the board view.
 from math import sqrt
 from abc import ABC, abstractmethod
 from tkinter import Canvas
-from lib.hex.transpose_hex import hex_to_point, point_to_hex
-from lib.easing_expo import ease_out, ease_in
 from lib.compose_fns import compose_fns
+from lib.easing_expo import ease_out, ease_in
+from lib.hex.transpose_hex import hex_to_point, point_to_hex
+from lib.anims.tween import TweenAnim
 
 from core.hex import Hex
 from core.color import Color
 
 import ui.view.colors.palette as palette
-from ui.view.anims.tween import TweenAnim
 from ui.view.anims.hex_tween import HexTweenAnim
 from ui.view.marble import Marble, render_marble
 from ui.constants import (
