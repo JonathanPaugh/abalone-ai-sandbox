@@ -6,6 +6,7 @@ from time import sleep
 from agent.agent import Agent
 from core.color import Color
 from core.player_type import PlayerType
+from lib.interval_timer import IntervalTimer
 from ui.model import Model
 from ui.view import View
 from ui.constants import FPS
@@ -25,6 +26,11 @@ class App:
         self._model = Model()
         self._view = View()
         self._agent = Agent()
+
+        timer = IntervalTimer(10, 1)
+        timer.set_on_interval(lambda progress: print(F"Interval: {progress}"))
+        timer.set_on_complete(lambda: print("IM DONE!"))
+        timer.start()
 
     def _dispatch(self, action, *args, **kwargs):
         """
