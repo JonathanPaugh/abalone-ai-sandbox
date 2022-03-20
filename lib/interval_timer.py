@@ -9,6 +9,7 @@ class IntervalTimer(threading.Thread):
         self.on_interval = None
         self.on_complete = None
 
+        self.interrupted = False
         self.stopped = threading.Event()
         self.daemon = True
 
@@ -18,6 +19,10 @@ class IntervalTimer(threading.Thread):
     def set_on_interval(self, on_interval):
         self.on_interval = on_interval
 
+    def interrupt(self):
+        self.interrupted = True
+        self.stopped.set()
+
     def run(self):
         remaining_time = self.total_time
         while remaining_time > 0 and not self.stopped.wait(self.interval):
@@ -25,7 +30,7 @@ class IntervalTimer(threading.Thread):
             if self.on_interval:
                 self.on_interval(self._clamp_01(remaining_time / self.total_time))
 
-        if self.on_complete:
+        if self.on_complete and not self.interrupted:
             self.on_complete()
 
     def _clamp_01(self, value: float) -> float:

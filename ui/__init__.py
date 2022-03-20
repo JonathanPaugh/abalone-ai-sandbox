@@ -1,13 +1,13 @@
 """
 Defines the driver logic for the application.
 """
+import random
 from time import sleep
-
 from agent.agent import Agent
-from core.color import Color
+from agent.state_generator import StateGenerator
 from core.player_type import PlayerType
-from lib.interval_timer import IntervalTimer
 from ui.model import Model
+from ui.model.config import Config
 from ui.view import View
 from ui.constants import FPS
 
@@ -26,11 +26,6 @@ class App:
         self._model = Model()
         self._view = View()
         self._agent = Agent()
-
-        timer = IntervalTimer(10, 1)
-        timer.set_on_interval(lambda progress: print(F"Interval: {progress}"))
-        timer.set_on_complete(lambda: print("IM DONE!"))
-        timer.start()
 
     def _dispatch(self, action, *args, **kwargs):
         """
@@ -65,7 +60,14 @@ class App:
         :return: None
         """
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
-        self._model.apply_move(move)
+        self._model.apply_move(move, self._update_view_timer, self._apply_random_move)
+
+    def _update_view_timer(self, progress):
+        self._view._game_view.update_timer(progress)
+
+    def _apply_random_move(self):
+        moves = StateGenerator.enumerate_board(self._model.game_board, self._model.game_turn)
+        self._apply_move(random.choice(moves))
 
     def _process_agent_move(self):
         """
@@ -73,15 +75,12 @@ class App:
         is CPU-controlled.
         :return: None
         """
-        config = self._model.config
-
-        player_type = {
-            Color.BLACK: config.player_type_p1,
-            Color.WHITE: config.player_type_p2
-        }[self._model.game_turn]
+        config = self._model.game_config
+        player_color = self._model.game_turn
+        player_type = config.get_player_type(player_color)
 
         if (player_type == PlayerType.COMPUTER):
-            next_move = self._agent.find_next_move(self._model.game_board, self._model.game_turn)
+            next_move = self._agent.find_next_move(self._model.game_board, player_color)
             self._apply_move(next_move)
 
         # STUB(agent): if model config's control mode for the current player is

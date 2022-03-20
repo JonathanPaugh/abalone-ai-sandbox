@@ -1,18 +1,15 @@
 """
 Defines the model for the application.
 """
-
 from dataclasses import dataclass, field
-
 from core.game import Game
 from core.hex import HexDirection
 from core.selection import Selection
 from core.move import Move
-from core.constants import MAX_SELECTION_SIZE
+from lib.interval_timer import IntervalTimer
+import ui.constants
 
-from ui.model.config import Config
 from ui.model.game_history import GameHistory
-
 
 @dataclass # TODO(?): un-dataclass for field privacy
 class Model:
@@ -23,9 +20,9 @@ class Model:
 
     selection: Selection = None
     paused: bool = False
-    game: Game = field(default_factory=Game)
+    timer: IntervalTimer = None
     history: GameHistory = field(default_factory=GameHistory)
-    config: Config = field(default_factory=Config.from_default)
+    game: Game = field(default_factory=Game)
 
     @property
     def game_board(self):
@@ -49,7 +46,7 @@ class Model:
         Gets the config of the game.
         :return: a Config
         """
-        return self.config
+        return self.game.config
 
     def select_cell(self, cell):
         """
@@ -91,15 +88,6 @@ class Model:
         self.selection = None
         return None # consistency
 
-    def apply_move(self, move):
-        """
-        Applies the given move to the game board.
-        :param move: the move to apply
-        :return: None
-        """
-        self.game.apply_move(move)
-        self.selection = None
-
     def apply_config(self, config):
         """
         Applies the given config and starts a new game.
@@ -107,4 +95,25 @@ class Model:
         :return: None
         """
         self.config = config
-        self.game = Game(config.layout)
+        self.game = Game(config)
+
+    def apply_move(self, move, on_timer, on_timeout):
+        """
+        Applies the given move to the game board.
+        :param move: the move to apply
+        :return: None
+        """
+        self.game.apply_move(move)
+        self.selection = None
+        self._launch_turn_timer(on_timer, on_timeout)
+
+    def _launch_turn_timer(self, on_timer, on_timeout):
+        if self.timer:
+            self.timer.interrupt()
+
+        time_limit = self.game_config.get_player_time_limit(self.game_turn)
+
+        self.timer = IntervalTimer(time_limit, float(1 / ui.constants.FPS))
+        self.timer.set_on_interval(on_timer)
+        self.timer.set_on_complete(on_timeout)
+        self.timer.start()

@@ -37,6 +37,7 @@ class GameUI:
     def __init__(self):
         self.frame = None
         self._board_view = None
+        self._timer = None
 
     @property
     def animating(self):
@@ -69,6 +70,12 @@ class GameUI:
         """
         self._board_view.render(model)
 
+    def update_timer(self, time):
+        if not self._timer:
+            return
+
+        self._timer.text.set(time)
+
     def _mount_widgets(self, parent, on_click_settings, on_click_board):
         """
         Renders all components required for the GUI.
@@ -100,7 +107,7 @@ class GameUI:
         frame.columnconfigure(5, weight=1)
         frame.columnconfigure(6, weight=1)
 
-        Label(frame,
+        self._timer = Label(frame,
               text="00:00.00",
               font=(self.FONT_FAMILY_PRIMARY, 25),
               foreground=self.COLOR_FOREGROUND_PRIMARY,
