@@ -2,14 +2,17 @@
 Defines the driver logic for the application.
 """
 import random
+from datetime import timedelta
 from time import sleep
 from agent.agent import Agent
 from agent.state_generator import StateGenerator
 from core.player_type import PlayerType
+from ui.dispatcher import Dispatcher
 from ui.model import Model
 from ui.model.config import Config
 from ui.view import View
 from ui.constants import FPS
+from time import time
 
 
 class App:
@@ -26,6 +29,7 @@ class App:
         self._model = Model()
         self._view = View()
         self._agent = Agent()
+        self._view_dispatcher = Dispatcher()
 
     def _dispatch(self, action, *args, **kwargs):
         """
@@ -38,6 +42,14 @@ class App:
         # or if we should just use explicit actions for everything
         action(*args, **kwargs)
         self._view.render(self._model)
+
+    def _dispatch_timer_update(self, time_remaining: float):
+        """
+        Queues a time to render to timer on the next update frame.
+        :param time: a float in seconds
+        """
+        time = timedelta(seconds=time_remaining)
+        self._view_dispatcher.put(lambda: self._view.update_timer(time))
 
     def _select_cell(self, cell):
         """
@@ -60,10 +72,7 @@ class App:
         :return: None
         """
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
-        self._model.apply_move(move, self._update_view_timer, self._apply_random_move)
-
-    def _update_view_timer(self, progress):
-        self._view._game_view.update_timer(progress)
+        self._model.apply_move(move, self._dispatch_timer_update, self._apply_random_move)
 
     def _apply_random_move(self):
         moves = StateGenerator.enumerate_board(self._model.game_board, self._model.game_turn)
@@ -103,6 +112,7 @@ class App:
         """
         # STUB(agent): async agent move requests may be called from here
         self._view.update()
+        self._view_dispatcher.dispatch()
 
     def _run_main_loop(self):
         """

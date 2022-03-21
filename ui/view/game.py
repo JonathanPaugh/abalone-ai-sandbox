@@ -2,8 +2,9 @@
 Defines the game view.
 """
 
-from tkinter import Frame, Label, Button, WORD
+from tkinter import Frame, Label, Button, WORD, StringVar
 from tkinter.scrolledtext import ScrolledText
+from datetime import timedelta, datetime
 
 import ui.constants as constants
 from ui.view.board import BoardView
@@ -37,7 +38,7 @@ class GameUI:
     def __init__(self):
         self.frame = None
         self._board_view = None
-        self._timer = None
+        self._timer_text = None
 
     @property
     def animating(self):
@@ -70,12 +71,6 @@ class GameUI:
         """
         self._board_view.render(model)
 
-    def update_timer(self, time):
-        if not self._timer:
-            return
-
-        self._timer.text.set(time)
-
     def _mount_widgets(self, parent, on_click_settings, on_click_board):
         """
         Renders all components required for the GUI.
@@ -107,8 +102,9 @@ class GameUI:
         frame.columnconfigure(5, weight=1)
         frame.columnconfigure(6, weight=1)
 
-        self._timer = Label(frame,
-              text="00:00.00",
+        self._timer_text = StringVar(frame, "00:00.00")
+        Label(frame,
+              textvariable=self._timer_text,
               font=(self.FONT_FAMILY_PRIMARY, 25),
               foreground=self.COLOR_FOREGROUND_PRIMARY,
               background=self.COLOR_BACKGROUND_SECONDARY
@@ -266,6 +262,15 @@ class GameUI:
         Updates the game view by one tick.
         """
         self._board_view.update()
+
+    def update_timer(self, time: timedelta):
+        """
+        Updates the game view timer.
+        :param time: a time to display.
+        """
+        time_string = str(time)
+        minutes, seconds = time_string.split(":")[1:]
+        self._timer_text.set(F"{minutes}:{float(seconds):.2f}")
 
     def apply_move(self, *args, **kwargs):
         """

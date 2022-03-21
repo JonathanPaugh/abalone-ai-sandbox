@@ -1,4 +1,7 @@
 import threading
+import time
+from lib.clamp import clamp
+
 
 class IntervalTimer(threading.Thread):
     def __init__(self, total_time: float, interval: float):
@@ -13,6 +16,10 @@ class IntervalTimer(threading.Thread):
         self.stopped = threading.Event()
         self.daemon = True
 
+    @property
+    def remaining_time(self):
+        return
+
     def set_on_complete(self, on_complete):
         self.on_complete = on_complete
 
@@ -25,13 +32,17 @@ class IntervalTimer(threading.Thread):
 
     def run(self):
         remaining_time = self.total_time
-        while remaining_time > 0 and not self.stopped.wait(self.interval):
-            remaining_time -= self.interval
+
+        start_time = time.time()
+        while remaining_time > 0 and not self.stopped.wait(self.interval): # Time resolution is really bad
             if self.on_interval:
-                self.on_interval(self._clamp_01(remaining_time / self.total_time))
+                self.on_interval(self._get_progress(remaining_time))
+            end_time = time.time()
+            remaining_time -= end_time - start_time
+            start_time = time.time()
 
         if self.on_complete and not self.interrupted:
             self.on_complete()
 
-    def _clamp_01(self, value: float) -> float:
-        return max(0, min(value, 1))
+    def _get_progress(self, remaining_time):
+        return clamp(0, 1, remaining_time / self.total_time)

@@ -7,11 +7,11 @@ from core.hex import HexDirection
 from core.selection import Selection
 from core.move import Move
 from lib.interval_timer import IntervalTimer
+from ui.model.game_history import GameHistory
+from datetime import time, timedelta
 import ui.constants
 
-from ui.model.game_history import GameHistory
-
-@dataclass # TODO(?): un-dataclass for field privacy
+@dataclass # TODO(?): un-dataclass for field rivacy
 class Model:
     """
     The model for the application.
@@ -105,15 +105,19 @@ class Model:
         """
         self.game.apply_move(move)
         self.selection = None
-        self._launch_turn_timer(on_timer, on_timeout)
+        self._timer_launch(on_timer, on_timeout)
 
-    def _launch_turn_timer(self, on_timer, on_timeout):
+    def _timer_launch(self, on_timer, on_timeout):
         if self.timer:
             self.timer.interrupt()
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 
         self.timer = IntervalTimer(time_limit, float(1 / ui.constants.FPS))
-        self.timer.set_on_interval(on_timer)
+        self.timer.set_on_interval(lambda progress: self._timer_on_interval(on_timer, progress))
         self.timer.set_on_complete(on_timeout)
         self.timer.start()
+
+    def _timer_on_interval(self, on_timer, progress: float) -> time:
+        time_remaining = self.timer.total_time * progress
+        on_timer(time_remaining)
