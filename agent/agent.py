@@ -11,3 +11,4 @@ class Agent:
         moves = StateGenerator.enumerate_board(board, player)
         boards = StateGenerator.generate(board, moves) # TODO: Look at board outcomes, get heuristic values from each and return the move that lead to best outcome
         return random.choice(moves)
+

@@ -7,22 +7,25 @@ from core.hex import HexDirection
 from core.selection import Selection
 from core.move import Move
 from lib.interval_timer import IntervalTimer
+from ui.model.config import Config
 from ui.model.game_history import GameHistory
-from datetime import time, timedelta
+from datetime import time
 import ui.constants
 
-@dataclass # TODO(?): un-dataclass for field rivacy
+@dataclass  # TODO(?): un-dataclass for field privacy
 class Model:
     """
     The model for the application.
     Contains view-agnostic application state.
     """
 
-    selection: Selection = None
     paused: bool = False
+    selection: Selection = None
     timer: IntervalTimer = None
+    timeout_move: Move = None
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
+    config: Config = field(default_factory=Config.from_default)
 
     @property
     def game_board(self):
@@ -46,7 +49,7 @@ class Model:
         Gets the config of the game.
         :return: a Config
         """
-        return self.game.config
+        return self.config
 
     def select_cell(self, cell):
         """
@@ -73,7 +76,7 @@ class Model:
         if self.game_board[cell] == self.game_turn:
             selection.start = selection.end or selection.start
             selection.end = cell
-            if (selection.is_valid_selection(self.game_board)):
+            if selection.is_valid_selection(self.game_board):
                 self.selection = None
             return None
 
@@ -86,7 +89,7 @@ class Model:
                 return move
 
         self.selection = None
-        return None # consistency
+        return None  # consistency
 
     def apply_config(self, config):
         """
@@ -95,7 +98,10 @@ class Model:
         :return: None
         """
         self.config = config
-        self.game = Game(config)
+        self.timer.stop()
+        self.selection = None
+        self.timeout_move = None
+        self.game = Game(config.layout)
 
     def apply_move(self, move, on_timer, on_timeout):
         """
@@ -105,6 +111,7 @@ class Model:
         """
         self.game.apply_move(move)
         self.selection = None
+        self.timeout_move = None
         self._timer_launch(on_timer, on_timeout)
 
     def _timer_launch(self, on_timer, on_timeout):
@@ -115,7 +122,7 @@ class Model:
 
         self.timer = IntervalTimer(time_limit, float(1 / ui.constants.FPS))
         self.timer.set_on_interval(lambda progress: self._timer_on_interval(on_timer, progress))
-        self.timer.set_on_complete(on_timeout)
+        self.timer.set_on_complete(lambda: on_timeout(self.timeout_move))
         self.timer.start()
 
     def _timer_on_interval(self, on_timer, progress: float) -> time:

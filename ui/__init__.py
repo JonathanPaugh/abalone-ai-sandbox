@@ -3,18 +3,15 @@ Defines the driver logic for the application.
 """
 import random
 from datetime import timedelta
-from threading import Timer
 from time import sleep
-from agent.agent import Agent
 from agent.state_generator import StateGenerator
 from core.player_type import PlayerType
 from ui.agent_operator import AgentOperator
 from ui.dispatcher import Dispatcher
 from ui.model import Model
-from ui.model.config import Config
 from ui.view import View
 from ui.constants import FPS
-from time import time
+import ui.model.config
 
 
 class App:
@@ -52,6 +49,21 @@ class App:
         if move:
             self._apply_move(move)
 
+    def _process_agent_move(self):
+        """
+        Hands control over to the agent to perform a move if the player to move
+        is CPU-controlled.
+        :return: None
+        """
+        config = self._model.game_config
+        player_color = self._model.game_turn
+        player_type = config.get_player_type(player_color)
+
+        if player_type is PlayerType.COMPUTER:
+            self._agent_operator.search(self._model.game_board,
+                                        player_color,
+                                        self._set_timeout_move)
+
     def _apply_move(self, move):
         """
         Applies the given move to the game board, updating both the model and
@@ -60,33 +72,23 @@ class App:
         :return: None
         """
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
-        self._model.apply_move(move, self._dispatch_timer_update, self._apply_random_move)
+        self._model.apply_move(move, self._dispatch_timer_update, self._apply_timeout_move)
 
     def _apply_random_move(self):
         print("Random Move")
         moves = StateGenerator.enumerate_board(self._model.game_board, self._model.game_turn)
         self._apply_move(random.choice(moves))
 
-    def _process_agent_move(self):
-        """
-        Hands control over to the agent to perform a move iff the player to move
-        is CPU-controlled.
-        :return: None
-        """
-        config = self._model.game_config
-        player_color = self._model.game_turn
-        player_type = config.get_player_type(player_color)
-        player_time_limit = config.get_player_time_limit(player_color)
+    def _apply_timeout_move(self, move):
+        self._agent_operator.stop()
+        if move:
+            print(move)
+            self._apply_move(move)
+        else:
+            self._apply_random_move()
 
-        if (player_type == PlayerType.COMPUTER):
-            self._agent_operator.search(self._model.game_board,
-                                        player_color,
-                                        player_time_limit * 0.8, # just to be safe, maybe should set move in model
-                                        lambda move: self._apply_move(move))
-
-        # STUB(agent): if model config's control mode for the current player is
-        # the CPU, call procedure for running agent and applying resulting move
-        # TODO: Modify agent to run on separate thread so it can process independently
+    def _set_timeout_move(self, move):
+        self._model.timeout_move = move
 
     def _apply_config(self, config):
         """
@@ -96,6 +98,9 @@ class App:
         """
         self._model.apply_config(config)
         self._view.clear_game_board()
+        self._view.render(self._model)
+        self._agent_operator.stop()
+        self._start_game()
 
     def _dispatch(self, action, *args, **kwargs):
         """
@@ -153,3 +158,4 @@ class App:
         self._view.render(self._model)
         self._start_game()
         self._run_main_loop()
+        self._agent_operator.stop()

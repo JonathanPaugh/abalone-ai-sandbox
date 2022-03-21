@@ -4,7 +4,6 @@ Defines the game representation.
 
 from core.board_layout import BoardLayout
 from core.color import Color
-from ui.model.config import Config
 
 
 class Game:
@@ -13,9 +12,8 @@ class Game:
     formulation.
     """
 
-    def __init__(self, config=Config.from_default()):
-        self._config = config
-        self._board = BoardLayout.setup_board(config.layout)
+    def __init__(self, starting_layout: BoardLayout = BoardLayout.STANDARD):
+        self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 
     @property
@@ -33,14 +31,6 @@ class Game:
         :return: a Color
         """
         return self._turn
-
-    @property
-    def config(self):
-        """
-        Gets the game config.
-        :return: a Config
-        """
-        return self._config
 
     def apply_move(self, move):
         """
