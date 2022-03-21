@@ -270,7 +270,12 @@ class GameUI:
         """
         time_string = str(time)
         minutes, seconds = time_string.split(":")[1:]
-        self._timer_text.set(F"{minutes}:{float(seconds):.2f}")
+        seconds_string = F"{int(float(seconds))}".zfill(2)
+        milliseconds_string = F"{int(time.microseconds / pow(10, 3))}".zfill(3)
+        print(F"{minutes}:{seconds_string}.{milliseconds_string}")
+        print(time_string)
+        self._timer_text.set(F"{minutes}:{seconds_string}.{milliseconds_string}")
+
 
     def apply_move(self, *args, **kwargs):
         """

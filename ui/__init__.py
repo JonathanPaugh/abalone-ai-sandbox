@@ -31,25 +31,11 @@ class App:
         self._agent = Agent()
         self._view_dispatcher = Dispatcher()
 
-    def _dispatch(self, action, *args, **kwargs):
+    def _start_game(self):
         """
-        Performs the given action with the given arguments and triggers a view
-        re-render.
-        :param action: the action to perform
-        :return: None
+        Starts the game by applying a random move to the first player.
         """
-        # TODO: determine whether generic render covers enough of our use cases
-        # or if we should just use explicit actions for everything
-        action(*args, **kwargs)
-        self._view.render(self._model)
-
-    def _dispatch_timer_update(self, time_remaining: float):
-        """
-        Queues a time to render to timer on the next update frame.
-        :param time: a float in seconds
-        """
-        time = timedelta(seconds=time_remaining)
-        self._view_dispatcher.put(lambda: self._view.update_timer(time))
+        self._apply_random_move()
 
     def _select_cell(self, cell):
         """
@@ -105,6 +91,26 @@ class App:
         self._model.apply_config(config)
         self._view.clear_game_board()
 
+    def _dispatch(self, action, *args, **kwargs):
+        """
+        Performs the given action with the given arguments and triggers a view
+        re-render.
+        :param action: the action to perform
+        :return: None
+        """
+        # TODO: determine whether generic render covers enough of our use cases
+        # or if we should just use explicit actions for everything
+        action(*args, **kwargs)
+        self._view.render(self._model)
+
+    def _dispatch_timer_update(self, time_remaining: float):
+        """
+        Queues a time to render to timer on the next update frame.
+        :param time: a float in seconds
+        """
+        time = timedelta(seconds=time_remaining)
+        self._view_dispatcher.put(lambda: self._view.update_timer(time))
+
     def _update(self):
         """
         Updates the application by one tick.
@@ -139,4 +145,5 @@ class App:
             can_open_settings=lambda: True,
         )
         self._view.render(self._model)
+        self._start_game()
         self._run_main_loop()
