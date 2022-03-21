@@ -3,10 +3,12 @@ Defines the driver logic for the application.
 """
 import random
 from datetime import timedelta
+from threading import Timer
 from time import sleep
 from agent.agent import Agent
 from agent.state_generator import StateGenerator
 from core.player_type import PlayerType
+from ui.agent_operator import AgentOperator
 from ui.dispatcher import Dispatcher
 from ui.model import Model
 from ui.model.config import Config
@@ -28,7 +30,7 @@ class App:
     def __init__(self):
         self._model = Model()
         self._view = View()
-        self._agent = Agent()
+        self._agent_operator = AgentOperator()
         self._view_dispatcher = Dispatcher()
 
     def _start_game(self):
@@ -61,6 +63,7 @@ class App:
         self._model.apply_move(move, self._dispatch_timer_update, self._apply_random_move)
 
     def _apply_random_move(self):
+        print("Random Move")
         moves = StateGenerator.enumerate_board(self._model.game_board, self._model.game_turn)
         self._apply_move(random.choice(moves))
 
@@ -73,10 +76,13 @@ class App:
         config = self._model.game_config
         player_color = self._model.game_turn
         player_type = config.get_player_type(player_color)
+        player_time_limit = config.get_player_time_limit(player_color)
 
         if (player_type == PlayerType.COMPUTER):
-            next_move = self._agent.find_next_move(self._model.game_board, player_color)
-            self._apply_move(next_move)
+            self._agent_operator.search(self._model.game_board,
+                                        player_color,
+                                        player_time_limit * 0.8, # just to be safe, maybe should set move in model
+                                        lambda move: self._apply_move(move))
 
         # STUB(agent): if model config's control mode for the current player is
         # the CPU, call procedure for running agent and applying resulting move

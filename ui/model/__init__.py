@@ -109,7 +109,7 @@ class Model:
 
     def _timer_launch(self, on_timer, on_timeout):
         if self.timer:
-            self.timer.interrupt()
+            self.timer.stop()
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 

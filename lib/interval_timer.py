@@ -6,15 +6,15 @@ from lib.clamp import clamp
 class IntervalTimer(threading.Thread):
     def __init__(self, total_time: float, interval: float):
         threading.Thread.__init__(self)
+        self.interrupted = False
+        self.stopped = threading.Event()
+        self.daemon = True
+
         self.total_time = total_time
         self.interval = interval
 
         self.on_interval = None
         self.on_complete = None
-
-        self.interrupted = False
-        self.stopped = threading.Event()
-        self.daemon = True
 
     @property
     def remaining_time(self):
@@ -26,7 +26,7 @@ class IntervalTimer(threading.Thread):
     def set_on_interval(self, on_interval):
         self.on_interval = on_interval
 
-    def interrupt(self):
+    def stop(self):
         self.interrupted = True
         self.stopped.set()
 

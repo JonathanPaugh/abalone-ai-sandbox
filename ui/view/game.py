@@ -272,8 +272,6 @@ class GameUI:
         minutes, seconds = time_string.split(":")[1:]
         seconds_string = F"{int(float(seconds))}".zfill(2)
         milliseconds_string = F"{int(time.microseconds / pow(10, 3))}".zfill(3)
-        print(F"{minutes}:{seconds_string}.{milliseconds_string}")
-        print(time_string)
         self._timer_text.set(F"{minutes}:{seconds_string}.{milliseconds_string}")
 
 
