@@ -142,7 +142,7 @@ class Model:
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 
-        self.timer = IntervalTimer(time_limit, float(1 / FPS))
+        self.timer = IntervalTimer(time_limit, 1 / FPS)
         self.timer.set_on_interval(lambda progress: self._timer_on_interval(on_timer, progress))
         self.timer.set_on_complete(lambda: self._timer_on_complete(on_timeout))
         self.timer.start()
