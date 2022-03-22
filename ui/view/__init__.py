@@ -6,6 +6,8 @@ from tkinter import Tk
 from ui.view.game import GameUI
 from ui.view.settings import SettingsUI
 from ui.constants import APP_NAME
+from datetime import timedelta
+
 
 class View:
     """
@@ -85,6 +87,13 @@ class View:
         """
         self._window.update()
         self._game_view.update()
+
+    def update_timer(self, time: timedelta):
+        """
+        Preforms a lightweight update to only the game view timer.
+        :param time: a time to display.
+        """
+        self._game_view.update_timer(time)
 
     def render(self, model):
         """

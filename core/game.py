@@ -12,8 +12,8 @@ class Game:
     formulation.
     """
 
-    def __init__(self, board_layout=BoardLayout.STANDARD):
-        self._board = BoardLayout.setup_board(board_layout)
+    def __init__(self, starting_layout: BoardLayout = BoardLayout.STANDARD):
+        self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 
     @property
@@ -43,5 +43,9 @@ class Game:
             return False
 
         self._board.apply_move(move)
-        self._turn = Color.next(self._turn)
+        self._next_turn()
+
         return True
+
+    def _next_turn(self):
+        self._turn = Color.next(self._turn)
