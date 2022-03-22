@@ -11,7 +11,7 @@ from agent.state_generator import StateGenerator
 from core.move import Move
 
 from core.player_type import PlayerType
-from ui.agent_operator import AgentOperator
+from agent.agent_operator import AgentOperator
 from lib.dispatcher import Dispatcher
 from ui.model import Model
 from ui.view import View

@@ -10,12 +10,12 @@ from agent.state_generator import StateGenerator
 from core.game import Game
 from core.move import Move
 from core.hex import HexDirection
+from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
 from ui.model.config import Config
 from ui.model.game_history import GameHistory
 from datetime import time
-import ui.constants
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -68,6 +68,11 @@ class Model:
 
         selection = self.selection
         selection_head = selection and selection.get_head()
+
+        # disallow selection if is computer
+        if self.config.get_player_type(self.game_turn) is PlayerType.COMPUTER:
+            self.selection = None
+            return None
 
         # select marbles corresponding to the current turn
         if not selection:
@@ -135,7 +140,8 @@ class Model:
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 
-        self.timer = IntervalTimer(time_limit, float(1 / ui.constants.FPS))
+        from ui import FPS
+        self.timer = IntervalTimer(time_limit, float(1 / FPS))
         self.timer.set_on_interval(lambda progress: self._timer_on_interval(on_timer, progress))
         self.timer.set_on_complete(lambda: self._timer_on_complete(on_timeout))
         self.timer.start()
