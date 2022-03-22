@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import random
 from typing import List
 
 from core.board import Board
@@ -22,6 +24,15 @@ class StateGenerator:
             print(F"{i + 1} => {StateParser.convert_move_to_text(moves[i])}")
         for i in range(len(boards)):
             print(F"{i + 1} => {StateParser.convert_board_to_text(boards[i])}")
+
+    @staticmethod
+    def generate_random_move(board: Board, player: Color):
+        """
+        Searches valid moves for a board and chooses one at random.
+        :return: A random move.
+        """
+        moves = StateGenerator.enumerate_board(board, player)
+        return random.choice(moves)
 
     @staticmethod
     def generate(board: Board, moves: List[Move]) -> List[Board]:

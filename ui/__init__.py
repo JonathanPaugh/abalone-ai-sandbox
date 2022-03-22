@@ -1,17 +1,25 @@
 """
 Defines the driver logic for the application.
 """
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import random
 from datetime import timedelta
 from time import sleep
 from agent.state_generator import StateGenerator
+from core.move import Move
+
 from core.player_type import PlayerType
 from ui.agent_operator import AgentOperator
-from ui.dispatcher import Dispatcher
+from lib.dispatcher import Dispatcher
 from ui.model import Model
 from ui.view import View
 from ui.constants import FPS
 import ui.model.config
+
+if TYPE_CHECKING:
+    from core.hex import Hex
 
 
 class App:
@@ -36,7 +44,7 @@ class App:
         """
         self._apply_random_move()
 
-    def _select_cell(self, cell):
+    def _select_cell(self, cell: Hex):
         """
         Selects the given cell.
         :param cell: the Hex to select
@@ -64,7 +72,7 @@ class App:
                                         player_color,
                                         self._set_timeout_move)
 
-    def _apply_move(self, move):
+    def _apply_move(self, move: Move):
         """
         Applies the given move to the game board, updating both the model and
         view accordingly.
@@ -75,22 +83,17 @@ class App:
         self._model.apply_move(move, self._dispatch_timer_update, self._apply_timeout_move)
 
     def _apply_random_move(self):
-        print("Random Move")
         moves = StateGenerator.enumerate_board(self._model.game_board, self._model.game_turn)
         self._apply_move(random.choice(moves))
 
-    def _apply_timeout_move(self, move):
+    def _apply_timeout_move(self, move: Move):
         self._agent_operator.stop()
-        if move:
-            print(move)
-            self._apply_move(move)
-        else:
-            self._apply_random_move()
+        self._apply_move(move)
 
-    def _set_timeout_move(self, move):
+    def _set_timeout_move(self, move: Move):
         self._model.timeout_move = move
 
-    def _apply_config(self, config):
+    def _apply_config(self, config: ui.Config):
         """
         Applies the given config and starts a new game.
         :param config: the new Config to use
@@ -102,7 +105,7 @@ class App:
         self._agent_operator.stop()
         self._start_game()
 
-    def _dispatch(self, action, *args, **kwargs):
+    def _dispatch(self, action: callable, *args: list, **kwargs: dict):
         """
         Performs the given action with the given arguments and triggers a view
         re-render.
