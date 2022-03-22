@@ -1,8 +1,9 @@
+from ui.constants import FPS
 import threading
 
 class AgentThread(threading.Thread):
     def __init__(self, agent, board, player, on_find_move):
-        threading.Thread.__init__(self)
+        super().__init__()
         self.stopped = threading.Event()
         self.daemon = True
 
@@ -16,6 +17,5 @@ class AgentThread(threading.Thread):
         self.join()
 
     def run(self):
-        from ui import FPS
         while not self.stopped.wait(1 / FPS):
             self.on_find_move(self.agent.find_next_move(self.board, self.player))

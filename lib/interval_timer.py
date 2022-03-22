@@ -1,11 +1,11 @@
 import threading
 import time
-from lib.clamp import clamp
+from lib.clamp import clamp_01
 
 
 class IntervalTimer(threading.Thread):
     def __init__(self, total_time: float, interval: float):
-        threading.Thread.__init__(self)
+        super().__init__()
         self.interrupted = False
         self.stopped = threading.Event()
         self.daemon = True
@@ -45,4 +45,4 @@ class IntervalTimer(threading.Thread):
             self.on_complete()
 
     def _get_progress(self, remaining_time):
-        return clamp(0, 1, remaining_time / self.total_time)
+        return clamp_01(remaining_time / self.total_time)

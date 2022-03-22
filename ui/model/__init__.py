@@ -15,7 +15,9 @@ from core.selection import Selection
 from lib.interval_timer import IntervalTimer
 from ui.model.config import Config
 from ui.model.game_history import GameHistory
+
 from datetime import time
+from ui.constants import FPS
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -140,7 +142,6 @@ class Model:
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 
-        from ui import FPS
         self.timer = IntervalTimer(time_limit, float(1 / FPS))
         self.timer.set_on_interval(lambda progress: self._timer_on_interval(on_timer, progress))
         self.timer.set_on_complete(lambda: self._timer_on_complete(on_timeout))

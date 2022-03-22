@@ -83,8 +83,8 @@ class App:
         self._model.apply_move(move, self._dispatch_timer_update, self._apply_timeout_move)
 
     def _apply_random_move(self):
-        moves = StateGenerator.enumerate_board(self._model.game_board, self._model.game_turn)
-        self._apply_move(random.choice(moves))
+        move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
+        self._apply_move(move)
 
     def _apply_timeout_move(self, move: Move):
         self._agent_operator.stop()
