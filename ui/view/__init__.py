@@ -6,6 +6,8 @@ from tkinter import Tk
 from ui.view.game import GameUI
 from ui.view.settings import SettingsUI
 from ui.constants import APP_NAME
+from datetime import timedelta
+
 
 class View:
     """
@@ -36,6 +38,14 @@ class View:
         :return: a bool
         """
         return self._done
+
+    @property
+    def animating(self):
+        """
+        Determines whether or not the view is being animated.
+        :return: a bool
+        """
+        return self._game_view.animating
 
     def _open_settings(self, on_close):
         """
@@ -76,7 +86,14 @@ class View:
         :return: None
         """
         self._window.update()
-        # STUB: update animations
+        self._game_view.update()
+
+    def update_timer(self, time: timedelta):
+        """
+        Preforms a lightweight update to only the game view timer.
+        :param time: a time to display.
+        """
+        self._game_view.update_timer(time)
 
     def render(self, model):
         """

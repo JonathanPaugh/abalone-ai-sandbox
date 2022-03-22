@@ -66,11 +66,11 @@ class SettingsUI:
         Button(parent, text="Confirm", command=lambda: (
             self._on_close(Config(
                 next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
-                move_limit.get(),
+                int(move_limit.get()),
                 PlayerType(player_type_p1.get()),
                 PlayerType(player_type_p2.get()),
-                time_limit_p1.get(),
-                time_limit_p2.get()
+                float(time_limit_p1.get()),
+                float(time_limit_p2.get())
             )),
             self._window.destroy(),
         )).grid(column=0, row=6, columnspan=5)
@@ -100,7 +100,6 @@ class SettingsUI:
         return self._mount_input(parent, row, 3, "w", self.config.move_limit)
 
     def _mount_player_types(self, parent, row):
-        print(self.config.player_type_p2.value)
         p1 = self._mount_dropdown(parent, row, 1, "e", self.config.player_type_p1.value, "Human", "Computer")
         self._mount_label(parent, row, 2, "", "Player Type")
         p2 = self._mount_dropdown(parent, row, 3, "w", self.config.player_type_p2.value, "Human", "Computer")
