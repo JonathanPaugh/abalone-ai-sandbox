@@ -17,5 +17,6 @@ class AgentThread(threading.Thread):
         self.join()
 
     def run(self):
-        while not self.stopped.wait(1 / FPS):
+
             self.on_find_move(self.agent.find_next_move(self.board, self.player))
+

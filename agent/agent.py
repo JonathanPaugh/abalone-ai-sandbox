@@ -20,6 +20,7 @@ class Agent:
         self.moves = None
 
     def find_next_move(self, board: Board, player: Color) -> Move:
+        self.node_ordered_yet = False
         self.moves = StateGenerator.enumerate_board(board, player)
         self.minimax(0, 0, True, board, MIN, MAX, player)
         return self.moves[self.best_move]
@@ -40,7 +41,7 @@ class Agent:
     def minimax(self, depth, first_layer_index, is_max, board, alpha, beta, player):
         # Minimax with alpha-beta pruning
         # depth is reached
-        if depth == 2:
+        if depth == 5:
             return manhattan_value(board, player)  # HEURISTIC GOES HERE
         if is_max:
             # MAX
@@ -60,17 +61,19 @@ class Agent:
                 current_value = self.minimax(depth + 1, first_layer_index, False, deeper_boards[i], alpha, beta, player)
                 if current_value > best_value:
                     best_value = current_value
-                    # stores best move so far inside class variable.
-                    self.best_move = first_layer_index
+                    if depth == 0:
+                        self.best_move = first_layer_index
+                        break
                 alpha = max(alpha, best_value)
                 # pruning
                 if beta <= alpha:
                     break
+
             return best_value
         else:
             # MIN
             best_value = MAX
-            moves = StateGenerator.enumerate_board(board, opposite_player(player))
+            moves = StateGenerator.enumerate_board(board, player)
             deeper_boards = StateGenerator.generate(board, moves)
             # for all children of the board
             for i in range(0, len(deeper_boards)):
@@ -80,6 +83,7 @@ class Agent:
                 # pruning
                 if beta <= alpha:
                     break
+
             return best_value
 
 
