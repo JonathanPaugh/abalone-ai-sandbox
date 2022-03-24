@@ -7,7 +7,6 @@ from agent.agent_thread import AgentThread
 if TYPE_CHECKING:
     from core.board import Board
     from core.color import Color
-    from core.move import Move
 
 
 class AgentOperator:
