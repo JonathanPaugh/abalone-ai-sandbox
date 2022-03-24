@@ -29,7 +29,9 @@ class Agent:
         # Node ordering, sorts nodes based on heuristic value.
         board_heuristics = []
         for i in range(0, len(boards)):
-            board_heuristics.append(manhattan_value(boards[i], player))  # HEURISTICS GOES HERE
+            score = _manhattan(boards[i], player)
+            score += _difference(boards[i], player)
+            board_heuristics.append(score)  # HEURISTICS GOES HERE
         for j in range(0, len(boards)):
             for k in range(0, len(boards) - j - 1):
                 if board_heuristics[k] < board_heuristics[k + 1]:
@@ -41,8 +43,10 @@ class Agent:
     def minimax(self, depth, first_layer_index, is_max, board, alpha, beta, player):
         # Minimax with alpha-beta pruning
         # depth is reached
-        if depth == 5:
-            return manhattan_value(board, player)  # HEURISTIC GOES HERE
+        if depth == 3:
+            score = _manhattan(board, player)
+            score += _difference(board, player)
+            return score  # HEURISTIC GOES HERE
         if is_max:
             # MAX
             best_value = MIN
@@ -95,22 +99,48 @@ def opposite_player(player):
         return Color.BLACK
     return Color.WHITE
 
+def _manhattan(board, player):
+    hex_positions = [board.enumerate()]
+    center_cell = Hex(BOARD_SIZE - 1, BOARD_SIZE - 1)
+    score = 0
 
-def manhattan_value(board, player):
-    # Heuristic function using both player's manhattan values
+    for p in hex_positions:
 
-    player_manhattan_score = 0
-    opponent_manhattan_score = 0
-    center_hex = Hex(4, 4)
-    opponent = opposite_player(player)
-    positions = board.enumerate()
+        for cell in p:
+            if cell[1] == player:
+                score += 10 - cell[0].manhattan(center_cell)
+    # print(final_score)
+    return score
 
-    for position in positions:
-        if position[1] == player:
-            player_manhattan_score += 10 - position[0].manhattan(center_hex)
-        if position[1] == opponent:
-            opponent_manhattan_score += 10 - position[0].manhattan(center_hex)
-    return player_manhattan_score - opponent_manhattan_score
+def _difference(board, player):
+    hex_positions = [board.enumerate()]
+    black = 0
+    white = 0
+
+    for p in hex_positions:
+        for cell in p:
+            if cell[1] == player:
+                black += 1
+            else:
+                white += 1
+
+    return black - white
+
+# def manhattan_value(board, player):
+#     # Heuristic function using both player's manhattan values
+#
+#     player_manhattan_score = 0
+#     opponent_manhattan_score = 0
+#     center_hex = Hex(4, 4)
+#     opponent = opposite_player(player)
+#     positions = board.enumerate()
+#
+#     for position in positions:
+#         if position[1] == player:
+#             player_manhattan_score += 10 - position[0].manhattan(center_hex)
+#         if position[1] == opponent:
+#             opponent_manhattan_score += 10 - position[0].manhattan(center_hex)
+#     return player_manhattan_score - opponent_manhattan_score
 
 
 #Angela Heuristics and code below here.
