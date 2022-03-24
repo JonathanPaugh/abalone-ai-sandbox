@@ -14,6 +14,8 @@ class AgentThread(threading.Thread):
 
     def stop(self):
         self.stopped.set()
+        print("STOP")
+        self.agent.interrupt = True
         self.join()
 
     def run(self):
