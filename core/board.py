@@ -95,6 +95,22 @@ class Board(HexGrid):
 
         return self._is_valid_sidestep_move(move)
 
+    def get_score(self, player: Color):
+        enemy = Color.next(player)
+
+        layout_count = 0
+        for line in self._layout:
+            for data in line:
+                if data == enemy.value:
+                    layout_count += 1
+
+        board_count = 0
+        for _, color in self.enumerate():
+            if color == enemy:
+                board_count += 1
+
+        return layout_count - board_count
+
     def apply_move(self, move: Move):
         """
         Applies a move to the board, changing the position of cells.
