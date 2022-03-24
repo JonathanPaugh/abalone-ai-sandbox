@@ -19,7 +19,7 @@ CENTER_OF_BOARD = Hex(4, 4)
 # Sets the time limit given config settings
 TIME_LIMIT = Config.DEFAULT_TIME_LIMIT_P1 - 0.5
 # Sets the depth limit
-DEPTH_LIMIT = 2
+DEPTH_LIMIT = 3
 
 
 class TimeException(Exception):
@@ -40,11 +40,15 @@ class Agent:
         # Stores the ordered moves
         self.moves = None
 
+        # Flags when exception should be called based on in-game timer.
+        self.interrupt = False
+
     def find_next_move(self, board: Board, player: Color) -> Move:
         """
         Finds the next move using minimax with alpha-beta pruning.
         """
         self.node_ordered_yet = False
+        self.interrupt = False
         self.moves = StateGenerator.enumerate_board(board, player)
         try:
             self.minimax(DEPTH_LIMIT, True, board, MIN, MAX, player, time.time())
@@ -59,9 +63,27 @@ class Agent:
         """
         Orders nodes based on their value
         """
+        print(self.moves[0])
+        print("order")
         boards, self.moves = map(list, zip(*sorted(zip(boards, self.moves), reverse=True,
                                                    key=lambda x: manhattan_value(x[0], player))))
+        print(self.moves[0])
         return boards
+
+        # print(self.moves[0])
+        # print("order")
+        # board_heuristics = []
+        # for i in range(0, len(boards)):
+        #     board_heuristics.append(manhattan_value(boards[i], player))  # HEURISTICS GOES HERE
+        # for j in range(0, len(boards)):
+        #     for k in range(0, len(boards) - j - 1):
+        #         if board_heuristics[k] < board_heuristics[k + 1]:
+        #             board_heuristics[k], board_heuristics[k + 1] = board_heuristics[k + 1], board_heuristics[k]
+        #             boards[k], boards[k + 1] = boards[k + 1], boards[k]
+        #             self.moves[k], self.moves[k + 1] = self.moves[k + 1], self.moves[k]
+        # print(self.moves[0])
+        # print(manhattan_value(boards[0], player))
+        # return boards
 
     def minimax(self, depth, is_max, board, alpha, beta, player, start):
         """
@@ -70,7 +92,7 @@ class Agent:
         """
 
         # If the time is up, break recursion.
-        if time.time() > start + TIME_LIMIT:
+        if self.interrupt:
             raise TimeException()
 
         # depth is reached
