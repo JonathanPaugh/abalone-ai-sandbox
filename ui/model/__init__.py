@@ -154,6 +154,6 @@ class Model:
     def _timer_on_complete(self, on_timeout: callable):
         if not self.timeout_move:
             self.timeout_move = StateGenerator.generate_random_move(self.game_board, self.game_turn)
-        on_timeout(self.timeout_move)
+        on_timeout()
         self.timeout_move = None
 

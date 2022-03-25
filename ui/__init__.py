@@ -11,7 +11,7 @@ from agent.state_generator import StateGenerator
 from core.move import Move
 
 from core.player_type import PlayerType
-from agent.agent_operator import AgentOperator
+from agent.agent import Agent
 from lib.dispatcher import Dispatcher
 from ui.model import Model
 from ui.view import View
@@ -35,7 +35,7 @@ class App:
     def __init__(self):
         self._model = Model()
         self._view = View()
-        self._agent_operator = AgentOperator()
+        self._agent_operator = Agent()
         self._view_dispatcher = Dispatcher()
 
     def _start_game(self):
@@ -86,7 +86,7 @@ class App:
         move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
         self._apply_move(move)
 
-    def _apply_timeout_move(self, move: Move):
+    def _apply_timeout_move(self):
         self._agent_operator.stop()
         self._apply_move(self._model.timeout_move)
 

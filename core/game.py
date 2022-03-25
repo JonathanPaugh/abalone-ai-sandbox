@@ -16,8 +16,6 @@ class Game:
         self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 
-        print(Heuristic.manhattan_normalized(self._board, self._turn))
-
     @property
     def board(self):
         """

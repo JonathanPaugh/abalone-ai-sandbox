@@ -12,7 +12,7 @@ class Config:
     DEFAULT_MOVE_LIMIT = 50
     DEFAULT_PLAYER_TYPE_P1 = PlayerType.HUMAN
     DEFAULT_PLAYER_TYPE_P2 = PlayerType.COMPUTER
-    DEFAULT_TIME_LIMIT_P1 = 20.0
+    DEFAULT_TIME_LIMIT_P1 = 2.0
     DEFAULT_TIME_LIMIT_P2 = 10.0
 
     def __init__(self, layout: BoardLayout, move_limit: int,
