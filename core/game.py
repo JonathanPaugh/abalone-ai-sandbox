@@ -1,7 +1,6 @@
 """
 Defines the game representation.
 """
-from agent.heuristics.heuristic import Heuristic
 from core.board_layout import BoardLayout
 from core.color import Color
 
@@ -12,7 +11,7 @@ class Game:
     formulation.
     """
 
-    def __init__(self, starting_layout: BoardLayout = BoardLayout.STANDARD):
+    def __init__(self, starting_layout: BoardLayout = BoardLayout.GERMAN_DAISY):
         self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 

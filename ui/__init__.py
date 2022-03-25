@@ -88,9 +88,11 @@ class App:
 
     def _apply_timeout_move(self):
         self._agent_operator.stop()
+        print(F"Apply: {self._model.timeout_move}")
         self._apply_move(self._model.timeout_move)
 
     def _set_timeout_move(self, move: Move):
+        print(F"Set: {move}")
         self._model.timeout_move = move
 
     def _apply_config(self, config: ui.Config):

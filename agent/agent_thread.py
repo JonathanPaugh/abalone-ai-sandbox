@@ -18,6 +18,4 @@ class AgentThread(threading.Thread):
         self.join()
 
     def run(self):
-        move = self.search.find_next_move(self.board, self.player)
-        self.on_find_move(move)
-
+        self.search.find_next_move(self.board, self.player, self.on_find_move)
