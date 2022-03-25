@@ -11,7 +11,7 @@ from core.move import Move
 # Initial values of Alpha and Beta
 MAX, MIN = math.inf, -math.inf
 # Sets the depth limit
-DEPTH_LIMIT = 2
+DEPTH_LIMIT = 3
 
 
 class TimeException(Exception):
@@ -45,17 +45,15 @@ class Agent:
         try:
             self.minimax(DEPTH_LIMIT, True, board, MIN, MAX, player, time.time())
         except TimeException:
-            print("Times up. Returning.")
             pass
-        print("Chosen move: " + str(self.moves[self.best_move]))
-        print("Chosen move index: "+str(self.best_move))
+        print("Chosen Move: " + str(self.moves[self.best_move]))
+        print("Chosen Move Index: " + str(self.best_move))
         return self.moves[self.best_move]
 
     def order_nodes(self, boards):
         """
         Orders nodes based on their value
         """
-        print("order")
 
         transitions = list(zip(boards, self.moves))
         transitions.sort(key=lambda transition: self._order_move(transition[0], transition[1]), reverse=True)

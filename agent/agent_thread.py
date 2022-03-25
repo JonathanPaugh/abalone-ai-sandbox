@@ -14,10 +14,10 @@ class AgentThread(threading.Thread):
 
     def stop(self):
         self.stopped.set()
-        print("STOP")
         self.agent.interrupt = True
         self.join()
 
     def run(self):
-        self.on_find_move(self.agent.find_next_move(self.board, self.player))
+        move = self.agent.find_next_move(self.board, self.player)
+        self.on_find_move(move)
 
