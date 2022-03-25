@@ -1,24 +1,17 @@
 import math
 import time
 
-from agent.heuristics import Heuristics
-from core.constants import BOARD_SIZE
-from copy import deepcopy
-
+from agent.heuristics.heuristic import Heuristic
 from agent.state_generator import StateGenerator
 from core.board import Board
 from core.color import Color
-from core.hex import Hex
+from core.constants import MAX_SELECTION_SIZE
 from core.move import Move
-
-from ui.model import Config
 
 # Initial values of Alpha and Beta
 MAX, MIN = math.inf, -math.inf
-# Center of board used for manhattan value
-CENTER_OF_BOARD = Hex(4, 4)
 # Sets the depth limit
-DEPTH_LIMIT = 3
+DEPTH_LIMIT = 2
 
 
 class TimeException(Exception):
@@ -58,14 +51,22 @@ class Agent:
         print("Chosen move index: "+str(self.best_move))
         return self.moves[self.best_move]
 
-    def order_nodes(self, boards, player):
+    def order_nodes(self, boards):
         """
         Orders nodes based on their value
         """
         print("order")
-        boards, self.moves = map(list, zip(*sorted(zip(boards, self.moves), reverse=True,
-                                                   key=lambda x: Heuristics.weighted(x[0], player))))
+
+        transitions = list(zip(boards, self.moves))
+        transitions.sort(key=lambda transition: self._order_move(transition[0], transition[1]), reverse=True)
+        boards, self.moves = map(list, zip(*transitions))
+
         return boards
+
+    def _order_move(self, board,  move):
+        if move.is_sumito(board):
+            return MAX_SELECTION_SIZE + 1
+        return len(move.get_cells())
 
     def minimax(self, depth, is_max, board, alpha, beta, player, start):
         """
@@ -79,12 +80,12 @@ class Agent:
 
         # depth is reached
         if depth == 0:
-            return Heuristics.main(board, player)  # HEURISTIC GOES HERE
+            return Heuristic.main(board, player)  # HEURISTIC GOES HERE
 
         moves = StateGenerator.enumerate_board(board, player)
         if not self.node_ordered_yet:
             self.node_ordered_yet = True
-            deeper_boards = self.order_nodes(StateGenerator.generate(board, moves), player)
+            deeper_boards = self.order_nodes(StateGenerator.generate(board, moves))
         else:
             deeper_boards = StateGenerator.generate(board, moves)
 
