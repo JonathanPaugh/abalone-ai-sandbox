@@ -95,6 +95,14 @@ class Board(HexGrid):
 
         return self._is_valid_sidestep_move(move)
 
+    def get_marble_count(self, player: Color):
+        count = 0
+        for _, color in self.enumerate():
+            if color == player:
+                count += 1
+
+        return count
+
     def get_score(self, player: Color):
         enemy = Color.next(player)
 
@@ -104,12 +112,7 @@ class Board(HexGrid):
                 if data == enemy.value:
                     layout_count += 1
 
-        board_count = 0
-        for _, color in self.enumerate():
-            if color == enemy:
-                board_count += 1
-
-        return layout_count - board_count
+        return layout_count - self.get_marble_count(enemy)
 
     def apply_move(self, move: Move):
         """

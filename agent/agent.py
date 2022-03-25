@@ -1,22 +1,15 @@
 import math
 import time
 
-from agent.heuristics import Heuristics
-from core.constants import BOARD_SIZE
-from copy import deepcopy
-
+from agent.heuristics.heuristic import Heuristic
 from agent.state_generator import StateGenerator
 from core.board import Board
 from core.color import Color
 from core.hex import Hex
 from core.move import Move
 
-from ui.model import Config
-
 # Initial values of Alpha and Beta
 MAX, MIN = math.inf, -math.inf
-# Center of board used for manhattan value
-CENTER_OF_BOARD = Hex(4, 4)
 # Sets the depth limit
 DEPTH_LIMIT = 3
 
@@ -64,7 +57,7 @@ class Agent:
         """
         print("order")
         boards, self.moves = map(list, zip(*sorted(zip(boards, self.moves), reverse=True,
-                                                   key=lambda x: Heuristics.weighted(x[0], player))))
+                                                   key=lambda x: Heuristic.main(x[0], player))))
         return boards
 
     def minimax(self, depth, is_max, board, alpha, beta, player, start):
@@ -79,7 +72,7 @@ class Agent:
 
         # depth is reached
         if depth == 0:
-            return Heuristics.main(board, player)  # HEURISTIC GOES HERE
+            return Heuristic.main(board, player)  # HEURISTIC GOES HERE
 
         moves = StateGenerator.enumerate_board(board, player)
         if not self.node_ordered_yet:
