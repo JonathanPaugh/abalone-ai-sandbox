@@ -17,8 +17,6 @@ from ui.model import Config
 MAX, MIN = math.inf, -math.inf
 # Center of board used for manhattan value
 CENTER_OF_BOARD = Hex(4, 4)
-# Sets the time limit given config settings
-TIME_LIMIT = Config.DEFAULT_TIME_LIMIT_P1 - 0.5
 # Sets the depth limit
 DEPTH_LIMIT = 3
 
@@ -64,27 +62,10 @@ class Agent:
         """
         Orders nodes based on their value
         """
-        print(self.moves[0])
         print("order")
         boards, self.moves = map(list, zip(*sorted(zip(boards, self.moves), reverse=True,
                                                    key=lambda x: Heuristics.weighted(x[0], player))))
-        print(self.moves[0])
         return boards
-
-        # print(self.moves[0])
-        # print("order")
-        # board_heuristics = []
-        # for i in range(0, len(boards)):
-        #     board_heuristics.append(manhattan_value(boards[i], player))  # HEURISTICS GOES HERE
-        # for j in range(0, len(boards)):
-        #     for k in range(0, len(boards) - j - 1):
-        #         if board_heuristics[k] < board_heuristics[k + 1]:
-        #             board_heuristics[k], board_heuristics[k + 1] = board_heuristics[k + 1], board_heuristics[k]
-        #             boards[k], boards[k + 1] = boards[k + 1], boards[k]
-        #             self.moves[k], self.moves[k + 1] = self.moves[k + 1], self.moves[k]
-        # print(self.moves[0])
-        # print(manhattan_value(boards[0], player))
-        # return boards
 
     def minimax(self, depth, is_max, board, alpha, beta, player, start):
         """
