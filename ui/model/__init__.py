@@ -156,3 +156,4 @@ class Model:
             self.timeout_move = StateGenerator.generate_random_move(self.game_board, self.game_turn)
         on_timeout(self.timeout_move)
         self.timeout_move = None
+
