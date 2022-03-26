@@ -5,23 +5,15 @@ from agent.state_generator import StateGenerator
 from core.board import Board
 from core.color import Color
 from core.constants import MAX_SELECTION_SIZE
-
-# Initial values of Alpha and Beta
 from core.move import Move
-
-MAX, MIN = math.inf, -math.inf
-# Sets the depth limit
-DEPTH_LIMIT = 2
-
-
-class TimeException(Exception):
-    # This exception is used to break recursion when given time is up
-    pass
 
 
 class Search:
+    DEPTH_LIMIT = 2
+    MIN = -math.inf
+    MAX = math.inf
+
     def __init__(self):
-        # Indicates when search should be broken
         self.interrupt = False
 
     def alpha_beta(self, board: Board, player: Color, on_find_move: callable):
@@ -31,19 +23,21 @@ class Search:
         self.interrupt = False
 
         try:
-            self._alpha_beta_max(board, player, None, MIN, MAX, DEPTH_LIMIT, DEPTH_LIMIT, on_find_move)
-        except TimeException:
+            self._alpha_beta_max(board, player, None, self.MIN, self.MAX,
+                                 self.DEPTH_LIMIT, self.DEPTH_LIMIT, on_find_move)
+
+        except TimeoutException:
             pass
 
     def _alpha_beta_max(self, board: Board, player: Color, original_move: Move,
                         alpha: int, beta: int, depth, depth_limit: int, on_find_move: callable):
         if self.interrupt:
-            raise TimeException()
+            raise TimeoutException()
 
         if depth <= 0:
             return Heuristic.main(board, player)
 
-        best_heuristic = MIN
+        best_heuristic = self.MIN
 
         moves = StateGenerator.enumerate_board(board, player)
         boards = StateGenerator.generate(board, moves)
@@ -75,12 +69,12 @@ class Search:
     def _alpha_beta_min(self, board: Board, player: Color, original_move: Move,
                         alpha: int, beta: int, depth: int, depth_limit: int, on_find_move: callable):
         if self.interrupt:
-            raise TimeException()
+            raise TimeoutException()
 
         if depth <= 0:
             return Heuristic.main(board, player)
 
-        best_heuristic = MAX
+        best_heuristic = self.MAX
 
         moves = StateGenerator.enumerate_board(board, Color.next(player))
         boards = StateGenerator.generate(board, moves)
@@ -114,11 +108,11 @@ class Search:
     def _alpha_beta_old(self, depth, first_layer_index, is_max, board, alpha, beta, player, on_find_move):
         # Minimax with alpha-beta pruning
         # depth is reached
-        if depth > DEPTH_LIMIT:
+        if depth > self.DEPTH_LIMIT:
             return Heuristic.main(board, player)  # HEURISTIC GOES HERE
         if is_max:
             # MAX
-            best_value = MIN
+            best_value = self.MIN
             moves = StateGenerator.enumerate_board(board, player)
             # Node orders if this is the first layer of boards.
             if not self.node_ordered_yet:
@@ -145,7 +139,7 @@ class Search:
             return best_value
         else:
             # MIN
-            best_value = MAX
+            best_value = self.MAX
             moves = StateGenerator.enumerate_board(board, Color.next(player))
             deeper_boards = StateGenerator.generate(board, moves)
             # for all children of the board
@@ -157,3 +151,7 @@ class Search:
                 if beta <= alpha:
                     break
             return best_value
+
+
+class TimeoutException(Exception):
+    pass

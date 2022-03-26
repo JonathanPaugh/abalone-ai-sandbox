@@ -17,13 +17,15 @@ class Heuristic:
 
     @classmethod
     def weighted(cls, board: Board, player: Color) -> float:
-        score_weight = 0.9
-        manhattan_weight = 0.03
+        score_weight = 0.45
+        score_opponent_weight = 0.45
+        manhattan_weight = 0.04
         manhattan_opponent_weight = 0.05
-        adjacency_weight = 0.01
-        adjacency_opponent_weight = 0.01
+        adjacency_weight = 0.005
+        adjacency_opponent_weight = 0.005
 
         return score_weight * cls.score(board, player) \
+            + score_opponent_weight * cls.score_opponent(board, player) \
             + manhattan_weight * cls.manhattan(board, player) \
             + manhattan_opponent_weight * cls.manhattan_opponent(board, player) \
             + adjacency_weight * cls.adjacency(board, player) \
@@ -51,6 +53,13 @@ class Heuristic:
         if score >= WIN_SCORE:
             return inf
         return score
+
+    @classmethod
+    def score_opponent(cls, board: Board, player: Color) -> int:
+        score = board.get_score(Color.next(player))
+        if score >= WIN_SCORE:
+            return -inf
+        return WIN_SCORE - score
 
     @classmethod
     def adjacency(cls, board: Board, player: Color) -> int:
