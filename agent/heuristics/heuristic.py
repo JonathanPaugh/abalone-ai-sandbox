@@ -13,7 +13,7 @@ class Heuristic:
 
     @classmethod
     def main(cls, board: Board, player: Color) -> Number:
-        return cls.score(board, player)
+        return cls.weighted(board, player)
 
     @classmethod
     def weighted(cls, board: Board, player: Color) -> float:

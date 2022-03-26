@@ -24,19 +24,19 @@ class Search:
         # Indicates when search should be broken
         self.interrupt = False
 
-    def find_next_move(self, board: Board, player: Color, on_find_move: callable):
+    def alpha_beta(self, board: Board, player: Color, on_find_move: callable):
         """
         Finds the next move using minimax with alpha-beta pruning.
         """
         self.interrupt = False
 
         try:
-            self.alpha_beta_max(board, player, None, MIN, MAX, DEPTH_LIMIT, DEPTH_LIMIT, on_find_move)
+            self._alpha_beta_max(board, player, None, MIN, MAX, DEPTH_LIMIT, DEPTH_LIMIT, on_find_move)
         except TimeException:
             pass
 
-    def alpha_beta_max(self, board: Board, player: Color, original_move: Move,
-                       alpha: int, beta: int, depth, depth_limit: int, on_find_move: callable):
+    def _alpha_beta_max(self, board: Board, player: Color, original_move: Move,
+                        alpha: int, beta: int, depth, depth_limit: int, on_find_move: callable):
         if self.interrupt:
             raise TimeException()
 
@@ -50,14 +50,17 @@ class Search:
         transitions = list(zip(moves, boards))
 
         if depth >= depth_limit:
-            self.order_nodes(transitions)
+            self._order_nodes(board, transitions)
+
+            for move, _ in transitions:
+                print(move.is_sumito(board))
 
         for move, next_board in transitions:
             if depth >= depth_limit:
                 original_move = move
 
-            heuristic = self.alpha_beta_min(next_board, player, original_move,
-                                            alpha, beta, depth - 1, depth_limit, on_find_move)
+            heuristic = self._alpha_beta_min(next_board, player, original_move,
+                                             alpha, beta, depth - 1, depth_limit, on_find_move)
 
             best_heuristic = max(best_heuristic, heuristic)
 
@@ -72,8 +75,8 @@ class Search:
 
         return best_heuristic
 
-    def alpha_beta_min(self, board: Board, player: Color, original_move: Move,
-                       alpha: int, beta: int, depth: int, depth_limit: int, on_find_move: callable):
+    def _alpha_beta_min(self, board: Board, player: Color, original_move: Move,
+                        alpha: int, beta: int, depth: int, depth_limit: int, on_find_move: callable):
         if self.interrupt:
             raise TimeException()
 
@@ -86,8 +89,8 @@ class Search:
         boards = StateGenerator.generate(board, moves)
 
         for next_board in boards:
-            heuristic = self.alpha_beta_max(next_board, player, original_move,
-                                            alpha, beta, depth - 1, depth_limit, on_find_move)
+            heuristic = self._alpha_beta_max(next_board, player, original_move,
+                                             alpha, beta, depth - 1, depth_limit, on_find_move)
 
             best_heuristic = min(best_heuristic, heuristic)
 
@@ -98,18 +101,20 @@ class Search:
 
         return best_heuristic
 
-    def order_nodes(self, transitions):
+    @classmethod
+    def _order_nodes(cls, board, transitions):
         """
         Orders nodes based on their value
         """
-        transitions.sort(key=lambda transition: self._order_move(transition[0], transition[1]), reverse=True)
+        transitions.sort(key=lambda transition: cls._order_move(transition[0], board), reverse=True)
 
-    def _order_move(self, move, board):
+    @staticmethod
+    def _order_move(move, board):
         if move.is_sumito(board):
             return MAX_SELECTION_SIZE + 1
         return len(move.get_cells())
 
-    def alpha_beta_old(self, depth, first_layer_index, is_max, board, alpha, beta, player, on_find_move):
+    def _alpha_beta_old(self, depth, first_layer_index, is_max, board, alpha, beta, player, on_find_move):
         # Minimax with alpha-beta pruning
         # depth is reached
         if depth > DEPTH_LIMIT:
@@ -121,7 +126,7 @@ class Search:
             # Node orders if this is the first layer of boards.
             if not self.node_ordered_yet:
                 self.node_ordered_yet = True
-                deeper_boards = self.order_nodes(StateGenerator.generate(board, moves))
+                deeper_boards = self._order_nodes(StateGenerator.generate(board, moves))
             else:
                 deeper_boards = StateGenerator.generate(board, moves)
 
@@ -130,7 +135,7 @@ class Search:
                 if depth == 0:
                     first_layer_index = i
                     print(F"{moves[first_layer_index]}, {Heuristic.main(deeper_boards[i], player)}")
-                current_value = self.alpha_beta_old(depth + 1, first_layer_index, False, deeper_boards[i], alpha, beta, player, on_find_move)
+                current_value = self._alpha_beta_old(depth + 1, first_layer_index, False, deeper_boards[i], alpha, beta, player, on_find_move)
                 if current_value > best_value:
                     best_value = current_value
                     # stores best move so far inside class variable.
@@ -148,7 +153,7 @@ class Search:
             deeper_boards = StateGenerator.generate(board, moves)
             # for all children of the board
             for i in range(0, len(deeper_boards)):
-                current_value = self.alpha_beta_old(depth + 1, first_layer_index, True, deeper_boards[i], alpha, beta, player, on_find_move)
+                current_value = self._alpha_beta_old(depth + 1, first_layer_index, True, deeper_boards[i], alpha, beta, player, on_find_move)
                 best_value = min(best_value, current_value)
                 beta = min(beta, best_value)
                 # pruning

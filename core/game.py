@@ -11,7 +11,7 @@ class Game:
     formulation.
     """
 
-    def __init__(self, starting_layout: BoardLayout = BoardLayout.TEST):
+    def __init__(self, starting_layout: BoardLayout = BoardLayout.GERMAN_DAISY):
         self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 
