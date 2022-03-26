@@ -9,7 +9,7 @@ from core.move import Move
 
 
 class Search:
-    DEPTH_LIMIT = 2
+    DEPTH_LIMIT = 3
     MIN = -math.inf
     MAX = math.inf
 

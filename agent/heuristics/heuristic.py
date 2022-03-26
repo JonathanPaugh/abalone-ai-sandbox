@@ -3,8 +3,9 @@ from numbers import Number
 
 from core.board import Board
 from core.color import Color
-from core.constants import BOARD_SIZE, WIN_SCORE, HEX_CONSTANT
+from core.constants import BOARD_SIZE, WIN_SCORE
 from core.hex import Hex
+from lib.remap import remap_01
 
 
 class Heuristic:
@@ -13,7 +14,7 @@ class Heuristic:
 
     @classmethod
     def main(cls, board: Board, player: Color) -> Number:
-        return cls.weighted(board, player)
+        return cls.weighted_normalized(board, player)
 
     @classmethod
     def weighted(cls, board: Board, player: Color) -> float:
@@ -32,20 +33,20 @@ class Heuristic:
             + adjacency_opponent_weight * cls.adjacency_opponent(board, player)
 
     @classmethod
-    def manhattan(cls, board: Board, player: Color) -> int:
-        score = 0
-        for cell, color in board.enumerate():
-            if color is player:
-                score += cls.MAX_MANHATTAN_DISTANCE - cell.manhattan(cls.BOARD_CENTER)
-        return score
+    def weighted_normalized(cls, board: Board, player: Color) -> float:
+        score_weight = 1 / 6
+        score_opponent_weight = 1 / 6
+        manhattan_weight = 1 / 6
+        manhattan_opponent_weight = 1 / 6
+        adjacency_weight = 1 / 6
+        adjacency_opponent_weight = 1 / 6
 
-    @classmethod
-    def manhattan_opponent(cls, board: Board, player: Color) -> int:
-        score = 0
-        for cell, color in board.enumerate():
-            if color is Color.next(player):
-                score += cell.manhattan(cls.BOARD_CENTER)
-        return score
+        return score_weight * cls.score_normalized(board, player) \
+            + score_opponent_weight * cls.score_opponent_normalized(board, player) \
+            + manhattan_weight * cls.manhattan_normalized(board, player) \
+            + manhattan_opponent_weight * cls.manhattan_opponent_normalized(board, player) \
+            + adjacency_weight * cls.adjacency_normalized(board, player) \
+            + adjacency_opponent_weight * cls.adjacency_opponent_normalized(board, player)
 
     @classmethod
     def score(cls, board: Board, player: Color) -> int:
@@ -60,6 +61,22 @@ class Heuristic:
         if score >= WIN_SCORE:
             return -inf
         return WIN_SCORE - score
+
+    @classmethod
+    def manhattan(cls, board: Board, player: Color) -> int:
+        score = 0
+        for cell, color in board.enumerate():
+            if color is player:
+                score += cls.MAX_MANHATTAN_DISTANCE - cell.manhattan(cls.BOARD_CENTER)
+        return score
+
+    @classmethod
+    def manhattan_opponent(cls, board: Board, player: Color) -> int:
+        score = 0
+        for cell, color in board.enumerate():
+            if color is Color.next(player):
+                score += cell.manhattan(cls.BOARD_CENTER)
+        return score
 
     @classmethod
     def adjacency(cls, board: Board, player: Color) -> int:
@@ -90,45 +107,45 @@ class Heuristic:
         return score
 
     @classmethod
+    def score_normalized(cls, board: Board, player: Color) -> int:
+        floor = 0
+        ceiling = WIN_SCORE
+        score = cls.score(board, player)
+        if score >= inf:
+            return inf
+        return remap_01(score, floor, ceiling)
+
+    @classmethod
+    def score_opponent_normalized(cls, board: Board, player: Color) -> int:
+        floor = 0
+        ceiling = WIN_SCORE
+        score = cls.score_opponent(board, player)
+        if score <= -inf:
+            return -inf
+        return remap_01(score, floor, ceiling)
+
+    @classmethod
     def manhattan_normalized(cls, board: Board, player: Color) -> float:
-        count = board.get_marble_count(player)
-        adjustment = cls._get_manhattan_normalized_adjustment(count)
-        manhattan_average = (cls.manhattan(board, player) + adjustment) / count  # Get average between 0 and 4
-        return manhattan_average / cls.MAX_MANHATTAN_DISTANCE  # Scale to 0.0 to 1.0
+        floor = 0
+        ceiling = 36
+        return remap_01(cls.manhattan(board, player), floor, ceiling)
 
     @classmethod
     def manhattan_opponent_normalized(cls, board: Board, player: Color) -> float:
-        return 1.0 - cls.manhattan_normalized(board, Color.next(player))
+        floor = 20
+        ceiling = 56
+        return remap_01(cls.manhattan_opponent(board, player), floor, ceiling)
 
     @classmethod
-    def _get_manhattan_normalized_adjustment(cls, count: int):
-        """
-        Calculate manhattan normalized adjustment.
+    def adjacency_normalized(cls, board: Board, player: Color) -> float:
+        floor = 0
+        ceiling = 56
+        return remap_01(cls.adjacency(board, player), floor, ceiling)
 
-        Ex:
-        If we have 2 marbles the best we can do is the center cell and any cell next to it
-        This means we would lose a value of 1 due to a marble being offset one cell from the center,
-        so we set the adjustment to 1 and added to the manhattan value.
+    @classmethod
+    def adjacency_opponent_normalized(cls, board: Board, player: Color) -> float:
+        floor = 28
+        ceiling = 84
+        return remap_01(cls.adjacency_opponent(board, player), floor, ceiling)
 
-        If we have 8 marbles the best we can do is the center cell and the next ring around the center cell for
-        all the marbles plus any cell next to that ring. This means we would lose a value of 8
-        (6 for each marble in the adjacent ring and 2 for the single marble outside that ring)
-        The adjustment is set to 8 and added to the manhattan value.
-        """
 
-        adjustment = 0
-        depth = 0
-        depth_ceiling = 1
-        count_remaining = count - 1
-        while depth_ceiling < count:
-            cells_in_depth = (depth * HEX_CONSTANT)
-            depth_ceiling += cells_in_depth
-
-            while count_remaining > 0 and cells_in_depth > 0:
-                adjustment += depth
-                count_remaining -= 1
-                cells_in_depth -= 1
-
-            depth += 1
-
-        return adjustment
