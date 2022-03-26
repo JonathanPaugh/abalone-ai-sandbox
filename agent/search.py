@@ -11,7 +11,7 @@ from core.move import Move
 
 MAX, MIN = math.inf, -math.inf
 # Sets the depth limit
-DEPTH_LIMIT = 2
+DEPTH_LIMIT = 4
 
 
 class TimeException(Exception):
@@ -67,10 +67,10 @@ class Search:
             if depth >= depth_limit:
                 original_move = move
 
-            node = self.minimax_j_min(next_board, player, original_move,
+            node_move, node_heuristic = self.minimax_j_min(next_board, player, original_move,
                                       alpha, beta, depth - 1, depth_limit, on_find_move)
 
-            best_node = max(best_node, node, key=lambda n: n[1])
+            best_node = max(best_node, (node_move, node_heuristic), key=lambda n: n[1])
 
             if depth >= depth_limit:
                 if best_node[1] > self.best_heuristic:
