@@ -11,7 +11,7 @@ from core.move import Move
 
 MAX, MIN = math.inf, -math.inf
 # Sets the depth limit
-DEPTH_LIMIT = 0
+DEPTH_LIMIT = 2
 
 
 class TimeException(Exception):
@@ -22,7 +22,7 @@ class TimeException(Exception):
 class Search:
     def __init__(self):
         # Stores index of the best move
-        self.best_move = 0
+        self.best_heuristic = 0
 
         # Stores whether the node has been ordered yet
         self.node_ordered_yet = False
@@ -37,25 +37,24 @@ class Search:
         """
         Finds the next move using minimax with alpha-beta pruning.
         """
-        self.best_move = 0
+        self.best_heuristic = 0
         self.node_ordered_yet = False
         self.interrupt = False
-        self.moves = StateGenerator.enumerate_board(board, player)
 
         try:
-            self.minimax_j_max(board, player, None, MIN, MAX, 0, DEPTH_LIMIT, on_find_move)
+            self.minimax_j_max(board, player, None, MIN, MAX, DEPTH_LIMIT, DEPTH_LIMIT, on_find_move)
             # self.minimax(0, 0, True, board, MIN, MAX, player, on_find_move)
         except TimeException:
             pass
 
-        print("Search Complete")
 
+    # Try best move separate from alpha #
     def minimax_j_max(self, board: Board, player: Color, original_move: Move,
                       alpha: int, beta: int, depth, depth_limit: int, on_find_move: callable):
         if self.interrupt:
             raise TimeException()
 
-        if depth > depth_limit:
+        if depth <= 0:
             return original_move, Heuristic.main(board, player)
 
         best_node = None, MIN
@@ -65,22 +64,22 @@ class Search:
         transitions = list(zip(moves, boards))
 
         for move, next_board in transitions:
-            if depth == 0:
+            if depth >= depth_limit:
                 original_move = move
 
-            print(Heuristic.main(next_board, player))
+            node = self.minimax_j_min(next_board, player, original_move,
+                                      alpha, beta, depth - 1, depth_limit, on_find_move)
 
-            node = self.minimax_j_min(next_board, Color.next(player), original_move,
-                                      alpha, beta, depth + 1, depth_limit, on_find_move)
             best_node = max(best_node, node, key=lambda n: n[1])
 
-            if depth == 0:
-                if best_node[1] > alpha:
-                    print(F"{best_node[0]}, {best_node[1]}")
+            if depth >= depth_limit:
+                if best_node[1] > self.best_heuristic:
+                    self.best_heuristic = best_node[1]
+                    print(F"Original: {original_move}, Move: {best_node[0]}, Heuristic {best_node[1]}")
                     on_find_move(best_node[0])
 
-            # if best_node[1] > beta:
-            #     return best_node
+            if best_node[1] > beta:
+                return best_node
 
             alpha = max(alpha, best_node[1])
 
@@ -91,21 +90,21 @@ class Search:
         if self.interrupt:
             raise TimeException()
 
-        if depth > depth_limit:
-            return original_move, Heuristic.main(board, Color.next(player))
+        if depth <= 0:
+            return original_move, Heuristic.main(board, player)
 
         best_node = None, MAX
 
-        moves = StateGenerator.enumerate_board(board, player)
+        moves = StateGenerator.enumerate_board(board, Color.next(player))
         boards = StateGenerator.generate(board, moves)
 
         for next_board in boards:
-            node = self.minimax_j_max(next_board, Color.next(player), original_move,
-                                      alpha, beta, depth + 1, depth_limit, on_find_move)
+            node = self.minimax_j_max(next_board, player, original_move,
+                                      alpha, beta, depth - 1, depth_limit, on_find_move)
             best_node = min(best_node, node, key=lambda n: n[1])
 
-            # if best_node[1] < alpha:
-            #     return best_node
+            if best_node[1] < alpha:
+                return best_node
 
             beta = min(beta, best_node[1])
 

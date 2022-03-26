@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from copy import deepcopy
 from typing import List
 
 from core.board import Board
@@ -40,7 +41,7 @@ class StateGenerator:
         Applies every move in a list of moves to a board and gets a list of resulting boards.
         :return: List of resulting boards for each move.
         """
-        boards = [Board.create_from_data(board.to_array()) for _ in range(len(moves))]
+        boards = [deepcopy(board) for _ in range(len(moves))]
         for i in range(len(moves)):
             boards[i].apply_move(moves[i])
 
