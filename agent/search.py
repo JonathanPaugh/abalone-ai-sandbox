@@ -52,9 +52,6 @@ class Search:
         if depth >= depth_limit:
             self._order_nodes(board, transitions)
 
-            for move, _ in transitions:
-                print(move.is_sumito(board))
-
         for move, next_board in transitions:
             if depth >= depth_limit:
                 original_move = move
