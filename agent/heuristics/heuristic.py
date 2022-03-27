@@ -34,12 +34,12 @@ class Heuristic:
 
     @classmethod
     def weighted_normalized(cls, board: Board, player: Color) -> float:
-        score_weight = 1 / 6
-        score_opponent_weight = 1 / 6
-        manhattan_weight = 1 / 6
-        manhattan_opponent_weight = 1 / 6
-        adjacency_weight = 1 / 6
-        adjacency_opponent_weight = 1 / 6
+        score_weight = 0.20
+        score_opponent_weight = 0.25
+        manhattan_weight = 0.15
+        manhattan_opponent_weight = 0.175
+        adjacency_weight = 0.125
+        adjacency_opponent_weight = 0.10
 
         return score_weight * cls.score_normalized(board, player) \
             + score_opponent_weight * cls.score_opponent_normalized(board, player) \
@@ -107,7 +107,7 @@ class Heuristic:
         return score
 
     @classmethod
-    def score_normalized(cls, board: Board, player: Color) -> int:
+    def score_normalized(cls, board: Board, player: Color) -> float:
         floor = 0
         ceiling = WIN_SCORE
         score = cls.score(board, player)
@@ -116,7 +116,7 @@ class Heuristic:
         return remap_01(score, floor, ceiling)
 
     @classmethod
-    def score_opponent_normalized(cls, board: Board, player: Color) -> int:
+    def score_opponent_normalized(cls, board: Board, player: Color) -> float:
         floor = 0
         ceiling = WIN_SCORE
         score = cls.score_opponent(board, player)

@@ -70,7 +70,8 @@ class App:
         if player_type is PlayerType.COMPUTER:
             self._agent_operator.search(self._model.game_board,
                                         player_color,
-                                        self._set_timeout_move)
+                                        self._set_timeout_move,
+                                        self._apply_timeout_move)
 
     def _apply_move(self, move: Move):
         """
@@ -88,11 +89,10 @@ class App:
 
     def _apply_timeout_move(self):
         self._agent_operator.stop()
-        print(F"Apply: {self._model.timeout_move}")
+        print(F"Apply Move: {self._model.timeout_move}")
         self._apply_move(self._model.timeout_move)
 
     def _set_timeout_move(self, move: Move):
-        print(F"Set: {move}")
         self._model.timeout_move = move
 
     def _apply_config(self, config: ui.Config):
