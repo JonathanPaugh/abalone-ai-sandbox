@@ -78,8 +78,8 @@ class GameUI:
         """
         self._board_view.render(model)
 
-        self._score_1.set(str(model.game_board.get_score(Color.WHITE)))
-        self._score_2.set(str(model.game_board.get_score(Color.BLACK)))
+        self._score_1.set(str(model.game_board.get_score(Color.BLACK)))
+        self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
         self._move_count_1.set(str(model.game.temporary_move_count[0]))
         self._move_count_2.set(str(model.game.temporary_move_count[1]))
 
