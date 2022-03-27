@@ -51,7 +51,7 @@ class Game:
 
     def _next_turn(self):
         if self._turn == Color.BLACK:
-            self.temporary_move_count[0] = 1
+            self.temporary_move_count[0] += 1
         else:
             self.temporary_move_count[1] += 1
 
