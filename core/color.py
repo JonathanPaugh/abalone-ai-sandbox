@@ -25,3 +25,14 @@ class Color(Enum):
 
         if color == Color.WHITE:
             return Color.BLACK
+
+    def __str__(self):
+        string = super(Color, self).__str__()
+
+        if self == Color.BLACK:
+            string += " (BLUE)"
+
+        if self == Color.WHITE:
+            string += " (RED)"
+
+        return string

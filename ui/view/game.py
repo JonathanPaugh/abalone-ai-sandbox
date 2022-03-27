@@ -42,12 +42,10 @@ class GameUI:
         self.frame = None
         self._board_view = None
         self._timer_text = None
-        self._score_2 = None
         self._score_1 = None
-        self._move_1 = None
-        self._move_2 = None
-        self._move_count_1 = 0
-        self._move_count_2 = 0
+        self._score_2 = None
+        self._move_count_1 = None
+        self._move_count_2 = None
 
     @property
     def animating(self):
@@ -81,13 +79,9 @@ class GameUI:
         self._board_view.render(model)
 
         self._score_1.set(str(model.game_board.get_score(Color.WHITE)))
-
         self._score_2.set(str(model.game_board.get_score(Color.BLACK)))
-
-        self._move_1.set(str(self._move_count_1))
-
-        self._move_2.set(str(self._move_count_2))
-
+        self._move_count_1.set(str(model.game.temporary_move_count[0]))
+        self._move_count_2.set(str(model.game.temporary_move_count[1]))
 
     def _mount_widgets(self, parent, on_click_settings, on_click_board):
         """
@@ -164,7 +158,8 @@ class GameUI:
         frame.grid(column=1, row=1, padx=5, pady=5)
 
         self._score_1 = StringVar(parent, "0")
-        self._move_1 = StringVar(parent, "0")
+        self._move_count_1 = StringVar(parent, "0")
+
         self._mount_score_heading(frame, 0, player, colour)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               text="Scores:", font=self.FONT_MEDIUM).grid(column=1, row=row)
@@ -174,7 +169,7 @@ class GameUI:
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              textvariable=self._move_1,
+              textvariable=self._move_count_1,
               font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
 
         self._mount_score_grid(frame)
@@ -194,18 +189,18 @@ class GameUI:
         frame.grid(column=2, row=1, padx=5, pady=5)
 
         self._score_2 = StringVar(parent, "0")
-        self._move_2 = StringVar(parent, "0")
+        self._move_count_2 = StringVar(parent, "0")
 
         self._mount_score_heading(frame, 0, player, colour)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Scores:", font=self.FONT_MEDIUM).grid(column=1, row=row)
+              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_2,
               font=self.FONT_MEDIUM).grid(column=2, row=row)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              textvariable=self._move_2,
+              textvariable=self._move_count_2,
               font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
 
         self._mount_score_grid(frame)

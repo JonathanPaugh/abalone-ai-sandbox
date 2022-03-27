@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dataclasses import dataclass, field
-
 from agent.state_generator import StateGenerator
 from core.game import Game
 from core.move import Move
@@ -13,11 +12,10 @@ from core.hex import HexDirection
 from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
-from ui.model.config import Config
 from ui.model.game_history import GameHistory
-
 from datetime import time
 from ui.constants import FPS
+import ui.model.config as config
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -35,7 +33,7 @@ class Model:
     timeout_move: Move = None
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
-    config: Config = field(default_factory=Config.from_default)
+    config: config.Config.Config = field(default_factory=config.Config.from_default)
 
     @property
     def game_board(self):
@@ -115,7 +113,7 @@ class Model:
 
         self.game = Game(self.config.layout)
 
-    def apply_config(self, config: Config):
+    def apply_config(self, config: config.Config.Config):
         """
         Applies the given config and starts a new game.
         :param config: the new Config to use
