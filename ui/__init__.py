@@ -4,12 +4,10 @@ Defines the driver logic for the application.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-import random
 from datetime import timedelta
 from time import sleep
 from agent.state_generator import StateGenerator
 from core.move import Move
-
 from core.player_type import PlayerType
 from agent.agent import Agent
 from lib.dispatcher import Dispatcher
@@ -17,6 +15,7 @@ from ui.model import Model
 from ui.view import View
 from ui.constants import FPS
 import ui.model.config
+import ui.debug
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -80,8 +79,11 @@ class App:
         :param move: the Move to apply
         :return: None
         """
+        debug.Debug.log(F"Apply Move: {move}, {self._model.game_turn}", debug.DebugType.Game)
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
         self._model.apply_move(move, self._dispatch_timer_update, self._apply_timeout_move)
+        self._view_dispatcher.put(lambda: self._view.render(self._model))
+        debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 
     def _apply_random_move(self):
         move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
@@ -89,7 +91,6 @@ class App:
 
     def _apply_timeout_move(self):
         self._agent_operator.stop()
-        print(F"Apply Move: {self._model.timeout_move}")
         self._apply_move(self._model.timeout_move)
 
     def _set_timeout_move(self, move: Move):

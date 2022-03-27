@@ -6,7 +6,7 @@ from core.board import Board
 from core.color import Color
 from core.constants import MAX_SELECTION_SIZE
 from core.move import Move
-
+from ui.debug import Debug, DebugType
 
 class Search:
     DEPTH_LIMIT = 2
@@ -16,7 +16,7 @@ class Search:
     def __init__(self):
         self.interrupt = False
         self.prune_count = 0
-        self.move_count = 0
+        self.node_count = 0
 
     def alpha_beta(self, board: Board, player: Color, on_find: callable):
         """
@@ -24,9 +24,9 @@ class Search:
         """
         self.interrupt = False
         self.prune_count = 0
-        self.move_count = 0
+        self.node_count = 0
 
-        print(F"--- Search: {player} ---")
+        Debug.log(F"--- Search Start: {player} ---", DebugType.Agent)
 
         result = "Exhausted"
         try:
@@ -35,10 +35,10 @@ class Search:
         except TimeoutException:
             result = "Timeout"
 
-        print("--- Search Complete ---")
-        print(F"Branches Pruned: {self.prune_count}")
-        print(F"Moves Searched: {self.move_count}")
-        print(F"--- Search Result: {result} ---")
+        Debug.log(F"--- Search Result: {result} ---", DebugType.Agent)
+        Debug.log(F"Branches Pruned: {self.prune_count}", DebugType.Agent)
+        Debug.log(F"Nodes Searched: {self.node_count}", DebugType.Agent)
+        Debug.log("--- Search Complete ---", DebugType.Agent)
 
     def _alpha_beta_max(self, board: Board, player: Color, original_move: Move,
                         alpha: int, beta: int, depth, depth_limit: int, on_find: callable):
@@ -49,7 +49,7 @@ class Search:
             raise TimeoutException()
 
         if depth <= 0:
-            self.move_count += 1
+            self.node_count += 1
             return Heuristic.main(board, player)
 
         best_heuristic = self.MIN
@@ -72,7 +72,7 @@ class Search:
 
             if depth >= depth_limit:
                 if best_heuristic > alpha:
-                    print(F"Set Move: {original_move}, {best_heuristic:0.4f}")
+                    Debug.log(F"Set Agent Move: {original_move}, {best_heuristic:0.4f}", DebugType.Agent)
                     on_find(original_move)
 
             if best_heuristic > beta:
@@ -92,7 +92,7 @@ class Search:
             raise TimeoutException()
 
         if depth <= 0:
-            self.move_count += 1
+            self.node_count += 1
             return Heuristic.main(board, player)
 
         best_heuristic = self.MAX
