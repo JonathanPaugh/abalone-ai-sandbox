@@ -14,7 +14,7 @@ from lib.dispatcher import Dispatcher
 from ui.model import Model
 from ui.view import View
 from ui.constants import FPS
-import ui.model.config
+import ui.model.config as config
 import ui.debug
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ class App:
     def __init__(self):
         self._model = Model()
         self._view = View()
-        self._agent_operator = Agent()
+        self._agent = Agent()
         self._view_dispatcher = Dispatcher()
 
     def _start_game(self):
@@ -67,10 +67,11 @@ class App:
         player_type = config.get_player_type(player_color)
 
         if player_type is PlayerType.COMPUTER:
-            self._agent_operator.search(self._model.game_board,
-                                        player_color,
-                                        self._set_timeout_move,
-                                        self._apply_timeout_move)
+            self._agent.set_heuristic_type(config.get_player_heuristic_type(player_color))
+            self._agent.search(self._model.game_board,
+                               player_color,
+                               self._set_timeout_move,
+                               self._apply_timeout_move)
 
     def _apply_move(self, move: Move):
         """
@@ -90,13 +91,13 @@ class App:
         self._apply_move(move)
 
     def _apply_timeout_move(self):
-        self._agent_operator.stop()
+        self._agent.stop()
         self._apply_move(self._model.timeout_move)
 
     def _set_timeout_move(self, move: Move):
         self._model.timeout_move = move
 
-    def _apply_config(self, config: ui.Config):
+    def _apply_config(self, config: config.Config):
         """
         Applies the given config and starts a new game.
         :param config: the new Config to use
@@ -105,7 +106,7 @@ class App:
         self._model.apply_config(config)
         self._view.clear_game_board()
         self._view.render(self._model)
-        self._agent_operator.stop()
+        self._agent.stop()
         self._start_game()
 
     def _dispatch(self, action: callable, *args: list, **kwargs: dict):
@@ -160,8 +161,9 @@ class App:
             ),
             # STUB: this should go through an `askokcancel` if game is running
             can_open_settings=lambda: True,
+            get_config=lambda: self._model.config
         )
         self._view.render(self._model)
         self._start_game()
         self._run_main_loop()
-        self._agent_operator.stop()
+        self._agent.stop()

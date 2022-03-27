@@ -1,6 +1,7 @@
 from tkinter import Toplevel, OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
 
+from agent.heuristics.heuristic_type import HeuristicType
 from core.player_type import PlayerType
 from ui.model.config import Config
 from core.board_layout import BoardLayout
@@ -26,8 +27,8 @@ class SettingsUI:
         "Belgian Daisy": BoardLayout.BELGIAN_DAISY,
     }
 
-    def __init__(self, on_close):
-        self.config = Config.from_default()
+    def __init__(self, config, on_close):
+        self.config = config if config else Config.from_default()
         self._window = None
         self._on_close = on_close
 
@@ -68,6 +69,8 @@ class SettingsUI:
 
         time_limit_p1, time_limit_p2 = self._mount_time_limits(parent, 5)
 
+        heuristic_type_p1, heuristic_type_p2 = self._mount_heuristic_types(parent, 6)
+
         Button(parent, text="Confirm", command=lambda: (
             self._on_close(Config(
                 next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
@@ -75,10 +78,12 @@ class SettingsUI:
                 PlayerType(player_type_p1.get()),
                 PlayerType(player_type_p2.get()),
                 float(time_limit_p1.get()),
-                float(time_limit_p2.get())
+                float(time_limit_p2.get()),
+                HeuristicType(heuristic_type_p1.get()),
+                HeuristicType(heuristic_type_p2.get()),
             )),
             self._window.destroy(),
-        )).grid(column=0, row=6, columnspan=5)
+        )).grid(column=0, row=7, columnspan=5)
 
         self._configure_grid(parent)
 
@@ -105,15 +110,23 @@ class SettingsUI:
         return self._mount_input(parent, row, 3, "w", self.config.move_limit)
 
     def _mount_player_types(self, parent, row):
-        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.player_type_p1.value, "Human", "Computer")
+        options = [player_type.value for player_type in PlayerType]
+        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.player_type_p1.value, *options)
         self._mount_label(parent, row, 2, "", "Player Type")
-        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.player_type_p2.value, "Human", "Computer")
+        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.player_type_p2.value, *options)
         return p1, p2
 
     def _mount_time_limits(self, parent, row):
         p1 = self._mount_input(parent, row, 1, "e", self.config.time_limit_p1)
         self._mount_label(parent, row, 2, "", "Time Limit")
         p2 = self._mount_input(parent, row, 3, "w", self.config.time_limit_p2)
+        return p1, p2
+
+    def _mount_heuristic_types(self, parent, row):
+        options = [heuristic_type.value for heuristic_type in HeuristicType]
+        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.heuristic_type_p1.value, *options)
+        self._mount_label(parent, row, 2, "", "Heuristic Type")
+        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.heuristic_type_p2.value, *options)
         return p1, p2
 
     def _mount_label(self, parent, row, col, anchor, label):

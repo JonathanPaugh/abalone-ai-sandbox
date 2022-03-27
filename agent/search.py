@@ -1,12 +1,14 @@
 import math
 
 from agent.heuristics.heuristic import Heuristic
+from agent.heuristics.heuristic_type import HeuristicType
 from agent.state_generator import StateGenerator
 from core.board import Board
 from core.color import Color
 from core.constants import MAX_SELECTION_SIZE
 from core.move import Move
 from ui.debug import Debug, DebugType
+
 
 class Search:
     DEPTH_LIMIT = 2
@@ -17,6 +19,14 @@ class Search:
         self.interrupt = False
         self.prune_count = 0
         self.node_count = 0
+
+        self.heuristic_type = HeuristicType.WEIGHTED_NORMALIZED
+
+    def set_heuristic_type(self, heuristic_type: HeuristicType):
+        self.heuristic_type = heuristic_type
+
+    def _get_heuristic(self, board: Board, player: Color):
+        return self.heuristic_type.call(board, player)
 
     def alpha_beta(self, board: Board, player: Color, on_find: callable):
         """
@@ -35,9 +45,11 @@ class Search:
         except TimeoutException:
             result = "Timeout"
 
-        Debug.log(F"--- Search Result: {result} ---", DebugType.Agent)
+        Debug.log(F"Result: {result}", DebugType.Agent)
+        Debug.log(F"Heuristic: {self.heuristic_type.value}", DebugType.Agent)
         Debug.log(F"Branches Pruned: {self.prune_count}", DebugType.Agent)
         Debug.log(F"Nodes Searched: {self.node_count}", DebugType.Agent)
+
         Debug.log("--- Search Complete ---", DebugType.Agent)
 
     def _alpha_beta_max(self, board: Board, player: Color, original_move: Move,
@@ -50,7 +62,7 @@ class Search:
 
         if depth <= 0:
             self.node_count += 1
-            return Heuristic.main(board, player)
+            return self._get_heuristic(board, player)
 
         best_heuristic = self.MIN
 
@@ -93,7 +105,7 @@ class Search:
 
         if depth <= 0:
             self.node_count += 1
-            return Heuristic.main(board, player)
+            return self._get_heuristic(board, player)
 
         best_heuristic = self.MAX
 

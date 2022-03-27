@@ -193,7 +193,7 @@ class GameUI:
 
         self._mount_score_heading(frame, 0, player, colour)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Scores:", font=self.FONT_MEDIUM).grid(column=1, row=row)
+              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_2,
               font=self.FONT_MEDIUM).grid(column=2, row=row)

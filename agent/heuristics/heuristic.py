@@ -13,10 +13,6 @@ class Heuristic:
     BOARD_CENTER = Hex(BOARD_SIZE - 1, BOARD_SIZE - 1)
 
     @classmethod
-    def main(cls, board: Board, player: Color) -> Number:
-        return cls.weighted_normalized(board, player)
-
-    @classmethod
     def weighted(cls, board: Board, player: Color) -> float:
         score_weight = 0.45
         score_opponent_weight = 0.45
@@ -147,5 +143,3 @@ class Heuristic:
         floor = 28
         ceiling = 84
         return remap_01(cls.adjacency_opponent(board, player), floor, ceiling)
-
-
