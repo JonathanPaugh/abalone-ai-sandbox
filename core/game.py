@@ -16,7 +16,7 @@ class Game:
         self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 
-        self.temporary_move_count = [ 0, 0 ]  # Will be removed when history is implemented
+        self.temporary_move_count = [0, 0]  # Will be removed when history is implemented
 
     @property
     def board(self):

@@ -5,10 +5,13 @@ from core.board import Board
 from core.color import Color
 from core.constants import BOARD_SIZE, WIN_SCORE
 from core.hex import Hex
-from lib.remap import remap_01
+from lib.clamp import clamp_01
+from lib.remap import remap_01, remap
 
 
 class Heuristic:
+    MIN_MARBLE_COUNT = 9
+    MAX_MARBLE_COUNT = 14
     MAX_MANHATTAN_DISTANCE = BOARD_SIZE - 1
     BOARD_CENTER = Hex(BOARD_SIZE - 1, BOARD_SIZE - 1)
 
@@ -123,23 +126,51 @@ class Heuristic:
     @classmethod
     def manhattan_normalized(cls, board: Board, player: Color) -> float:
         floor = 0
-        ceiling = 36
-        return remap_01(cls.manhattan(board, player), floor, ceiling)
+        ceiling_min = 26
+        ceiling_max = 36
+
+        count = board.get_marble_count(player)
+        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+
+        return clamp_01(remap_01(cls.manhattan(board, player), floor, ceiling))
 
     @classmethod
     def manhattan_opponent_normalized(cls, board: Board, player: Color) -> float:
-        floor = 20
-        ceiling = 56
-        return remap_01(cls.manhattan_opponent(board, player), floor, ceiling)
+        floor_min = 10
+        floor_max = 20
+        ceiling_min = 36
+        ceiling_max = 56
+
+        count = board.get_marble_count(Color.next(player))
+        floor = cls._map_limit_by_marble_count(count, floor_min, floor_max)
+        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+
+        return clamp_01(remap_01(cls.manhattan_opponent(board, player), floor, ceiling))
 
     @classmethod
     def adjacency_normalized(cls, board: Board, player: Color) -> float:
         floor = 0
-        ceiling = 56
-        return remap_01(cls.adjacency(board, player), floor, ceiling)
+        ceiling_min = 32
+        ceiling_max = 56
+
+        count = board.get_marble_count(player)
+        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+
+        return clamp_01(remap_01(cls.adjacency(board, player), floor, ceiling))
 
     @classmethod
     def adjacency_opponent_normalized(cls, board: Board, player: Color) -> float:
-        floor = 28
-        ceiling = 84
-        return remap_01(cls.adjacency_opponent(board, player), floor, ceiling)
+        floor_min = 22
+        floor_max = 28
+        ceiling_min = 54
+        ceiling_max = 84
+
+        count = board.get_marble_count(Color.next(player))
+        floor = cls._map_limit_by_marble_count(count, floor_min, floor_max)
+        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+
+        return clamp_01(remap_01(cls.adjacency_opponent(board, player), floor, ceiling))
+
+    @classmethod
+    def _map_limit_by_marble_count(cls, count: int, min: int, max: int):
+        return remap(count, cls.MIN_MARBLE_COUNT, cls.MAX_MARBLE_COUNT, min, max)

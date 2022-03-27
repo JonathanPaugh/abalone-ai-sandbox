@@ -223,9 +223,7 @@ class Board(HexGrid):
         player = sumito_move.selection.get_player(self)
 
         for cell in sumito_move.selection.to_array():
-            if not self.cell_in_bounds(cell):
-                print(sumito_move.selection)
-            else:
+            if self.cell_in_bounds(cell):
                 self[cell] = None
 
         for cell in sumito_move.get_destinations():
