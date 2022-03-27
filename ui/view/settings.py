@@ -40,8 +40,13 @@ class SettingsUI:
         frame = Frame(window)
         frame.pack()
         self._window = window
+        window.protocol("WM_DELETE_WINDOW", self.cancel)
         self._mount(frame)
         return self
+
+    def cancel(self):
+        self._on_close(None)
+        self._window.destroy()
 
     def _mount(self, parent):
         """

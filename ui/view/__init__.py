@@ -52,10 +52,12 @@ class View:
         Displays a settings pop up for user customization input.
         :return: none
         """
-        self._settings_view = SettingsUI(on_close=lambda config: (
-            setattr(self, "_settings_view", None),
-            on_close and on_close(config),
-        )).open()
+        self._settings_view = SettingsUI(on_close=lambda config: self._close_settings(config, on_close)).open()
+
+    def _close_settings(self, config, on_close):
+        self._settings_view = None
+        if on_close and config:
+            on_close(config)
 
     def open(self, on_click_board, can_open_settings, on_confirm_settings):
         """
