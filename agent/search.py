@@ -11,7 +11,7 @@ from ui.debug import Debug, DebugType
 
 
 class Search:
-    DEPTH_LIMIT = 3
+    DEPTH_LIMIT = 2
     MIN = -math.inf
     MAX = math.inf
 
@@ -19,6 +19,7 @@ class Search:
         self.interrupt = False
         self.prune_count = 0
         self.node_count = 0
+        self.on_find = None
 
         self.heuristic_type = HeuristicType.WEIGHTED_NORMALIZED
 
@@ -35,13 +36,14 @@ class Search:
         self.interrupt = False
         self.prune_count = 0
         self.node_count = 0
+        self.on_find = on_find
 
         Debug.log(F"--- Search Start: {player} ---", DebugType.Agent)
 
         result = "Exhausted"
         try:
-            self._alpha_beta_max(board, player, None, self.MIN, self.MAX,
-                                 self.DEPTH_LIMIT, self.DEPTH_LIMIT, on_find)
+            self._alpha_beta_max(board, player, self.MIN, self.MAX,
+                                 self.DEPTH_LIMIT, self.DEPTH_LIMIT)
         except TimeoutException:
             result = "Timeout"
 
@@ -52,8 +54,9 @@ class Search:
 
         Debug.log("--- Search Complete ---", DebugType.Agent)
 
-    def _alpha_beta_max(self, board: Board, player: Color, original_move: Move,
-                        alpha: int, beta: int, depth, depth_limit: int, on_find: callable):
+    def _alpha_beta_max(self, board: Board, player: Color,
+                        alpha: int, beta: int,
+                        depth, depth_limit: int):
         """
         Alpha-beta helper function for the max player
         """
@@ -77,15 +80,16 @@ class Search:
             if depth >= depth_limit:
                 original_move = move
 
-            heuristic = self._alpha_beta_min(next_board, player, original_move,
-                                             alpha, beta, depth - 1, depth_limit, on_find)
+            heuristic = self._alpha_beta_min(next_board, player,
+                                             alpha, beta,
+                                             depth - 1, depth_limit)
 
             best_heuristic = max(best_heuristic, heuristic)
 
             if depth >= depth_limit:
                 if best_heuristic > alpha:
                     Debug.log(F"Set Agent Move: {original_move}, {best_heuristic:0.4f}", DebugType.Agent)
-                    on_find(original_move)
+                    self.on_find(original_move)
 
             if best_heuristic > beta:
                 self.prune_count += 1
@@ -95,8 +99,9 @@ class Search:
 
         return best_heuristic
 
-    def _alpha_beta_min(self, board: Board, player: Color, original_move: Move,
-                        alpha: int, beta: int, depth: int, depth_limit: int, on_find: callable):
+    def _alpha_beta_min(self, board: Board, player: Color,
+                        alpha: int, beta: int,
+                        depth: int, depth_limit: int):
         """
         Alpha-beta helper function for the min player
         """
@@ -113,8 +118,9 @@ class Search:
         boards = StateGenerator.generate(board, moves)
 
         for next_board in boards:
-            heuristic = self._alpha_beta_max(next_board, player, original_move,
-                                             alpha, beta, depth - 1, depth_limit, on_find)
+            heuristic = self._alpha_beta_max(next_board, player,
+                                             alpha, beta,
+                                             depth - 1, depth_limit)
 
             best_heuristic = min(best_heuristic, heuristic)
 

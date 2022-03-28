@@ -1,9 +1,11 @@
 """
 Defines the game representation.
 """
+from agent.heuristics.heuristic import Heuristic
 from core.board_layout import BoardLayout
 from core.color import Color
 import ui.model.config as config
+from lib.stopwatch import stopwatch
 
 
 class Game:

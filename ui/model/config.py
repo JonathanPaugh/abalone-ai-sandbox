@@ -15,8 +15,8 @@ class Config:
     DEFAULT_PLAYER_TYPE_P2 = PlayerType.COMPUTER
     DEFAULT_TIME_LIMIT_P1 = 60.0
     DEFAULT_TIME_LIMIT_P2 = 60.0
-    DEFAULT_HEURISTIC_TYPE_P1 = HeuristicType.WEIGHTED_NORMALIZED
-    DEFAULT_HEURISTIC_TYPE_P2 = HeuristicType.WEIGHTED
+    DEFAULT_HEURISTIC_TYPE_P1 = HeuristicType.WEIGHTED
+    DEFAULT_HEURISTIC_TYPE_P2 = HeuristicType.WEIGHTED_NORMALIZED
 
     def __init__(self, layout: BoardLayout, move_limit: int,
                  player_type_p1: PlayerType, player_type_p2: PlayerType,

@@ -104,15 +104,18 @@ class Board(HexGrid):
         return count
 
     def get_score(self, player: Color):
-        enemy = Color.next(player)
+        return self.get_score_optimized(player, self.get_marble_count(Color.next(player)))
+
+    def get_score_optimized(self, player: Color, opponent_count: int):
+        opponent = Color.next(player)
 
         layout_count = 0
         for line in self._layout:
             for data in line:
-                if data == enemy.value:
+                if data == opponent.value:
                     layout_count += 1
 
-        return layout_count - self.get_marble_count(enemy)
+        return layout_count - opponent_count
 
     def apply_move(self, move: Move):
         """

@@ -1,6 +1,4 @@
 from math import inf
-from numbers import Number
-
 from core.board import Board
 from core.color import Color
 from core.constants import BOARD_SIZE, WIN_SCORE
@@ -33,19 +31,23 @@ class Heuristic:
 
     @classmethod
     def weighted_normalized(cls, board: Board, player: Color) -> float:
-        score_weight = 0.20
-        score_opponent_weight = 0.25
-        manhattan_weight = 0.15
-        manhattan_opponent_weight = 0.175
-        adjacency_weight = 0.125
-        adjacency_opponent_weight = 0.10
+        score_weight = 0.25
+        score_opponent_weight = 0.30
+        manhattan_weight = 0.125
+        manhattan_opponent_weight = 0.15
+        adjacency_weight = 0.10
+        adjacency_opponent_weight = 0.075
 
-        return score_weight * cls.score_normalized(board, player) \
-            + score_opponent_weight * cls.score_opponent_normalized(board, player) \
-            + manhattan_weight * cls.manhattan_normalized(board, player) \
-            + manhattan_opponent_weight * cls.manhattan_opponent_normalized(board, player) \
-            + adjacency_weight * cls.adjacency_normalized(board, player) \
-            + adjacency_opponent_weight * cls.adjacency_opponent_normalized(board, player)
+        score, score_opponent, \
+            manhattan_score, manhattan_opponent_score, \
+            adjacency_score, adjacency_opponent_score = cls.composite_normalized(board, player)
+
+        return score_weight * score \
+            + score_opponent_weight * score_opponent \
+            + manhattan_weight * manhattan_score \
+            + manhattan_opponent_weight * manhattan_opponent_score \
+            + adjacency_weight * adjacency_score \
+            + adjacency_opponent_weight * adjacency_opponent_score
 
     @classmethod
     def score(cls, board: Board, player: Color) -> int:
@@ -106,70 +108,110 @@ class Heuristic:
         return score
 
     @classmethod
-    def score_normalized(cls, board: Board, player: Color) -> float:
+    def score_normalized(cls, score: int) -> float:
         floor = 0
         ceiling = WIN_SCORE
-        score = cls.score(board, player)
         if score >= inf:
             return inf
         return remap_01(score, floor, ceiling)
 
     @classmethod
-    def score_opponent_normalized(cls, board: Board, player: Color) -> float:
+    def score_opponent_normalized(cls, score: int) -> float:
         floor = 0
         ceiling = WIN_SCORE
-        score = cls.score_opponent(board, player)
         if score <= -inf:
             return -inf
         return remap_01(score, floor, ceiling)
 
     @classmethod
-    def manhattan_normalized(cls, board: Board, player: Color) -> float:
+    def manhattan_normalized(cls, score: int, marble_count: int) -> float:
         floor = 0
         ceiling_min = 26
         ceiling_max = 36
 
-        count = board.get_marble_count(player)
-        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
-
-        return clamp_01(remap_01(cls.manhattan(board, player), floor, ceiling))
+        ceiling = cls._map_limit_by_marble_count(marble_count, ceiling_min, ceiling_max)
+        return clamp_01(remap_01(score, floor, ceiling))
 
     @classmethod
-    def manhattan_opponent_normalized(cls, board: Board, player: Color) -> float:
+    def manhattan_opponent_normalized(cls, score: int, marble_count: int) -> float:
         floor_min = 10
         floor_max = 20
         ceiling_min = 36
         ceiling_max = 56
 
-        count = board.get_marble_count(Color.next(player))
-        floor = cls._map_limit_by_marble_count(count, floor_min, floor_max)
-        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+        floor = cls._map_limit_by_marble_count(marble_count, floor_min, floor_max)
+        ceiling = cls._map_limit_by_marble_count(marble_count, ceiling_min, ceiling_max)
 
-        return clamp_01(remap_01(cls.manhattan_opponent(board, player), floor, ceiling))
+        return clamp_01(remap_01(score, floor, ceiling))
 
     @classmethod
-    def adjacency_normalized(cls, board: Board, player: Color) -> float:
+    def adjacency_normalized(cls, score: int, marble_count: int) -> float:
         floor = 0
         ceiling_min = 32
         ceiling_max = 56
 
-        count = board.get_marble_count(player)
-        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+        ceiling = cls._map_limit_by_marble_count(marble_count, ceiling_min, ceiling_max)
 
-        return clamp_01(remap_01(cls.adjacency(board, player), floor, ceiling))
+        return clamp_01(remap_01(score, floor, ceiling))
 
     @classmethod
-    def adjacency_opponent_normalized(cls, board: Board, player: Color) -> float:
+    def adjacency_opponent_normalized(cls, score: int, marble_count: int) -> float:
         floor_min = 22
         floor_max = 28
         ceiling_min = 54
         ceiling_max = 84
 
-        count = board.get_marble_count(Color.next(player))
-        floor = cls._map_limit_by_marble_count(count, floor_min, floor_max)
-        ceiling = cls._map_limit_by_marble_count(count, ceiling_min, ceiling_max)
+        floor = cls._map_limit_by_marble_count(marble_count, floor_min, floor_max)
+        ceiling = cls._map_limit_by_marble_count(marble_count, ceiling_min, ceiling_max)
 
-        return clamp_01(remap_01(cls.adjacency_opponent(board, player), floor, ceiling))
+        return clamp_01(remap_01(score, floor, ceiling))
+
+    @classmethod
+    def composite(cls, board: Board, player: Color):
+        manhattan_score = 0
+        manhattan_opponent_score = 0
+        adjacency_score = 0
+        adjacency_opponent_score = 0
+
+        player_count = board.get_marble_count(player)
+        opponent_count = board.get_marble_count(Color.next(player))
+
+        for cell, color in board.enumerate():
+            for neighbour in cell.neighbors():
+                if color is player:
+                    if board.cell_in_bounds(neighbour) and board[neighbour] == player:
+                        adjacency_score += 1
+                elif color is Color.next(player):
+                    if not board.cell_in_bounds(neighbour):
+                        adjacency_opponent_score += 1
+                    elif board[neighbour] != Color.next(player):
+                        adjacency_opponent_score += 1
+
+            if color is player:
+                manhattan_score += cls.MAX_MANHATTAN_DISTANCE - cell.manhattan(cls.BOARD_CENTER)
+            elif color is Color.next(player):
+                manhattan_opponent_score += cell.manhattan(cls.BOARD_CENTER)
+            else:
+                pass
+
+        return player_count, opponent_count, \
+            cls.score(board, player), cls.score_opponent(board, player), \
+            manhattan_score, manhattan_opponent_score, \
+            adjacency_score, adjacency_opponent_score
+
+    @classmethod
+    def composite_normalized(cls, board: Board, player: Color):
+        player_count, opponent_count, \
+            score, score_opponent, \
+            manhattan_score, manhattan_opponent_score, \
+            adjacency_score, adjacency_opponent_score = cls.composite(board, player)
+
+        return cls.score_normalized(score), \
+            cls.score_opponent_normalized(score_opponent), \
+            cls.manhattan_normalized(manhattan_score, player_count), \
+            cls.manhattan_opponent_normalized(manhattan_opponent_score, opponent_count), \
+            cls.adjacency_normalized(adjacency_score, player_count), \
+            cls.adjacency_opponent_normalized(adjacency_opponent_score, opponent_count)
 
     @classmethod
     def _map_limit_by_marble_count(cls, count: int, min: int, max: int):

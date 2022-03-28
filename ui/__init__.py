@@ -41,7 +41,8 @@ class App:
         """
         Starts the game by applying a random move to the first player.
         """
-        self._apply_random_move()
+        if self._model.config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
+            self._apply_random_move()
 
     def _select_cell(self, cell: Hex):
         """
@@ -103,10 +104,10 @@ class App:
         :param config: the new Config to use
         :return: None
         """
+        self._agent.stop()
         self._model.apply_config(config)
         self._view.clear_game_board()
         self._view.render(self._model)
-        self._agent.stop()
         self._start_game()
 
     def _dispatch(self, action: callable, *args: list, **kwargs: dict):
