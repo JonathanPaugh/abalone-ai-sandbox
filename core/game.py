@@ -4,6 +4,8 @@ Defines the game representation.
 from agent.heuristics.heuristic import Heuristic
 from core.board_layout import BoardLayout
 from core.color import Color
+import ui.model.config as config
+from lib.stopwatch import stopwatch
 
 
 class Game:
@@ -12,11 +14,11 @@ class Game:
     formulation.
     """
 
-    def __init__(self, starting_layout: BoardLayout = BoardLayout.STANDARD):
+    def __init__(self, starting_layout: BoardLayout = config.Config.DEFAULT_LAYOUT):
         self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
 
-        print(Heuristic.manhattan_normalized(self._board, self._turn))
+        self.temporary_move_count = [0, 0]  # Will be removed when history is implemented
 
     @property
     def board(self):
@@ -50,4 +52,9 @@ class Game:
         return True
 
     def _next_turn(self):
+        if self._turn == Color.BLACK:
+            self.temporary_move_count[0] += 1
+        else:
+            self.temporary_move_count[1] += 1
+
         self._turn = Color.next(self._turn)

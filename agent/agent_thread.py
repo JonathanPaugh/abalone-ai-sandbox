@@ -2,22 +2,28 @@ from ui.constants import FPS
 import threading
 
 class AgentThread(threading.Thread):
-    def __init__(self, agent, board, player, on_find_move):
+    def __init__(self, search, board, player, on_find, on_complete):
         super().__init__()
         self.stopped = threading.Event()
         self.daemon = True
+        self.running = False
 
-        self.on_find_move = on_find_move
-        self.agent = agent
+        self.search = search
         self.board = board
         self.player = player
 
+        self.on_find = on_find
+        self.on_complete = on_complete
+
     def stop(self):
         self.stopped.set()
-        self.agent.interrupt = True
+        self.search.interrupt = True
         self.join()
 
     def run(self):
-        move = self.agent.find_next_move(self.board, self.player)
-        self.on_find_move(move)
+        self.running = True
+        self.search.alpha_beta(self.board, self.player, self.on_find)
+        self.running = False
 
+        if not self.search.interrupt:
+            self.on_complete()
