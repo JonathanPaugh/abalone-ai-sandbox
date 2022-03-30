@@ -27,7 +27,11 @@ def heuristic(board, color):
             continue
 
         cell_centralization = BOARD_RADIUS - Hex.manhattan(cell, BOARD_CENTER)
-        cell_adjacency = pow(sum([board[n] == cell_color for n in Hex.neighbors(cell)]), 2)
+        cell_adjacency = sum([
+            board[n] == cell_color if n in board else 0
+                for n in Hex.neighbors(cell)
+        ])
+        cell_adjacency = pow(cell_adjacency, 2)
 
         if cell_color == color:
             heuristic_centralization += cell_centralization

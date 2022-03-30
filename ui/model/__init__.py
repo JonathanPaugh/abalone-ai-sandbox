@@ -15,7 +15,7 @@ from core.selection import Selection
 from lib.interval_timer import IntervalTimer
 from ui.model.game_history import GameHistory, GameHistoryItem
 from ui.constants import FPS
-import ui.model.config as config
+from ui.model.config import Config
 import time
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ class Model:
     timeout_move: Move = None
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
-    config: config.Config.Config = field(default_factory=config.Config.from_default)
+    config: Config = field(default_factory=Config.from_default)
 
     @property
     def game_board(self):
@@ -139,7 +139,7 @@ class Model:
 
         self.game = Game(self.config.layout)
 
-    def apply_config(self, config: config.Config.Config):
+    def apply_config(self, config: Config):
         """
         Applies the given config.
         :param config: the new Config to use
@@ -157,7 +157,6 @@ class Model:
         """
         self.game.apply_move(move)
         self.history.append(GameHistoryItem(time.time(), move))
-
         self.selection = None
         self._timer_launch(on_timer, on_timeout)
 
