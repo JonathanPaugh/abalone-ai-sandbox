@@ -351,19 +351,19 @@ class Heuristic:
         for cell, color in board.enumerate():
             for neighbour in cell.neighbors():
                 if color is player:
-                    player_count += 1
                     if board.cell_in_bounds(neighbour) and board[neighbour] == player:
                         adjacency_score += 1
                 elif color is Color.next(player):
-                    opponent_count += 1
                     if not board.cell_in_bounds(neighbour):
                         adjacency_opponent_score += 1
                     elif board[neighbour] != Color.next(player):
                         adjacency_opponent_score += 1
 
             if color is player:
+                player_count += 1
                 manhattan_score += cls.MAX_MANHATTAN_DISTANCE - cell.manhattan(cls.BOARD_CENTER)
             elif color is Color.next(player):
+                opponent_count += 1
                 manhattan_opponent_score += cell.manhattan(cls.BOARD_CENTER)
             else:
                 pass
