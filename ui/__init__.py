@@ -35,7 +35,8 @@ class App:
         self._model = Model()
         self._view = View()
         self._agent = Agent()
-        self._view_dispatcher = Dispatcher()
+        self._update_dispatcher = Dispatcher()
+        self.paused = False
 
     def _start_game(self):
         """
@@ -43,6 +44,23 @@ class App:
         """
         if self._model.config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
             self._apply_random_move()
+
+    def _stop_game(self):
+        self._model.stop_timer()
+        self._update_dispatcher.clear()
+        self._agent.stop()
+
+    def _toggle_pause(self):
+        self.paused = not self.paused
+        self._model.timer.toggle_pause()
+        self._agent.toggle_paused()
+
+    def _reset_game(self):
+        self._stop_game()
+        self._model.reset()
+        self._view.clear_game_board()
+        self._view.render(self._model)
+        self._start_game()
 
     def _select_cell(self, cell: Hex):
         """
@@ -72,7 +90,7 @@ class App:
             self._agent.search(self._model.game_board,
                                player_color,
                                self._set_timeout_move,
-                               self._apply_timeout_move)
+                               lambda: self._update_dispatcher.put(self._apply_timeout_move))
 
     def _apply_move(self, move: Move):
         """
@@ -81,10 +99,14 @@ class App:
         :param move: the Move to apply
         :return: None
         """
+        if not move:
+            raise Exception("Cannot apply empty move")
         debug.Debug.log(F"Apply Move: {move}, {self._model.game_turn}", debug.DebugType.Game)
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
-        self._model.apply_move(move, self._dispatch_timer_update, self._apply_timeout_move)
-        self._view_dispatcher.put(lambda: self._view.render(self._model))
+        self._model.apply_move(move,
+                               self._dispatch_timer_update,
+                               lambda: self._update_dispatcher.put(self._apply_timeout_move))
+        self._update_dispatcher.put(lambda: self._view.render(self._model))
         debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 
     def _apply_random_move(self):
@@ -114,11 +136,8 @@ class App:
         :param config: the new Config to use
         :return: None
         """
-        self._agent.stop()
         self._model.apply_config(config)
-        self._view.clear_game_board()
-        self._view.render(self._model)
-        self._start_game()
+        self._reset_game()
 
     def _dispatch(self, action: callable, *args: list, **kwargs: dict):
         """
@@ -138,7 +157,7 @@ class App:
         :param time: a float in seconds
         """
         time = timedelta(seconds=time_remaining)
-        self._view_dispatcher.put(lambda: self._view.update_timer(time))
+        self._update_dispatcher.put(lambda: self._view.update_timer(time))
 
     def _update(self):
         """
@@ -147,7 +166,9 @@ class App:
         """
         # STUB(agent): async agent move requests may be called from here
         self._view.update()
-        self._view_dispatcher.dispatch()
+        if self.paused:
+            return
+        self._update_dispatcher.dispatch()
 
     def _run_main_loop(self):
         """
@@ -173,9 +194,9 @@ class App:
                 self._dispatch(self._select_cell, cell),
             ),
             on_click_undo=lambda: print("UNDO"),
-            on_click_pause=lambda: print("PAUSE"),
-            on_click_stop=lambda: print("STOP"),
-            on_click_reset=lambda: print("RESET")
+            on_click_pause=self._toggle_pause,
+            on_click_stop=self._stop_game,
+            on_click_reset=self._reset_game
         )
         self._view.render(self._model)
         self._start_game()

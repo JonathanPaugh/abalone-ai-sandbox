@@ -130,7 +130,7 @@ class GameUI:
               ).grid(column=0, row=0)
 
         self._mount_buttonbar_button(frame, 1, "Undo", command=on_click_undo)
-        self._mount_buttonbar_button(frame, 2, "Pause", command=on_click_pause)
+        self._mount_buttonbar_button(frame, 2, "Pause / Resume", command=on_click_pause)
         self._mount_buttonbar_button(frame, 3, "Stop", command=on_click_stop)
         self._mount_buttonbar_button(frame, 4, "Reset", command=on_click_reset)
         self._mount_buttonbar_button(frame, 6, "Settings", command=on_click_settings)
