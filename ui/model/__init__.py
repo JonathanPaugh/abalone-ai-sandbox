@@ -105,9 +105,15 @@ class Model:
         return None  # consistency
 
     def reset(self):
+        """
+        Resets the model to the default state.
+        TODO: Add history reset when implemented
+        """
+
         if self.timer:
             self.timer.stop()
 
+        self.paused = False
         self.timeout_move = None
         self.selection = None
 
@@ -136,6 +142,12 @@ class Model:
         self._timer_launch(on_timer, on_timeout)
 
     def _timer_launch(self, on_timer: callable, on_timeout: callable):
+        """
+        Launches the turn timer.
+        :param on_timer: A function that is called every timer update.
+        :param on_timeout: A function that is called when the timer runs out of time.
+        :return:
+        """
         if self.timer:
             self.timer.stop()
 
@@ -146,11 +158,18 @@ class Model:
         self.timer.set_on_complete(lambda: self._timer_on_complete(on_timeout))
         self.timer.start()
 
-    def _timer_on_interval(self, on_timer: callable, progress: float) -> time:
+    def _timer_on_interval(self, on_timer: callable, progress: float):
+        """
+        Converts timer progress into time remaining and calls on_timer() passing it the value.
+        """
         time_remaining = self.timer.total_time * progress
         on_timer(time_remaining)
 
     def _timer_on_complete(self, on_timeout: callable):
+        """
+        Calls on_timeout() and resets timeout move after.
+        Sets timeout move to a random generated one if unset.
+        """
         if not self.timeout_move:
             self.timeout_move = StateGenerator.generate_random_move(self.game_board, self.game_turn)
         on_timeout()
