@@ -128,8 +128,8 @@ class GameUI:
         frame.columnconfigure(1, weight=1)
         frame.columnconfigure(2, weight=1)
         frame.columnconfigure(3, weight=1)
-        frame.columnconfigure(4, minsize=460)
-        frame.columnconfigure(5, weight=1)
+        frame.columnconfigure(4, weight=1)
+        frame.columnconfigure(5, minsize=460)
         frame.columnconfigure(6, weight=1)
 
         self._timer_text = StringVar(frame, "00:00.00")
@@ -140,11 +140,11 @@ class GameUI:
               background=self.COLOR_BACKGROUND_SECONDARY
               ).grid(column=0, row=0)
 
-        self._mount_buttonbar_button(frame, 1, "Pause", command=on_click_pause)
-        self._mount_buttonbar_button(frame, 2, "Reset", command=on_click_reset)
-        self._mount_buttonbar_button(frame, 3, "Undo", command=on_click_undo)
-        self._mount_buttonbar_button(frame, 5, "Settings", command=on_click_settings)
-        self._mount_buttonbar_button(frame, 6, "Stop", command=on_click_stop)
+        self._mount_buttonbar_button(frame, 1, "Undo", command=on_click_undo)
+        self._mount_buttonbar_button(frame, 2, "Pause", command=on_click_pause)
+        self._mount_buttonbar_button(frame, 3, "Stop", command=on_click_stop)
+        self._mount_buttonbar_button(frame, 4, "Reset", command=on_click_reset)
+        self._mount_buttonbar_button(frame, 6, "Settings", command=on_click_settings)
 
         for widget in frame.winfo_children():
             widget.grid(padx=4, pady=0)
