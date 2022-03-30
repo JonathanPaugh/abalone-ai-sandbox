@@ -3,7 +3,6 @@ Generic interface for game history.
 """
 
 from dataclasses import dataclass
-import time
 
 
 class GameHistoryItem:
@@ -16,9 +15,9 @@ class GameHistoryItem:
     # move: Move
     # color: Color # TODO(?): color can be inferred by stack position - remove?
 
-    def __init__(self, time_start, move):
+    def __init__(self, time_start, time_end, move):
         self.time_start = time_start
-        # self.time_end= time_end
+        self.time_end= time_end
         self.move = move
         # self._color: color
 
@@ -43,7 +42,7 @@ class GameHistory:
     def __init__(self):
         # Initial history items get the initial time to subtract from
         # and calculates time taken for the first move for each player.
-        self._history = [GameHistoryItem(time.time(), None), GameHistoryItem(time.time(), None)]
+        self._history = []
 
     def __getitem__(self, index):
         """
@@ -87,9 +86,9 @@ class GameHistory:
             history = player_1_history
         else:
             history = player_2_history
-        for i in range(1, len(history)):
+        for i in range(0, len(history)):
             history_string += \
-                str(i) + "." + "\n" + \
+                str(i+1) + "." + "\n" + \
                 self.get_player_total_time(i-1, player) + " >>> " + \
                 self.get_player_total_time(i, player) + "\n" + \
                 str(history[i].move) + "\n"
@@ -102,9 +101,9 @@ class GameHistory:
         player_1_history = self._history[0::2]
         player_2_history = self._history[1::2]
         total_time = 0
-        for i in range(1, past_move + 1):
+        for i in range(0, past_move + 1):
             if player == 1:
-                total_time += player_1_history[i].time_start - player_2_history[i - 1].time_start
+                total_time += player_1_history[i].time_end - player_1_history[i].time_start
             else:
-                total_time += player_2_history[i].time_start - player_1_history[i].time_start
+                total_time += player_2_history[i].time_end - player_2_history[i].time_start
         return format(total_time, '.2f')
