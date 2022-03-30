@@ -22,7 +22,7 @@ class Board(HexGrid):
     MAX_SUMITO = 3
 
     @staticmethod
-    def create_from_data(data):
+    def create_from_data(data: list[list[int]]):
         """
         Creates a board from the given board data.
         The original board data is cached within the board for score calculations.
@@ -50,14 +50,14 @@ class Board(HexGrid):
         self._items = None
 
     @property
-    def layout(self):
+    def layout(self) -> list[list[int]]:
         """
         Gets the board's starting layout.
         Used for headlessly calculating game score.
         """
         return self._layout
 
-    def enumerate(self):
+    def enumerate(self) -> list[tuple[Hex, Color]]:
         """
         Returns all positions and values on the game board a la `enumerate`.
         :return: a list of (Hex, T) tuples
@@ -95,7 +95,10 @@ class Board(HexGrid):
 
         return self._is_valid_sidestep_move(move)
 
-    def get_marble_count(self, player: Color):
+    def get_marble_count(self, player: Color) -> int:
+        """
+        :return: Marble count for player.
+        """
         count = 0
         for _, color in self.enumerate():
             if color == player:
@@ -103,16 +106,39 @@ class Board(HexGrid):
 
         return count
 
-    def get_score(self, player: Color):
-        enemy = Color.next(player)
+    def get_score(self, player: Color) -> int:
+        """
+        :return: Score for player.
+        """
+        opponent = Color.next(player)
 
         layout_count = 0
         for line in self._layout:
             for data in line:
-                if data == enemy.value:
+                if data == opponent.value:
                     layout_count += 1
 
-        return layout_count - self.get_marble_count(enemy)
+        return layout_count - self.get_marble_count(opponent)
+
+    def get_scores_optimized(self, player: Color, player_count: int, opponent_count: int) -> tuple[int, int]:
+        """
+        :param player: The player.
+        :param player_count: Player marble count.
+        :param opponent_count: Opponent marble count.
+        :return: Score for player and opponent player.
+        """
+        opponent = Color.next(player)
+
+        player_layout_count = 0
+        opponent_layout_count = 0
+        for line in self._layout:
+            for data in line:
+                if data == player.value:
+                    player_layout_count += 1
+                if data == opponent.value:
+                    opponent_layout_count += 1
+
+        return opponent_layout_count - opponent_count, player_layout_count - player_count
 
     def apply_move(self, move: Move):
         """
@@ -223,9 +249,7 @@ class Board(HexGrid):
         player = sumito_move.selection.get_player(self)
 
         for cell in sumito_move.selection.to_array():
-            if not self.cell_in_bounds(cell):
-                print(sumito_move.selection)
-            else:
+            if self.cell_in_bounds(cell):
                 self[cell] = None
 
         for cell in sumito_move.get_destinations():

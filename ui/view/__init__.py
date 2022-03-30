@@ -47,17 +47,19 @@ class View:
         """
         return self._game_view.animating
 
-    def _open_settings(self, on_close):
+    def _open_settings(self, config, on_close):
         """
         Displays a settings pop up for user customization input.
         :return: none
         """
-        self._settings_view = SettingsUI(on_close=lambda config: (
-            setattr(self, "_settings_view", None),
-            on_close and on_close(config),
-        )).open()
+        self._settings_view = SettingsUI(config, on_close=lambda config: self._close_settings(config, on_close)).open()
 
-    def open(self, on_click_board, can_open_settings, on_confirm_settings):
+    def _close_settings(self, config, on_close):
+        self._settings_view = None
+        if on_close and config:
+            on_close(config)
+
+    def open(self, on_click_board, can_open_settings, on_confirm_settings, get_config):
         """
         Opens the view window.
         Mounts child widgets and binds event handlers.
@@ -76,7 +78,7 @@ class View:
             on_click_board=on_click_board,
             on_click_settings=lambda: (
                 not self._settings_view and can_open_settings()
-                    and self._open_settings(on_close=on_confirm_settings)
+                    and self._open_settings(get_config(), on_close=on_confirm_settings)
             ),
         )
 
