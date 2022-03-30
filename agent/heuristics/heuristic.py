@@ -33,7 +33,7 @@ class Heuristic:
     MIN_MARBLE_COUNT = 9
     MAX_MARBLE_COUNT = 14
 
-    DYNAMIC_TURN_MAX = 20
+    DYNAMIC_TURN_MAX = 30
     _dynamic_turn_count = 0
 
     @classmethod
@@ -101,6 +101,10 @@ class Heuristic:
                 Manhattan weight loses all value
                 Manhattan opponent weight gains the lost portion of manhattan value
 
+        Update:
+            Changed manhattan to scale to 10% of its full value and opponent manhattan to take 90% of its value,
+            this is because sometimes manhattan is all we have to go on if no marbles are nearby.
+
         This ideally will make the agent mainly focus on getting to the center before the opponent does
         at the start of the game. As the game progresses it becomes more aggressive focusing on pushing the
         opponent marbles to the outside and off the board.
@@ -115,11 +119,11 @@ class Heuristic:
         weight_final_score = cls.WEIGHT_SCORE
 
         weight_initial_normalized_manhattan = cls.WEIGHT_NORMALIZED_MANHATTAN + weight_initial_score
-        weight_final_normalized_manhattan = 0
+        weight_final_normalized_manhattan = cls.WEIGHT_NORMALIZED_MANHATTAN * 0.10
 
         weight_initial_normalized_opponent_manhattan = cls.WEIGHT_NORMALIZED_OPPONENT_MANHATTAN
         weight_final_normalized_opponent_manhattan = cls.WEIGHT_NORMALIZED_OPPONENT_MANHATTAN \
-                                                     + cls.WEIGHT_NORMALIZED_MANHATTAN
+                                                     + (cls.WEIGHT_NORMALIZED_MANHATTAN * 0.90)
 
         weight_normalized_score = remap(cls._dynamic_turn_count, 0, cls.DYNAMIC_TURN_MAX,
                                         weight_initial_score,
