@@ -24,6 +24,10 @@ class Search:
         self.heuristic_type = HeuristicType.WEIGHTED_NORMALIZED
 
     def set_heuristic_type(self, heuristic_type: HeuristicType):
+        """
+        Sets the heuristic type to be used by the search.
+        :param heuristic_type: The heuristic type.
+        """
         self.heuristic_type = heuristic_type
 
     def _get_heuristic(self, board: Board, player: Color):

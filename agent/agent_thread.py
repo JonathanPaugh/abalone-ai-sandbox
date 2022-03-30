@@ -16,11 +16,19 @@ class AgentThread(threading.Thread):
         self.on_complete = on_complete
 
     def stop(self):
+        """
+        Forces the thread to stop by interrupting the search.
+        Blocks thread until thread is completely done running.
+        """
         self.stopped.set()
         self.search.interrupt = True
         self.join()
 
     def run(self):
+        """
+        Runs the thread and the search.
+        Calls on_complete() after if search not interrupted.
+        """
         self.running = True
         self.search.alpha_beta(self.board, self.player, self.on_find)
         self.running = False

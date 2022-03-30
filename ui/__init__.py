@@ -88,14 +88,24 @@ class App:
         debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 
     def _apply_random_move(self):
+        """
+        Applies a random move to the game for current player.
+        """
         move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
         self._apply_move(move)
 
     def _apply_timeout_move(self):
+        """
+        Applies the currently set timeout move for current player.
+        Waits for agent to stop running before applying.
+        """
         self._agent.stop()
         self._apply_move(self._model.timeout_move)
 
     def _set_timeout_move(self, move: Move):
+        """
+        Sets the timeout move for current player.
+        """
         self._model.timeout_move = move
 
     def _apply_config(self, config: config.Config):

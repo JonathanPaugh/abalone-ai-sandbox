@@ -2,9 +2,11 @@
 Defines the game representation.
 """
 from agent.heuristics.heuristic import Heuristic
+from core.board import Board
 from core.board_layout import BoardLayout
 from core.color import Color
 import ui.model.config as config
+
 
 class Game:
     """
@@ -17,9 +19,10 @@ class Game:
         self._turn = Color.BLACK
 
         self.temporary_move_count = [0, 0]  # Will be removed when history is implemented
+        Heuristic.reset_dynamic_turn_count()
 
     @property
-    def board(self):
+    def board(self) -> Board:
         """
         Gets the game board.
         :return: a Board
@@ -27,14 +30,14 @@ class Game:
         return self._board
 
     @property
-    def turn(self):
+    def turn(self) -> Color:
         """
         Gets the color indicating whose turn it is.
         :return: a Color
         """
         return self._turn
 
-    def apply_move(self, move):
+    def apply_move(self, move) -> bool:
         """
         Applies the given move to the game board.
         :param move: the Move to apply
@@ -50,6 +53,9 @@ class Game:
         return True
 
     def _next_turn(self):
+        """
+        Makes the game to progress to the next turn.
+        """
         if self._turn == Color.BLACK:
             self.temporary_move_count[0] += 1
         else:

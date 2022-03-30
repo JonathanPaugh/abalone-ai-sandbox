@@ -22,7 +22,7 @@ class Board(HexGrid):
     MAX_SUMITO = 3
 
     @staticmethod
-    def create_from_data(data):
+    def create_from_data(data: list[list[int]]):
         """
         Creates a board from the given board data.
         The original board data is cached within the board for score calculations.
@@ -50,14 +50,14 @@ class Board(HexGrid):
         self._items = None
 
     @property
-    def layout(self):
+    def layout(self) -> list[list[int]]:
         """
         Gets the board's starting layout.
         Used for headlessly calculating game score.
         """
         return self._layout
 
-    def enumerate(self):
+    def enumerate(self) -> list[tuple[Hex, Color]]:
         """
         Returns all positions and values on the game board a la `enumerate`.
         :return: a list of (Hex, T) tuples
@@ -96,6 +96,9 @@ class Board(HexGrid):
         return self._is_valid_sidestep_move(move)
 
     def get_marble_count(self, player: Color) -> int:
+        """
+        :return: Marble count for player.
+        """
         count = 0
         for _, color in self.enumerate():
             if color == player:
@@ -103,21 +106,10 @@ class Board(HexGrid):
 
         return count
 
-    def get_marble_counts_optimized(self, player: Color) -> tuple[int, int]:
-        """
-        :return: Marble count for player and opponent player.
-        """
-        player_count = 0
-        opponent_count = 0
-        for _, color in self.enumerate():
-            if color == player:
-                player_count += 1
-            if color == Color.next(player):
-                opponent_count += 1
-
-        return player_count, opponent_count
-
     def get_score(self, player: Color) -> int:
+        """
+        :return: Score for player.
+        """
         opponent = Color.next(player)
 
         layout_count = 0

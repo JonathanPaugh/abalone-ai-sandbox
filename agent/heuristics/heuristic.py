@@ -1,4 +1,6 @@
 from math import inf
+from numbers import Number
+
 from core.board import Board
 from core.color import Color
 from core.constants import BOARD_SIZE, WIN_SCORE
@@ -36,10 +38,24 @@ class Heuristic:
 
     @classmethod
     def increment_dynamic_turn_count(cls):
+        """
+        Increments the internal dynamic turn count value by 1.
+        """
         cls._dynamic_turn_count = clamp(0, cls.DYNAMIC_TURN_MAX, cls._dynamic_turn_count + 1)
 
     @classmethod
+    def reset_dynamic_turn_count(cls):
+        """
+        Resets the dynamic turn count.
+        """
+        cls._dynamic_turn_count = 0
+
+    @classmethod
     def weighted(cls, board: Board, player: Color) -> float:
+        """
+        Calculates a heuristic value using 6 base heuristics and individually weighting them.
+        :return: The heuristic value.
+        """
         _, _, \
         score, score_opponent, \
         manhattan_score, manhattan_opponent_score, \
@@ -54,6 +70,11 @@ class Heuristic:
 
     @classmethod
     def weighted_normalized(cls, board: Board, player: Color) -> float:
+        """
+        Calculates a heuristic value using 6 base heuristics and converting them to a number between 0.0 and 1.0
+        and then individually weighing those.
+        :return: The heuristic value.
+        """
         score, score_opponent, \
         manhattan_score, manhattan_opponent_score, \
         adjacency_score, adjacency_opponent_score = cls._composite_normalized(board, player)
@@ -67,6 +88,25 @@ class Heuristic:
 
     @classmethod
     def dynamic(cls, board: Board, player: Color) -> float:
+        """
+        Calculates a heuristic value using 6 base heuristics and converting them to a number between 0.0 and 1.0
+        and then scaling those to certain values based on how far the game is from the start to the DYNAMIC_TURN_MAX.
+
+        Currently, the dynamic heuristic has this behaviour:
+            Turn 0:
+                Score weight loses half value
+                Manhattan weight gains the other half of the score weight
+            Turn MAX:
+                Score weight gains double value (becomes original value)
+                Manhattan weight loses all value
+                Manhattan opponent weight gains the lost portion of manhattan value
+
+        This ideally will make the agent mainly focus on getting to the center before the opponent does
+        at the start of the game. As the game progresses it becomes more aggressive focusing on pushing the
+        opponent marbles to the outside and off the board.
+
+        :return: The heuristic value.
+        """
         score, score_opponent, \
         manhattan_score, manhattan_opponent_score, \
         adjacency_score, adjacency_opponent_score = cls._composite_normalized(board, player)
@@ -102,6 +142,10 @@ class Heuristic:
 
     @classmethod
     def _score(cls, board: Board, player: Color) -> int:
+        """
+        Calculates heuristic value for player score.
+        :return: The heuristic value.
+        """
         score = board.get_score(player)
         if score >= WIN_SCORE:
             return inf
@@ -109,6 +153,12 @@ class Heuristic:
 
     @classmethod
     def _score_opponent(cls, board: Board, player: Color) -> int:
+        """
+        Calculates heuristic value for opponent score.
+        Equals WIN_SCORE when opponent has not pushed any marbles off and -inf
+        when they have pushed enough marbles off to win.
+        :return: The heuristic value.
+        """
         score = board.get_score(Color.next(player))
         if score >= WIN_SCORE:
             return -inf
@@ -116,6 +166,10 @@ class Heuristic:
 
     @classmethod
     def _score_optimized(cls, board: Board, player: Color, player_count: int, opponent_count: int) -> int:
+        """
+        Calculates heuristic value for both scores at the same time.
+        :return: The heuristic value.
+        """
         player_score, opponent_score = board.get_scores_optimized(player, player_count, opponent_count)
 
         if player_score >= WIN_SCORE:
@@ -130,6 +184,10 @@ class Heuristic:
 
     @classmethod
     def _manhattan(cls, board: Board, player: Color) -> int:
+        """
+        Calculates heuristic value for centralization of marbles on the board.
+        :return: The heuristic value.
+        """
         score = 0
         for cell, color in board.enumerate():
             if color is player:
@@ -138,6 +196,10 @@ class Heuristic:
 
     @classmethod
     def _manhattan_opponent(cls, board: Board, player: Color) -> int:
+        """
+        Calculates heuristic value for centralization of opponent marbles on the board.
+        :return: The heuristic value.
+        """
         score = 0
         for cell, color in board.enumerate():
             if color is Color.next(player):
@@ -146,6 +208,10 @@ class Heuristic:
 
     @classmethod
     def _adjacency(cls, board: Board, player: Color) -> int:
+        """
+        Calculates heuristic value for adjacency of marbles on the board.
+        :return: The heuristic value.
+        """
         score = 0
         for cell, color in board.enumerate():
             if color is not player:
@@ -159,6 +225,10 @@ class Heuristic:
 
     @classmethod
     def _adjacency_opponent(cls, board: Board, player: Color) -> int:
+        """
+        Calculates heuristic value for adjacency of opponent marbles on the board.
+        :return: The heuristic value.
+        """
         score = 0
         for cell, color in board.enumerate():
             if color is not Color.next(player):
@@ -174,6 +244,10 @@ class Heuristic:
 
     @classmethod
     def _score_normalized(cls, score: int) -> float:
+        """
+        Normalizes a given score heuristic value between `0.0` and `1.0` except `inf`.
+        :return: The normalized heuristic value.
+        """
         floor = 0
         ceiling = WIN_SCORE
         if score >= inf:
@@ -182,6 +256,10 @@ class Heuristic:
 
     @classmethod
     def _score_opponent_normalized(cls, score: int) -> float:
+        """
+        Normalizes a given opponent score heuristic value between `0.0` and `1.0` except `-inf`.
+        :return: The normalized heuristic value.
+        """
         floor = 0
         ceiling = WIN_SCORE
         if score <= -inf:
@@ -190,6 +268,11 @@ class Heuristic:
 
     @classmethod
     def _manhattan_normalized(cls, score: int, marble_count: int) -> float:
+        """
+        Normalizes a given manhattan heuristic value between `0.0` and `1.0`.
+        :return: The normalized heuristic value.
+        """
+
         floor = 0
         ceiling_min = 26
         ceiling_max = 36
@@ -199,6 +282,10 @@ class Heuristic:
 
     @classmethod
     def _manhattan_opponent_normalized(cls, score: int, marble_count: int) -> float:
+        """
+        Normalizes a given opponent manhattan heuristic value between `0.0` and `1.0`.
+        :return: The normalized heuristic value.
+        """
         floor_min = 10
         floor_max = 20
         ceiling_min = 36
@@ -211,6 +298,10 @@ class Heuristic:
 
     @classmethod
     def _adjacency_normalized(cls, score: int, marble_count: int) -> float:
+        """
+        Normalizes a given adjacency heuristic value between `0.0` and `1.0`.
+        :return: The normalized heuristic value.
+        """
         floor = 0
         ceiling_min = 32
         ceiling_max = 56
@@ -221,6 +312,10 @@ class Heuristic:
 
     @classmethod
     def _adjacency_opponent_normalized(cls, score: int, marble_count: int) -> float:
+        """
+        Normalizes a given opponent adjacency heuristic value between `0.0` and `1.0`.
+        :return: The normalized heuristic value.
+        """
         floor_min = 22
         floor_max = 28
         ceiling_min = 54
@@ -232,21 +327,35 @@ class Heuristic:
         return clamp_01(remap_01(score, floor, ceiling))
 
     @classmethod
-    def _composite(cls, board: Board, player: Color):
+    def _composite(cls, board: Board, player: Color) -> tuple[int, int, int, int, int, int, int, int]:
+        """
+        Calculates all of the 6 base heuristics:
+        (Score, Opponent Score, Manhattan, Opponent Manhattan, Adjacency, Opponent Adjacency)
+
+        Calculates these in the most optimal way, enumerating the board once to calculate all heuristics and enumerating
+        the board layout once to calculate score heuristics.
+
+        :return: The marbles counts for both players and heuristic values in a tuple of the format:
+                 player_count, opponent_count,
+                 score, opponent_score,
+                 manhattan_score, manhattan_opponent_score,
+                 adjacency_score, adjacency_opponent_score
+        """
         manhattan_score = 0
         manhattan_opponent_score = 0
         adjacency_score = 0
         adjacency_opponent_score = 0
 
-        player_count, opponent_count = board.get_marble_counts_optimized(player)
-        score, opponent_score = cls._score_optimized(board, player, player_count, opponent_count)
-
+        player_count = 0
+        opponent_count = 0
         for cell, color in board.enumerate():
             for neighbour in cell.neighbors():
                 if color is player:
+                    player_count += 1
                     if board.cell_in_bounds(neighbour) and board[neighbour] == player:
                         adjacency_score += 1
                 elif color is Color.next(player):
+                    opponent_count += 1
                     if not board.cell_in_bounds(neighbour):
                         adjacency_opponent_score += 1
                     elif board[neighbour] != Color.next(player):
@@ -259,17 +368,28 @@ class Heuristic:
             else:
                 pass
 
-        return player_count, opponent_count, \
-               score, opponent_score, \
+        score, opponent_score = cls._score_optimized(board, player, player_count, opponent_count)
+
+        return score, opponent_score, \
                manhattan_score, manhattan_opponent_score, \
-               adjacency_score, adjacency_opponent_score
+               adjacency_score, adjacency_opponent_score, \
+               player_count, opponent_count, \
 
     @classmethod
-    def _composite_normalized(cls, board: Board, player: Color):
-        player_count, opponent_count, \
+    def _composite_normalized(cls, board: Board, player: Color) -> tuple[float, float, float, float, float]:
+        """
+        Uses composite function to calculate the base heuristics and applies normalization functions on the results.
+
+        :return: The normalized heuristic values in a tuple of the format:
+                 score, opponent_score,
+                 manhattan_score, manhattan_opponent_score,
+                 adjacency_score, adjacency_opponent_score
+        """
+
         score, score_opponent, \
         manhattan_score, manhattan_opponent_score, \
-        adjacency_score, adjacency_opponent_score = cls._composite(board, player)
+        adjacency_score, adjacency_opponent_score, \
+        player_count, opponent_count = cls._composite(board, player)
 
         return cls._score_normalized(score), \
                cls._score_opponent_normalized(score_opponent), \
@@ -279,5 +399,9 @@ class Heuristic:
                cls._adjacency_opponent_normalized(adjacency_opponent_score, opponent_count)
 
     @classmethod
-    def _map_limit_by_marble_count(cls, count: int, min: int, max: int):
+    def _map_limit_by_marble_count(cls, count: int, min: Number, max: Number) -> Number:
+        """
+        Remaps a marble count between min and max based on where it was between MIN_MARBLE_COUNT and MAX_MARBLE_COUNT.
+        :return: The remapped value.
+        """
         return remap(count, cls.MIN_MARBLE_COUNT, cls.MAX_MARBLE_COUNT, min, max)
