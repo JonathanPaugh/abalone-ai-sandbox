@@ -164,15 +164,18 @@ class App:
         :return: None
         """
         self._view.open(
-            on_click_board=lambda cell: (
-                self._dispatch(self._select_cell, cell),
-            ),
+            get_config=lambda: self._model.config,
+            can_open_settings=lambda: True,  # STUB: this should go through an `askokcancel` if game is running
             on_confirm_settings=lambda config: (
                 self._dispatch(self._apply_config, config),
             ),
-            # STUB: this should go through an `askokcancel` if game is running
-            can_open_settings=lambda: True,
-            get_config=lambda: self._model.config
+            on_click_board=lambda cell: (
+                self._dispatch(self._select_cell, cell),
+            ),
+            on_click_undo=lambda: print("UNDO"),
+            on_click_pause=lambda: print("PAUSE"),
+            on_click_stop=lambda: print("STOP"),
+            on_click_reset=lambda: print("RESET")
         )
         self._view.render(self._model)
         self._start_game()
