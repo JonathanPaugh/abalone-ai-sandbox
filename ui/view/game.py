@@ -85,7 +85,7 @@ class GameUI:
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
         self._move_count_1.set(str(model.game.temporary_move_count[0]))
         self._move_count_2.set(str(model.game.temporary_move_count[1]))
-        self._mount_history(model.history.get_player_1_history(), model.history.get_player_2_history())
+        self._mount_history(model.history.get_player_history(1), model.history.get_player_history(2))
 
     def _mount_widgets(self, parent, on_click_settings, on_click_board):
         """

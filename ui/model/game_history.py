@@ -41,6 +41,8 @@ class GameHistory:
     """
 
     def __init__(self):
+        # Initial history items get the initial time to subtract from
+        # and calculates time taken for the first move for each player.
         self._history = [GameHistoryItem(time.time(), None), GameHistoryItem(time.time(), None)]
 
     def __getitem__(self, index):
@@ -73,37 +75,27 @@ class GameHistory:
         """
         return self._history.pop()
 
-    def get_player_1_history(self):
+    def get_player_history(self, player):
         """
         Gets a string of player 1 history.
         :return: a String
         """
         history_string = ""
         player_1_history = self._history[0::2]
-        for i in range(1, len(player_1_history)):
+        player_2_history = self._history[1::2]
+        if player == 1:
+            history = player_1_history
+        else:
+            history = player_2_history
+        for i in range(1, len(history)):
             history_string += \
                 str(i) + "." + "\n" + \
-                self.get_player_1_total_time(i-1) + " >>> " + \
-                self.get_player_1_total_time(i) + "\n" + \
-                str(player_1_history[i].move) + "\n"
+                self.get_player_total_time(i-1, player) + " >>> " + \
+                self.get_player_total_time(i, player) + "\n" + \
+                str(history[i].move) + "\n"
         return history_string
 
-    def get_player_2_history(self):
-        """
-        Gets a string of player 2 history.
-        :return: a String
-        """
-        history_string = ""
-        player_2_history = self._history[1::2]
-        for i in range(1, len(player_2_history)):
-            history_string += \
-                str(i)+"." + "\n" +\
-                self.get_player_2_total_time(i-1) + " >>> " + \
-                self.get_player_2_total_time(i) + "\n" + \
-                str(player_2_history[i].move) + "\n"
-        return history_string
-
-    def get_player_1_total_time(self, past_move):
+    def get_player_total_time(self, past_move, player):
         """
         Gets the total time for player 1.
         """
@@ -111,16 +103,8 @@ class GameHistory:
         player_2_history = self._history[1::2]
         total_time = 0
         for i in range(1, past_move + 1):
-            total_time += player_1_history[i].time_start - player_2_history[i - 1].time_start
-        return format(total_time, '.2f')
-
-    def get_player_2_total_time(self, past_move):
-        """
-        Gets the total time for player 2.
-        """
-        player_1_history = self._history[0::2]
-        player_2_history = self._history[1::2]
-        total_time = 0
-        for i in range(1, past_move+1):
-            total_time += player_2_history[i].time_start - player_1_history[i].time_start
+            if player == 1:
+                total_time += player_1_history[i].time_start - player_2_history[i - 1].time_start
+            else:
+                total_time += player_2_history[i].time_start - player_1_history[i].time_start
         return format(total_time, '.2f')
