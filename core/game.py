@@ -5,8 +5,6 @@ from agent.heuristics.heuristic import Heuristic
 from core.board_layout import BoardLayout
 from core.color import Color
 import ui.model.config as config
-from lib.stopwatch import stopwatch
-
 
 class Game:
     """
@@ -56,5 +54,7 @@ class Game:
             self.temporary_move_count[0] += 1
         else:
             self.temporary_move_count[1] += 1
+
+        Heuristic.increment_dynamic_turn_count()  # Temp
 
         self._turn = Color.next(self._turn)

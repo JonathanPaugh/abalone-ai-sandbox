@@ -95,7 +95,7 @@ class Board(HexGrid):
 
         return self._is_valid_sidestep_move(move)
 
-    def get_marble_count(self, player: Color):
+    def get_marble_count(self, player: Color) -> int:
         count = 0
         for _, color in self.enumerate():
             if color == player:
@@ -103,10 +103,21 @@ class Board(HexGrid):
 
         return count
 
-    def get_score(self, player: Color):
-        return self.get_score_optimized(player, self.get_marble_count(Color.next(player)))
+    def get_marble_counts_optimized(self, player: Color) -> tuple[int, int]:
+        """
+        :return: Marble count for player and opponent player.
+        """
+        player_count = 0
+        opponent_count = 0
+        for _, color in self.enumerate():
+            if color == player:
+                player_count += 1
+            if color == Color.next(player):
+                opponent_count += 1
 
-    def get_score_optimized(self, player: Color, opponent_count: int):
+        return player_count, opponent_count
+
+    def get_score(self, player: Color) -> int:
         opponent = Color.next(player)
 
         layout_count = 0
@@ -115,7 +126,27 @@ class Board(HexGrid):
                 if data == opponent.value:
                     layout_count += 1
 
-        return layout_count - opponent_count
+        return layout_count - self.get_marble_count(opponent)
+
+    def get_scores_optimized(self, player: Color, player_count: int, opponent_count: int) -> tuple[int, int]:
+        """
+        :param player: The player.
+        :param player_count: Player marble count.
+        :param opponent_count: Opponent marble count.
+        :return: Score for player and opponent player.
+        """
+        opponent = Color.next(player)
+
+        player_layout_count = 0
+        opponent_layout_count = 0
+        for line in self._layout:
+            for data in line:
+                if data == player.value:
+                    player_layout_count += 1
+                if data == opponent.value:
+                    opponent_layout_count += 1
+
+        return opponent_layout_count - opponent_count, player_layout_count - player_count
 
     def apply_move(self, move: Move):
         """

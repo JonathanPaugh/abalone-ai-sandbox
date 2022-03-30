@@ -76,7 +76,9 @@ class Search:
         if depth >= depth_limit:
             self._order_nodes(board, transitions)
 
-        for move, next_board in transitions:
+        for index, node in enumerate(transitions):
+            move, next_board = node
+
             if depth >= depth_limit:
                 original_move = move
 
@@ -92,7 +94,7 @@ class Search:
                     self.on_find(original_move)
 
             if best_heuristic > beta:
-                self.prune_count += 1
+                self.prune_count += len(transitions) - index
                 return best_heuristic
 
             alpha = max(alpha, best_heuristic)
@@ -117,7 +119,7 @@ class Search:
         moves = StateGenerator.enumerate_board(board, Color.next(player))
         boards = StateGenerator.generate(board, moves)
 
-        for next_board in boards:
+        for index, next_board in enumerate(boards):
             heuristic = self._alpha_beta_max(next_board, player,
                                              alpha, beta,
                                              depth - 1, depth_limit)
@@ -125,7 +127,7 @@ class Search:
             best_heuristic = min(best_heuristic, heuristic)
 
             if best_heuristic < alpha:
-                self.prune_count += 1
+                self.prune_count += len(boards) - index
                 return best_heuristic
 
             beta = min(beta, best_heuristic)

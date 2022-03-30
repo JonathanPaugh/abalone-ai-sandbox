@@ -28,7 +28,7 @@ class SettingsUI:
     }
 
     def __init__(self, config, on_close):
-        self.config = config if config else Config.from_default()
+        self.config = config or Config.from_default()
         self._window = None
         self._on_close = on_close
 
