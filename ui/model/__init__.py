@@ -13,7 +13,7 @@ from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
 from ui.model.game_history import GameHistory, GameHistoryItem
-from datetime import time
+import time
 from ui.constants import FPS
 import ui.model.config as config
 
@@ -137,7 +137,7 @@ class Model:
         :return: None
         """
         self.game.apply_move(move)
-        self.history.append(GameHistoryItem(0, 0, move))
+        self.history.append(GameHistoryItem(time.time(), move))
         self.selection = None
         self._timer_launch(on_timer, on_timeout)
 
