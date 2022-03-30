@@ -4,6 +4,7 @@ Defines the model for the application.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+import time
 from dataclasses import dataclass, field
 from agent.state_generator import StateGenerator
 from core.game import Game
@@ -13,9 +14,8 @@ from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
 from ui.model.game_history import GameHistory, GameHistoryItem
-import time
 from ui.constants import FPS
-import ui.model.config as config
+from ui.model.config import Config
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -33,7 +33,7 @@ class Model:
     history = GameHistory()
     timeout_move: Move = None
     game: Game = field(default_factory=Game)
-    config: config.Config.Config = field(default_factory=config.Config.from_default)
+    config: Config = field(default_factory=Config.from_default)
 
     @property
     def game_board(self):
@@ -119,7 +119,7 @@ class Model:
 
         self.game = Game(self.config.layout)
 
-    def apply_config(self, config: config.Config.Config):
+    def apply_config(self, config: Config):
         """
         Applies the given config and starts a new game.
         :param config: the new Config to use
