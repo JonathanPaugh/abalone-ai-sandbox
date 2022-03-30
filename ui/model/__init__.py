@@ -31,6 +31,7 @@ class Model:
     selection: Selection = None
     timer: IntervalTimer = None
     history = GameHistory()
+    prev_move_start = time.time()
     timeout_move: Move = None
     game: Game = field(default_factory=Game)
     config: Config = field(default_factory=Config.from_default)
@@ -136,8 +137,11 @@ class Model:
         :param on_timeout: the callable for when timer is complete
         :return: None
         """
+
         self.game.apply_move(move)
-        self.history.append(GameHistoryItem(time.time(), move))
+        current_time = time.time()
+        self.history.append(GameHistoryItem(self.prev_move_start, current_time, move))
+        self.prev_move_start = time.time()
         self.selection = None
         self._timer_launch(on_timer, on_timeout)
 
