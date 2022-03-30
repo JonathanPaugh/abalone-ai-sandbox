@@ -11,7 +11,7 @@ from ui.debug import Debug, DebugType
 
 
 class Search:
-    DEPTH_LIMIT = 3
+    DEPTH_LIMIT = 2
     MIN = -math.inf
     MAX = math.inf
 
