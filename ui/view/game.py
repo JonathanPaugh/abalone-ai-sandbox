@@ -1,7 +1,7 @@
 """
 Defines the game view.
 """
-
+import tkinter
 from tkinter import Frame, Label, Button, WORD, StringVar
 from tkinter.scrolledtext import ScrolledText
 from datetime import timedelta
@@ -46,6 +46,8 @@ class GameUI:
         self._score_2 = None
         self._move_count_1 = None
         self._move_count_2 = None
+        self._history_1 = ""
+        self._history_2 = ""
 
     @property
     def animating(self):
@@ -76,12 +78,14 @@ class GameUI:
         :param model: the model to render
         :return: None
         """
+        print("Times render called")
         self._board_view.render(model)
 
         self._score_1.set(str(model.game_board.get_score(Color.BLACK)))
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
         self._move_count_1.set(str(model.game.temporary_move_count[0]))
         self._move_count_2.set(str(model.game.temporary_move_count[1]))
+        self._mount_history(model.history.get_player_1_history(), model.history.get_player_2_history())
 
     def _mount_widgets(self, parent, on_click_settings, on_click_board):
         """
@@ -94,10 +98,20 @@ class GameUI:
         self._mount_buttonbar(parent, on_click_settings)
         self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1)
         self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2)
-        self._mount_history(parent, 1)
-        self._mount_history(parent, 2)
+        self._mount_history_1(parent, 1)
+        self._mount_history_2(parent, 2)
         self._mount_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
+
+    def _mount_history(self, history1, history2):
+        """
+        Renders all components required for the GUI.
+        :param history1: a String
+        :param history2: a String
+        :return: None
+        """
+        self._mount_history_1(self.frame, history1)
+        self._mount_history_2(self.frame, history2)
 
     def _mount_buttonbar(self, parent, on_click_settings):
         """
@@ -233,14 +247,38 @@ class GameUI:
         parent.columnconfigure(2, weight=8)
         parent.columnconfigure(3, minsize=45)  # creates empty space
 
-    def _mount_history(self, parent, area):
+    def _mount_history_1(self, parent, value):
         """
-        Renders the match history GUI portion.
+        Renders the match history for player 1 for the GUI portion.
         :param parent: the tkinter container
         :return:
         """
         frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=area, row=2)
+        frame.grid(column=1, row=2)
+        text_area = ScrolledText(frame,
+                                 background=self.COLOR_BACKGROUND_SECONDARY,
+                                 foreground=self.COLOR_FOREGROUND_PRIMARY,
+                                 insertbackground=self.COLOR_FOREGROUND_PRIMARY,
+                                 wrap=WORD,
+                                 width=15,
+                                 height=15,
+                                 font=self.FONT_HISTORY
+                                 )
+
+        text_area.grid(column=0, pady=(20, 20), padx=10)
+        text_area.insert(tkinter.INSERT, value)
+        text_area.configure(state='disabled')
+
+        return frame
+
+    def _mount_history_2(self, parent, value):
+        """
+        Renders the match history for player two for the GUI portion.
+        :param parent: the tkinter container
+        :return:
+        """
+        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
+        frame.grid(column=2, row=2)
 
         text_area = ScrolledText(frame,
                                  background=self.COLOR_BACKGROUND_SECONDARY,
@@ -249,11 +287,12 @@ class GameUI:
                                  wrap=WORD,
                                  width=15,
                                  height=15,
-                                 font=self.FONT_HISTORY,
-                                 state='disabled'
+                                 font=self.FONT_HISTORY
                                  )
 
         text_area.grid(column=0, pady=(20, 20), padx=10)
+        text_area.insert(tkinter.INSERT, value)
+        text_area.configure(state='disabled')
 
         return frame
 
