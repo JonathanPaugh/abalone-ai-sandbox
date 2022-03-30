@@ -44,6 +44,13 @@ class Heuristic:
         cls._dynamic_turn_count = clamp(0, cls.DYNAMIC_TURN_MAX, cls._dynamic_turn_count + 1)
 
     @classmethod
+    def decrement_dynamic_turn_count(cls):
+        """
+        Increments the internal dynamic turn count value by 1.
+        """
+        cls._dynamic_turn_count = clamp(0, cls.DYNAMIC_TURN_MAX, cls._dynamic_turn_count - 1)
+
+    @classmethod
     def reset_dynamic_turn_count(cls):
         """
         Resets the dynamic turn count.

@@ -47,13 +47,19 @@ class App:
 
     def _stop_game(self):
         self._model.stop_timer()
-        self._update_dispatcher.clear()
         self._agent.stop()
+        self._update_dispatcher.clear()
 
     def _toggle_pause(self):
         self.paused = not self.paused
         self._model.timer.toggle_pause()
         self._agent.toggle_paused()
+
+    def _undo(self):
+        self._stop_game()
+        self._model.undo(self._apply_undo_move)
+        self._view.clear_game_board()
+        self._view.render(self._model)
 
     def _reset_game(self):
         self._stop_game()
@@ -101,6 +107,7 @@ class App:
         """
         if not move:
             raise Exception("Cannot apply empty move")
+
         debug.Debug.log(F"Apply Move: {move}, {self._model.game_turn}", debug.DebugType.Game)
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
         self._model.apply_move(move,
@@ -114,6 +121,11 @@ class App:
         Applies a random move to the game for current player.
         """
         move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
+        self._apply_move(move)
+
+    def _apply_undo_move(self, move):
+        if not move:
+            return
         self._apply_move(move)
 
     def _apply_timeout_move(self):
@@ -193,7 +205,7 @@ class App:
             on_click_board=lambda cell: (
                 self._dispatch(self._select_cell, cell),
             ),
-            on_click_undo=lambda: print("UNDO"),
+            on_click_undo=self._undo,
             on_click_pause=self._toggle_pause,
             on_click_stop=self._stop_game,
             on_click_reset=self._reset_game

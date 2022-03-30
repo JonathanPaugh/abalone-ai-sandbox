@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass, field
 from agent.state_generator import StateGenerator
+from core.board import Board
 from core.game import Game
 from core.move import Move
 from core.hex import HexDirection
@@ -13,9 +14,9 @@ from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
 from ui.model.game_history import GameHistory, GameHistoryItem
-import time
 from ui.constants import FPS
 import ui.model.config as config
+import time
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -30,8 +31,8 @@ class Model:
     paused: bool = False
     selection: Selection = None
     timer: IntervalTimer = None
-    history = GameHistory()
     timeout_move: Move = None
+    history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
     config: config.Config.Config = field(default_factory=config.Config.from_default)
 
@@ -104,14 +105,33 @@ class Model:
         self.selection = None
         return None  # consistency
 
+    def undo(self, on_undo):
+        layout = self.game.board.layout
+
+        new_board = Board.create_from_data(layout)
+        new_history = GameHistory()
+
+        for item in self.history[2:-2]:
+            new_board.apply_move(item.move)
+            new_history.append(GameHistoryItem(item.time_start, item.move))
+
+        last_move = self.history[-2].move
+
+        self.game.set_board(new_board)
+        self.history = new_history
+
+        self.game.prev_turn()
+        self.game.prev_turn()
+
+        on_undo(last_move)
+
     def reset(self):
         """
         Resets the model to the default state.
         TODO: Add history reset when implemented
         """
 
-        if self.timer:
-            self.timer.stop()
+        self.stop_timer()
 
         self.paused = False
         self.timeout_move = None
@@ -121,12 +141,11 @@ class Model:
 
     def apply_config(self, config: config.Config.Config):
         """
-        Applies the given config and starts a new game.
+        Applies the given config.
         :param config: the new Config to use
         :return: None
         """
         self.config = config
-        self.reset()
 
     def apply_move(self, move: Move, on_timer: callable, on_timeout: callable):
         """
@@ -138,8 +157,13 @@ class Model:
         """
         self.game.apply_move(move)
         self.history.append(GameHistoryItem(time.time(), move))
+
         self.selection = None
         self._timer_launch(on_timer, on_timeout)
+
+    def stop_timer(self):
+        if self.timer:
+            self.timer.stop()
 
     def _timer_launch(self, on_timer: callable, on_timeout: callable):
         """
@@ -148,8 +172,9 @@ class Model:
         :param on_timeout: A function that is called when the timer runs out of time.
         :return:
         """
-        if self.timer:
-            self.timer.stop()
+        self.stop_timer()
+
+        self.timeout_move = None
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 
@@ -173,4 +198,3 @@ class Model:
         if not self.timeout_move:
             self.timeout_move = StateGenerator.generate_random_move(self.game_board, self.game_turn)
         on_timeout()
-        self.timeout_move = None

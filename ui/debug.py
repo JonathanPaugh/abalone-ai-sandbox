@@ -10,9 +10,9 @@ class DebugType(Enum):
 class Debug:
     # Turn to false if you want to turn off logging for something
     ACTIVE_DEBUG_TYPES = {
-        DebugType.Base: True,
+        DebugType.Base: False,
         DebugType.Game: True,
-        DebugType.Agent: True,
+        DebugType.Agent: False,
     }
 
     @classmethod

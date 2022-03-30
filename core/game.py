@@ -21,6 +21,9 @@ class Game:
         self.temporary_move_count = [0, 0]  # Will be removed when history is implemented
         Heuristic.reset_dynamic_turn_count()
 
+    def set_board(self, board: Board):
+        self._board = board
+
     @property
     def board(self) -> Board:
         """
@@ -48,11 +51,11 @@ class Game:
             return False
 
         self._board.apply_move(move)
-        self._next_turn()
+        self.next_turn()
 
         return True
 
-    def _next_turn(self):
+    def next_turn(self):
         """
         Makes the game to progress to the next turn.
         """
@@ -62,5 +65,15 @@ class Game:
             self.temporary_move_count[1] += 1
 
         Heuristic.increment_dynamic_turn_count()  # Temp
+
+        self._turn = Color.next(self._turn)
+
+    def prev_turn(self):
+        if self._turn == Color.WHITE:
+            self.temporary_move_count[0] -= 1
+        else:
+            self.temporary_move_count[1] -= 1
+
+        Heuristic.decrement_dynamic_turn_count()  # Temp
 
         self._turn = Color.next(self._turn)
