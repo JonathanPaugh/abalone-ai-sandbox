@@ -12,8 +12,8 @@ from core.hex import HexDirection
 from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
-from ui.model.game_history import GameHistory
-from datetime import time
+from ui.model.game_history import GameHistory, GameHistoryItem
+import time
 from ui.constants import FPS
 import ui.model.config as config
 
@@ -30,8 +30,8 @@ class Model:
     paused: bool = False
     selection: Selection = None
     timer: IntervalTimer = None
+    history = GameHistory()
     timeout_move: Move = None
-    history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
     config: config.Config.Config = field(default_factory=config.Config.from_default)
 
@@ -110,7 +110,8 @@ class Model:
         TODO: Add history reset when implemented
         """
 
-        self.stop_timer()
+        if self.timer:
+            self.timer.stop()
 
         self.paused = False
         self.timeout_move = None
@@ -120,11 +121,12 @@ class Model:
 
     def apply_config(self, config: config.Config.Config):
         """
-        Applies the given config.
+        Applies the given config and starts a new game.
         :param config: the new Config to use
         :return: None
         """
         self.config = config
+        self.reset()
 
     def apply_move(self, move: Move, on_timer: callable, on_timeout: callable):
         """
@@ -135,12 +137,9 @@ class Model:
         :return: None
         """
         self.game.apply_move(move)
+        self.history.append(GameHistoryItem(time.time(), move))
         self.selection = None
         self._timer_launch(on_timer, on_timeout)
-
-    def stop_timer(self):
-        if self.timer:
-            self.timer.stop()
 
     def _timer_launch(self, on_timer: callable, on_timeout: callable):
         """
@@ -149,9 +148,8 @@ class Model:
         :param on_timeout: A function that is called when the timer runs out of time.
         :return:
         """
-        self.stop_timer()
-
-        self.timeout_move = None
+        if self.timer:
+            self.timer.stop()
 
         time_limit = self.game_config.get_player_time_limit(self.game_turn)
 
@@ -175,3 +173,4 @@ class Model:
         if not self.timeout_move:
             self.timeout_move = StateGenerator.generate_random_move(self.game_board, self.game_turn)
         on_timeout()
+        self.timeout_move = None
