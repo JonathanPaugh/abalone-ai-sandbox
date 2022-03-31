@@ -33,7 +33,7 @@ class Model:
     paused: bool = False
     selection: Selection = None
     timer: IntervalTimer = None
-    prev_move_start = time.time()
+    move_start_time = time.time()
     timeout_move: Move = None
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
@@ -142,7 +142,6 @@ class Model:
         """
         Resets the model to the default state.
         """
-
         self.stop_timer()
 
         self.paused = False
@@ -160,7 +159,7 @@ class Model:
         """
         self.config = config
 
-    def apply_move(self, move: Move, on_timer: callable, on_timeout: callable):
+    def apply_move(self, move: Move, on_timer: callable, on_timeout: callable, on_move_limit: callable):
         """
         Applies the given move to the game board.
         :param move: the move to apply
@@ -168,12 +167,15 @@ class Model:
         :param on_timeout: the callable for when timer is complete
         :return: None
         """
-        self.game.apply_move(move)
-        current_time = time.time()
-        self.history.append(GameHistoryItem(self.prev_move_start, current_time, move))
-        self.prev_move_start = time.time()
         self.selection = None
+        self.game.apply_move(move)
+        move_end_time = time.time()
+        self.history.append(GameHistoryItem(self.move_start_time, move_end_time, move))
+        self.move_start_time = move_end_time
         self._timer_launch(on_timer, on_timeout)
+
+        if self.get_turn_count(self.game_turn) >= self.config.move_limit:
+            on_move_limit()
 
     def stop_timer(self):
         if self.timer:

@@ -94,6 +94,7 @@ class GameUI:
         self._history_1.insert(tkinter.INSERT, model.history.get_player_history_string(Color.BLACK))
         self._history_2.insert(tkinter.INSERT, model.history.get_player_history_string(Color.WHITE))
 
+
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
                        on_click_reset=None, on_click_settings=None, on_click_board=None):
