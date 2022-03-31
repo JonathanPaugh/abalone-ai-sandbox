@@ -63,7 +63,7 @@ class Model:
         """
         return self.config
 
-    def get_turn_count(self, player: Color):
+    def get_turn_count(self, player: Color) -> int:
         """
         Gets the turn count for a player.
         :return: the turn count
@@ -79,6 +79,10 @@ class Model:
 
         selection = self.selection
         selection_head = selection and selection.get_head()
+
+        # disallow selection if is paused
+        if self.paused:
+            return None
 
         # disallow selection if is computer
         if self.config.get_player_type(self.game_turn) is PlayerType.COMPUTER:
@@ -128,8 +132,7 @@ class Model:
         if len(self.history) > 1:
             next_item = self.history[-2]
         else:
-            next_item = self.history[0]
-            Debug.log("Warning: Cannot undo first turn", DebugType.Warning)
+            next_item = None
 
         self.game.set_board(new_board)
         self.history = new_history
@@ -150,6 +153,11 @@ class Model:
 
         self.history = GameHistory()
         self.game = Game(self.config.layout)
+
+    def toggle_pause(self):
+        self.paused = not self.paused
+        if self.timer:
+            self.timer.toggle_pause()
 
     def apply_config(self, config: Config):
         """

@@ -74,7 +74,7 @@ class App:
 
     def _toggle_pause(self):
         self.paused = not self.paused
-        self._model.timer.toggle_pause()
+        self._model.toggle_pause()
         self._agent.toggle_paused()
         self._view.render(self._model)
 
@@ -82,6 +82,7 @@ class App:
         self._stop_game()
         next_item = self._model.undo()
         self._view.clear_game_board()
+        self._view.render(self._model)
         self._apply_undo_item(next_item)
 
     def _reset_game(self):
@@ -171,7 +172,8 @@ class App:
         self._reset_game()
 
     def _apply_undo_item(self, item: GameHistoryItem):
-        if not item.move:
+        if not item or not item.move:
+            self._apply_random_move()
             return
         self._apply_move(item.move)
         self._model.history.pop()
