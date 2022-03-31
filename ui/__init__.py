@@ -225,6 +225,7 @@ class App:
         Heuristic.set_turn_count_handler(lambda: self._model.get_turn_count(self._model.game_turn))
         self._view.open(
             get_config=lambda: self._model.config,
+            on_exit=self._stop_game,
             can_open_settings=lambda: True,  # STUB: this should go through an `askokcancel` if game is running
             on_open_settings=lambda: (
                 self._dispatch(self._set_pause, True),

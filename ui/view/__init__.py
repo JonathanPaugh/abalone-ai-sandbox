@@ -59,7 +59,7 @@ class View:
         if on_close and config:
             on_close(config)
 
-    def open(self, get_config, can_open_settings, on_open_settings, on_confirm_settings, **kwargs):
+    def open(self, on_exit, get_config, can_open_settings, on_open_settings, on_confirm_settings, **kwargs):
         """
         Opens the view window.
         Mounts child widgets and binds event handlers.
@@ -70,6 +70,7 @@ class View:
         self._window.title(APP_NAME)
         self._window.configure(background=GameUI.COLOR_BACKGROUND_PRIMARY)
         self._window.protocol("WM_DELETE_WINDOW", lambda: (
+            on_exit(),
             setattr(self, "_done", True)
         ))
 
