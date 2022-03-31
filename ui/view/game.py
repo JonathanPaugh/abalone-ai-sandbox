@@ -161,8 +161,6 @@ class GameUI:
         self._score_1 = StringVar(parent, "0")
         self._move_count_1 = StringVar(parent, "0")
         frame = self._mount_score_board(parent, colour, player, row, column)
-        self._score_1 = StringVar(parent, "0")
-        self._move_count_1 = StringVar(parent, "0")
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_1,
               font=self.FONT_MEDIUM).grid(column=2, row=row)
@@ -181,8 +179,6 @@ class GameUI:
         self._score_2 = StringVar(parent, "0")
         self._move_count_2 = StringVar(parent, "0")
         frame = self._mount_score_board(parent, colour, player, row, column)
-        self._score_2 = StringVar(parent, "0")
-        self._move_count_2 = StringVar(parent, "0")
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_2,
               font=self.FONT_MEDIUM).grid(column=2, row=row)
