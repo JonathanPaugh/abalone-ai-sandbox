@@ -87,8 +87,8 @@ class GameUI:
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
         self._move_count_1.set(str(model.get_turn_count(Color.BLACK)))
         self._move_count_2.set(str(model.get_turn_count(Color.WHITE)))
-        self._mount_history(model.history.get_player_history_string(Color.BLACK),
-                            model.history.get_player_history_string(Color.WHITE))
+        self._mount_history(self.frame, model.history.get_player_history_string(Color.BLACK), 1)
+        self._mount_history(self.frame, model.history.get_player_history_string(Color.BLACK), 2)
 
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
@@ -101,22 +101,35 @@ class GameUI:
         """
 
         self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
-        self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1)
-        self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2)
-        self._mount_history_1(parent, 1)
-        self._mount_history_2(parent, 2)
+        self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1, 1)
+        self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2, 2)
+        self._mount_history(parent, 1, 1)
+        self._mount_history(parent, 2, 2)
         self._mount_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
 
-    def _mount_history(self, history1, history2):
+
+    def _mount_history(self, parent, value, column):
         """
-        Renders all components required for the GUI.
-        :param history1: a String
-        :param history2: a String
-        :return: None
+        Renders the match history for player 1 for the GUI portion.
+        :param parent: the tkinter container
+        :return:
         """
-        self._mount_history_1(self.frame, history1)
-        self._mount_history_2(self.frame, history2)
+        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
+        frame.grid(column=column, row=2)
+        text_area = ScrolledText(frame,
+                                 background=self.COLOR_BACKGROUND_SECONDARY,
+                                 foreground=self.COLOR_FOREGROUND_PRIMARY,
+                                 insertbackground=self.COLOR_FOREGROUND_PRIMARY,
+                                 wrap=WORD,
+                                 width=15,
+                                 height=15,
+                                 font=self.FONT_HISTORY
+                                 )
+
+        text_area.grid(column=0, pady=(20, 20), padx=10)
+        text_area.insert(tkinter.INSERT, value)
+        text_area.configure(state='disabled')
 
     def _mount_buttonbar(self, parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings):
         """
@@ -158,7 +171,6 @@ class GameUI:
 
     def _mount_buttonbar_button(self, parent, col, label, **kwargs):
         """
-
         :param parent: the tkinter container
         :param col: grid column
         :param label: a string
@@ -168,71 +180,62 @@ class GameUI:
         Button(parent, text=label, fg=self.COLOR_FOREGROUND_PRIMARY,
                bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=col, row=0)
 
-    def _mount_score_player1(self, parent, player, colour, row):
+
+    def _mount_score_player1(self, parent, player, colour, row, column):
         """
         Renders a score board.
         :param parent: the tkinter container
         :return: a frame
         """
-        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=1, row=1, padx=5, pady=5)
-
         self._score_1 = StringVar(parent, "0")
         self._move_count_1 = StringVar(parent, "0")
-
-        self._mount_score_heading(frame, 0, player, colour)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Scores:", font=self.FONT_MEDIUM).grid(column=1, row=row)
+        frame = self._mount_score_board(parent, colour, player, row, column)
+        self._score_1 = StringVar(parent, "0")
+        self._move_count_1 = StringVar(parent, "0")
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_1,
               font=self.FONT_MEDIUM).grid(column=2, row=row)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._move_count_1,
               font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
 
-        self._mount_score_grid(frame)
-
-        for widget in frame.winfo_children():
-            widget.grid(padx=2, pady=(0, 10))
-
         return frame
 
-    def _mount_score_player2(self, parent, player, colour, row):
+    def _mount_score_player2(self, parent, player, colour, row, column):
         """
         Renders a score board.
         :param parent: the tkinter container
         :return: a frame
         """
-        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=2, row=1, padx=5, pady=5)
-
         self._score_2 = StringVar(parent, "0")
         self._move_count_2 = StringVar(parent, "0")
-
-        self._mount_score_heading(frame, 0, player, colour)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
+        frame = self._mount_score_board(parent, colour, player, row, column)
+        self._score_2 = StringVar(parent, "0")
+        self._move_count_2 = StringVar(parent, "0")
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_2,
               font=self.FONT_MEDIUM).grid(column=2, row=row)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._move_count_2,
               font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
-
-        self._mount_score_grid(frame)
-
-        for widget in frame.winfo_children():
-            widget.grid(padx=2, pady=(0, 10))
-
         return frame
 
+    def _mount_score_board(self, parent, colour, player, row, column):
+        """
+        Defines and renders the text for displaying static items for score and move.
+        """
+        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
+        frame.grid(column=column, row=1, padx=5, pady=5)
+        self._mount_score_heading(frame, 0, player, colour)
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
+        self._mount_score_grid(frame)
+
+        return frame
     def _mount_score_heading(self, parent, row, label, colour):
         """
-
         :param parent: the tkinter container
         :param row: a grid row
         :param label: a string
@@ -253,54 +256,6 @@ class GameUI:
         parent.columnconfigure(2, weight=8)
         parent.columnconfigure(3, minsize=45)  # creates empty space
 
-    def _mount_history_1(self, parent, value):
-        """
-        Renders the match history for player 1 for the GUI portion.
-        :param parent: the tkinter container
-        :return:
-        """
-        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=1, row=2)
-        text_area = ScrolledText(frame,
-                                 background=self.COLOR_BACKGROUND_SECONDARY,
-                                 foreground=self.COLOR_FOREGROUND_PRIMARY,
-                                 insertbackground=self.COLOR_FOREGROUND_PRIMARY,
-                                 wrap=WORD,
-                                 width=15,
-                                 height=15,
-                                 font=self.FONT_HISTORY
-                                 )
-
-        text_area.grid(column=0, pady=(20, 20), padx=10)
-        text_area.insert(tkinter.INSERT, value)
-        text_area.configure(state='disabled')
-
-        return frame
-
-    def _mount_history_2(self, parent, value):
-        """
-        Renders the match history for player two for the GUI portion.
-        :param parent: the tkinter container
-        :return:
-        """
-        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=2, row=2)
-
-        text_area = ScrolledText(frame,
-                                 background=self.COLOR_BACKGROUND_SECONDARY,
-                                 foreground=self.COLOR_FOREGROUND_PRIMARY,
-                                 insertbackground=self.COLOR_FOREGROUND_PRIMARY,
-                                 wrap=WORD,
-                                 width=15,
-                                 height=15,
-                                 font=self.FONT_HISTORY
-                                 )
-
-        text_area.grid(column=0, pady=(20, 20), padx=10)
-        text_area.insert(tkinter.INSERT, value)
-        text_area.configure(state='disabled')
-
-        return frame
 
     def _mount_board(self, parent, on_click):
         """
