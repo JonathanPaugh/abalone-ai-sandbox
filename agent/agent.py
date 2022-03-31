@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from agent.agent_thread import AgentThread
 from agent.heuristics.heuristic_type import HeuristicType
 from agent.search import Search
+from ui.debug import Debug, DebugType
 
 if TYPE_CHECKING:
     from core.board import Board
@@ -49,6 +50,9 @@ class Agent:
         :param on_complete: A function that gets called when a search runs to exhaustion without interruption.
         """
         if self._thread and self._thread.is_alive():
+            Debug.log(F"Warning: Launch thread called while agent is running, attempting to stop thread",
+                      DebugType.Warning)
+
             self._thread.stop()
 
         self._thread = AgentThread(self._search, board, player, on_find, on_complete)

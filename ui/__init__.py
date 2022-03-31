@@ -142,7 +142,10 @@ class App:
         :return: None
         """
         if not move:
-            raise Exception("Cannot apply empty move")
+            debug.Debug.log(F"Warning: Apply move called with empty move, generating random move",
+                            debug.DebugType.Warning)
+
+            move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
 
         debug.Debug.log(F"Apply Move: {move}, {self._model.game_turn}", debug.DebugType.Game)
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)

@@ -18,11 +18,11 @@ class Search:
 
     def __init__(self):
         self.interrupt = False
+        self.paused = False
         self.prune_count = 0
         self.node_count = 0
+        self.heuristic_type = None
         self.on_find = None
-        self.heuristic_type = HeuristicType.WEIGHTED_NORMALIZED
-        self.paused = False
 
     def set_heuristic_type(self, heuristic_type: HeuristicType):
         """
