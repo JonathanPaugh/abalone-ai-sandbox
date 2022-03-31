@@ -141,7 +141,6 @@ class Model:
     def reset(self):
         """
         Resets the model to the default state.
-        TODO: Add history reset when implemented
         """
 
         self.stop_timer()
@@ -150,6 +149,7 @@ class Model:
         self.timeout_move = None
         self.selection = None
 
+        self.history = GameHistory()
         self.game = Game(self.config.layout)
 
     def apply_config(self, config: Config):
