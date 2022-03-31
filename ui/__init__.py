@@ -62,6 +62,18 @@ class App:
         else:
             print("Tie!")
 
+        # TODO: Change to better implementation
+        time_p1 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.BLACK)) - 1,
+                                                     Color.BLACK)
+
+        time_p2 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.WHITE)) - 1,
+                                                     Color.WHITE)
+
+        if time_p1 < time_p2:
+            print(F"{Color.BLACK} has the best aggregate time: {time_p1:.2f} seconds")
+        elif time_p2 < time_p1:
+            print(F"{Color.WHITE} has the best aggregate time: {time_p2:.2f} seconds")
+
     def _stop_game(self):
         if self.paused:
             self._set_pause(False)
@@ -245,7 +257,7 @@ class App:
                 self._dispatch(self._toggle_pause)
             ),
             on_click_stop=lambda: (
-                self._dispatch(self._stop_game),
+                self._dispatch(self.end_game),
             ),
             on_click_reset=self._reset_game,
         )

@@ -101,15 +101,21 @@ class GameHistory:
         for i in range(0, len(history)):
             history_string += \
                 str(len(history) - i) + ". " + str(history[len(history) - 1 - i].move) + "\n" + \
-                self.get_player_total_time(len(history) - i - 2, player) + " >>> " + \
-                self.get_player_total_time(len(history) - i - 1, player) + "\n" + \
+                self.get_player_total_time_string(len(history) - i - 2, player) + " >>> " + \
+                self.get_player_total_time_string(len(history) - i - 1, player) + "\n" + \
                 str(format(history[len(history) - i - 1].time_end - history[len(history) - i - 1].time_start,
                            '.2f'), ) + "\n\n"
         return history_string
 
-    def get_player_total_time(self, past_move, player: Color):
+    def get_player_total_time_string(self, past_move, player: Color):
         """
-        Gets the total time for player 1.
+        Gets the total time for as a string.
+        """
+        return format(self.get_total_time(past_move, player), ".2f")
+
+    def get_total_time(self, past_move, player: Color):
+        """
+        Gets the total time for as a string.
         """
         player_1_history = self._history[0::2]
         player_2_history = self._history[1::2]
@@ -119,4 +125,4 @@ class GameHistory:
                 total_time += player_1_history[i].time_end - player_1_history[i].time_start
             else:
                 total_time += player_2_history[i].time_end - player_2_history[i].time_start
-        return format(total_time, '.2f')
+        return total_time
