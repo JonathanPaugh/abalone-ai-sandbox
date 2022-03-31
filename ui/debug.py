@@ -14,7 +14,7 @@ class Debug:
         DebugType.Base: True,
         DebugType.Warning: True,
         DebugType.Game: True,
-        DebugType.Agent: False,
+        DebugType.Agent: True,
     }
 
     @classmethod

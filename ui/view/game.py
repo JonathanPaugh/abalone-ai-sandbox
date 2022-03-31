@@ -95,7 +95,7 @@ class GameUI:
         """
         self._board_view.render(model)
 
-        self._paused.set("Resume" if model.timer and model.timer.paused else "Pause")  # Kinda hacky
+        self._paused.set("Resume" if model.paused else "Pause")
 
         self._score_1.set(str(model.game_board.get_score(Color.BLACK)))
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
@@ -105,7 +105,6 @@ class GameUI:
         self._history_2.delete(1.0, tkinter.END)
         self._history_1.insert(tkinter.INSERT, model.history.get_player_history_string(Color.BLACK))
         self._history_2.insert(tkinter.INSERT, model.history.get_player_history_string(Color.WHITE))
-
 
         self._update_turn_indicators(model)
 
@@ -126,7 +125,6 @@ class GameUI:
         self._mount_history_2(parent)
         self._mount_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
-
 
     def _mount_history_1(self, parent):
         """
