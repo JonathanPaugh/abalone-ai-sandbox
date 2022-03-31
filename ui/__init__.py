@@ -9,6 +9,7 @@ from time import sleep
 
 from agent.heuristics.heuristic import Heuristic
 from agent.state_generator import StateGenerator
+from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
 from agent.agent import Agent
@@ -46,6 +47,20 @@ class App:
         """
         if self._model.config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
             self._apply_random_move()
+
+    def end_game(self):
+        self._stop_game()
+
+        score_p1 = self._model.game.board.get_score(Color.BLACK)
+        score_p2 = self._model.game.board.get_score(Color.WHITE)
+
+        print("Game Over")
+        if score_p1 > score_p2:
+            print(F"{Color.BLACK} Wins!")
+        elif score_p2 > score_p1:
+            print(F"{Color.WHITE} Wins!")
+        else:
+            print("Tie!")
 
     def _stop_game(self):
         if self.paused:
@@ -120,7 +135,8 @@ class App:
         self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
         self._model.apply_move(move,
                                self._dispatch_timer_update,
-                               lambda: self._update_dispatcher.put(self._apply_timeout_move))
+                               lambda: self._update_dispatcher.put(self._apply_timeout_move),
+                               self.end_game)
         self._update_dispatcher.put(lambda: self._view.render(self._model))
         debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 

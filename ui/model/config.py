@@ -9,13 +9,13 @@ class Config:
     Config defines the customization settings for the program.
     """
 
-    DEFAULT_LAYOUT = BoardLayout.GERMAN_DAISY
-    DEFAULT_MOVE_LIMIT = 50
-    DEFAULT_PLAYER_TYPE_P1 = PlayerType.COMPUTER
+    DEFAULT_LAYOUT = BoardLayout.BELGIAN_DAISY
+    DEFAULT_MOVE_LIMIT = 40
+    DEFAULT_PLAYER_TYPE_P1 = PlayerType.HUMAN
     DEFAULT_PLAYER_TYPE_P2 = PlayerType.COMPUTER
-    DEFAULT_TIME_LIMIT_P1 = 5.0
-    DEFAULT_TIME_LIMIT_P2 = 5.0
-    DEFAULT_HEURISTIC_TYPE_P1 = HeuristicType.DYNAMIC
+    DEFAULT_TIME_LIMIT_P1 = 60.0
+    DEFAULT_TIME_LIMIT_P2 = 10.0
+    DEFAULT_HEURISTIC_TYPE_P1 = HeuristicType.WEIGHTED_NORMALIZED
     DEFAULT_HEURISTIC_TYPE_P2 = HeuristicType.WEIGHTED_NORMALIZED
 
     def __init__(self, layout: BoardLayout, move_limit: int,
