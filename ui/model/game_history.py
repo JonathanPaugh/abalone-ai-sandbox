@@ -77,6 +77,9 @@ class GameHistory:
         """
         return self._history.pop()
 
+    def infer_player_turn(self) -> Color:
+        return Color.BLACK if len(self._history) % 2 == 0 else Color.WHITE
+
     def get_player_history(self, player: Color):
         if player == player.BLACK:
             return self._history[0::2]

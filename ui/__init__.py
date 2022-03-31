@@ -13,7 +13,7 @@ from core.move import Move
 from core.player_type import PlayerType
 from agent.agent import Agent
 from lib.dispatcher import Dispatcher
-from ui.model import Model
+from ui.model import Model, GameHistoryItem
 from ui.view import View
 from ui.constants import FPS
 import ui.model.config as config
@@ -65,8 +65,9 @@ class App:
 
     def _undo(self):
         self._stop_game()
-        self._model.undo(self._apply_undo_move)
+        next_item = self._model.undo()
         self._view.clear_game_board()
+        self._apply_undo_item(next_item)
 
     def _reset_game(self):
         self._stop_game()
@@ -130,11 +131,6 @@ class App:
         move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
         self._apply_move(move)
 
-    def _apply_undo_move(self, move):
-        if not move:
-            return
-        self._apply_move(move)
-
     def _apply_timeout_move(self):
         """
         Applies the currently set timeout move for current player.
@@ -157,6 +153,13 @@ class App:
         """
         self._model.apply_config(config)
         self._reset_game()
+
+    def _apply_undo_item(self, item: GameHistoryItem):
+        if not item.move:
+            return
+        self._apply_move(item.move)
+        self._model.history.pop()
+        self._model.history.append(item)
 
     def _dispatch(self, action: callable, *args: list, **kwargs: dict):
         """

@@ -115,7 +115,7 @@ class Model:
         self.selection = None
         return None  # consistency
 
-    def undo(self, on_undo):
+    def undo(self) -> GameHistoryItem:
         layout = self.game.board.layout
 
         new_board = Board.create_from_data(layout)
@@ -126,17 +126,17 @@ class Model:
             new_history.append(GameHistoryItem(item.time_start, item.time_end, item.move))
 
         if len(self.history) > 1:
-            last_move = self.history[-2].move
+            next_item = self.history[-2]
         else:
-            last_move = self.history[0].move
+            next_item = self.history[0]
             Debug.log("Warning: Cannot undo first turn", DebugType.Warning)
 
         self.game.set_board(new_board)
         self.history = new_history
 
-        self.game.set_turn(last_move.get_player(self.game_board))
+        self.game.set_turn(self.history.infer_player_turn())
 
-        on_undo(last_move)
+        return next_item
 
     def reset(self):
         """
