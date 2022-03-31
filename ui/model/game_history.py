@@ -2,8 +2,6 @@
 Generic interface for game history.
 """
 
-from dataclasses import dataclass
-
 from core.color import Color
 from core.move import Move
 
@@ -12,20 +10,13 @@ class GameHistoryItem:
     """
     A game history item.
     """
-
-    # time_start: float
-    # time_end: float
-    # move: Move
-    # color: Color # TODO(?): color can be inferred by stack position - remove?
-
     def __init__(self, time_start: float, time_end: float, move: Move):
+        time_start = time_start or time_end
         self.time_start = time_start
         self.time_end = time_end
         self.move = move
-        # self._color: color
 
 
-@dataclass
 class GameHistory:
     """
     A simple interface around the game history stack.

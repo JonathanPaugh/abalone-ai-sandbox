@@ -33,7 +33,7 @@ class Model:
     paused: bool = False
     selection: Selection = None
     timer: IntervalTimer = None
-    move_start_time = time.time()
+    move_start_time = None
     timeout_move: Move = None
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
@@ -148,6 +148,7 @@ class Model:
         self.stop_timer()
 
         self.paused = False
+        self.move_start_time = None
         self.timeout_move = None
         self.selection = None
 
