@@ -17,7 +17,7 @@ class GameHistoryItem:
 
     def __init__(self, time_start, time_end, move):
         self.time_start = time_start
-        self.time_end= time_end
+        self.time_end = time_end
         self.move = move
         # self._color: color
 
@@ -88,10 +88,12 @@ class GameHistory:
             history = player_2_history
         for i in range(0, len(history)):
             history_string += \
-                str(i+1) + "." + "\n" + \
-                self.get_player_total_time(i-1, player) + " >>> " + \
-                self.get_player_total_time(i, player) + "\n" + \
-                str(history[i].move) + "\n"
+                str(len(history) - i) + "." + "\n" + \
+                self.get_player_total_time(len(history) - i - 2, player) + " >>> " + \
+                self.get_player_total_time(len(history) - i - 1, player) + "\n" + \
+                str(format(history[len(history) - i - 1].time_end - history[len(history) - i - 1].time_start,
+                           '.2f'), ) + "\n" + \
+                str(history[len(history) - 1 - i].move) + "\n\n"
         return history_string
 
     def get_player_total_time(self, past_move, player):
