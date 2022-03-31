@@ -3,13 +3,16 @@
 Defines the game view.
 """
 import tkinter
-from tkinter import Frame, Label, Button, WORD, StringVar
+from tkinter import Frame, Label, Button, Canvas, WORD, StringVar
 from tkinter.scrolledtext import ScrolledText
 from datetime import timedelta
 
-import ui.constants as constants
 from core.color import Color
+import ui.constants as constants
 from ui.view.board import BoardView
+import ui.view.colors.palette as palette
+from ui.view.colors.transform import darken_color
+from ui.view.marble import render_marble
 
 
 class GameUI:
@@ -20,11 +23,11 @@ class GameUI:
     COLOR_FOREGROUND_PRIMARY = "#FFFFFF"
     COLOR_BACKGROUND_PRIMARY = "#36393E"
     COLOR_BACKGROUND_SECONDARY = "#42464C"
-    COLOR_PLAYER_RED = "#e64343"
-    COLOR_PLAYER_BLUE = "#4343e6"
+    COLOR_PLAYER_RED = palette.COLOR_LIGHTRED
+    COLOR_PLAYER_BLUE = palette.COLOR_LIGHTBLUE
 
     FONT_FAMILY_PRIMARY = "Arial"
-    FONT_FAMILY_SECONDARY = "Times New Roman"
+    FONT_FAMILY_SECONDARY = "Arial"
 
     FONT_LARGE = FONT_FAMILY_PRIMARY, 18
     FONT_MEDIUM = FONT_FAMILY_PRIMARY, 12
@@ -39,6 +42,14 @@ class GameUI:
     BOARD_WIDTH = BOARD_CELL_SIZE * BOARD_MAX_COLS
     BOARD_HEIGHT = BOARD_CELL_SIZE * BOARD_MAX_COLS * 7 / 8
 
+    PLAYER_COLOR_MAP = {
+        "Player 1": Color.BLACK,
+        "Player 2": Color.WHITE
+    }
+
+    TURN_CANVAS_SIZE = 16
+    TURN_ICON_SIZE = TURN_CANVAS_SIZE - 2
+
     def __init__(self):
         self.frame = None
         self._board_view = None
@@ -50,6 +61,7 @@ class GameUI:
         self._paused = None
         self._history_1 = ""
         self._history_2 = ""
+        self._cached_turn_indicators = {}
 
 
     @property
@@ -94,6 +106,8 @@ class GameUI:
         self._history_1.insert(tkinter.INSERT, model.history.get_player_history_string(Color.BLACK))
         self._history_2.insert(tkinter.INSERT, model.history.get_player_history_string(Color.WHITE))
 
+
+        self._update_turn_indicators(model)
 
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
@@ -201,7 +215,6 @@ class GameUI:
         Button(parent, text=label, fg=self.COLOR_FOREGROUND_PRIMARY,
                bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=col, row=0)
 
-
     def _mount_score_player1(self, parent, player, colour, row, column):
         """
         Renders a score board.
@@ -215,10 +228,10 @@ class GameUI:
         self._move_count_1 = StringVar(parent, "0")
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_1,
-              font=self.FONT_MEDIUM).grid(column=2, row=row)
+              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._move_count_1,
-              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
+              font=self.FONT_MEDIUM).grid(column=2, row=row + 2)
 
         return frame
 
@@ -235,35 +248,58 @@ class GameUI:
         self._move_count_2 = StringVar(parent, "0")
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._score_2,
-              font=self.FONT_MEDIUM).grid(column=2, row=row)
+              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
         Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
               textvariable=self._move_count_2,
-              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
+              font=self.FONT_MEDIUM).grid(column=2, row=row + 2)
         return frame
 
     def _mount_score_board(self, parent, colour, player, row, column):
         """
         Defines and renders the text for displaying static items for score and move.
         """
-        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=column, row=1, padx=5, pady=5)
-        self._mount_score_heading(frame, 0, player, colour)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
-        self._mount_score_grid(frame)
 
-        return frame
-    def _mount_score_heading(self, parent, row, label, colour):
+        frame_score = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
+        frame_score.grid(column=column, row=1, padx=5, pady=5)
+        Label(frame_score, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
+        Label(frame_score, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 2)
+        self._mount_score_grid(frame_score)
+
+        frame_heading = Frame(frame_score, background=self.COLOR_BACKGROUND_SECONDARY)
+        frame_heading.grid(column=1, row=row, columnspan=2)
+
+        turn_icon_canvas = Canvas(frame_heading,
+            width=self.TURN_CANVAS_SIZE, height=self.TURN_CANVAS_SIZE,
+            background=self.COLOR_BACKGROUND_SECONDARY,
+            highlightthickness=0)
+        render_marble(
+            turn_icon_canvas,
+            pos=(self.TURN_CANVAS_SIZE / 2, self.TURN_CANVAS_SIZE / 2),
+            color=darken_color(colour),
+            size=self.TURN_ICON_SIZE,
+            selected=True,
+        )
+        turn_icon_canvas.pack(side="left")
+
+        player_color = self.PLAYER_COLOR_MAP[player]
+        self._cached_turn_indicators[player_color] = turn_icon_canvas
+
+        score_heading = self._mount_score_heading(frame_heading, player, colour)
+        score_heading.pack(side="left", padx=2)
+
+        return frame_score
+
+    def _mount_score_heading(self, parent, label, colour):
         """
         :param parent: the tkinter container
         :param row: a grid row
         :param label: a string
         :return: none
         """
-        Label(parent, background=self.COLOR_BACKGROUND_SECONDARY, foreground=colour, text=label,
-              font=self.FONT_LARGE).grid(column=1, row=row, columnspan=2)
+        return Label(parent, background=self.COLOR_BACKGROUND_SECONDARY, foreground=colour,
+                     text=label, font=self.FONT_LARGE)
 
     def _mount_score_grid(self, parent):
         """
@@ -276,7 +312,6 @@ class GameUI:
         parent.columnconfigure(1, weight=8)
         parent.columnconfigure(2, weight=8)
         parent.columnconfigure(3, minsize=45)  # creates empty space
-
 
     def _mount_board(self, parent, on_click):
         """
@@ -328,6 +363,19 @@ class GameUI:
         seconds_string = F"{int(float(seconds))}".zfill(2)
         milliseconds_string = F"{int(time.microseconds / pow(10, 3))}".zfill(3)
         self._timer_text.set(F"{minutes}:{seconds_string}.{milliseconds_string}")
+
+    def _update_turn_indicators(self, model):
+        for color, canvas in self._cached_turn_indicators.items():
+            canvas.delete("all")
+            marble_color = self._board_view.MARBLE_COLORS[color]
+            is_marble_player_turn = (model.game_turn == color)
+            render_marble(
+                canvas,
+                pos=(self.TURN_CANVAS_SIZE / 2, self.TURN_CANVAS_SIZE / 2),
+                color=marble_color,
+                size=self.TURN_ICON_SIZE,
+                selected=not is_marble_player_turn,
+            )
 
     def apply_move(self, *args, **kwargs):
         """
