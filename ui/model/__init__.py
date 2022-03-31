@@ -168,23 +168,34 @@ class Model:
         """
         self.config = config
 
-    def apply_move(self, move: Move, on_timer: callable, on_timeout: callable, on_move_limit: callable):
+    def apply_move(self, move: Move) -> callable:
         """
         Applies the given move to the game board.
         :param move: the move to apply
-        :param on_timer: the callable for each timer tick
-        :param on_timeout: the callable for when timer is complete
-        :return: None
+        :return: a callable that starts the next move
         """
         self.selection = None
         self.game.apply_move(move)
+
         move_end_time = time.time()
         self.history.append(GameHistoryItem(self.move_start_time, move_end_time, move))
-        self.move_start_time = move_end_time
-        self._timer_launch(on_timer, on_timeout)
 
+        return self.next_turn
+
+    def next_turn(self, on_timer: callable, on_timeout: callable, on_move_limit: callable):
+        """
+        Stores starting move time and starts timer for the move.
+        :param on_timer: the callable for each timer tick
+        :param on_timeout: the callable for when timer is complete
+        :param on_move_limit: the callable for when move limit is reached
+        :return: None
+        """
         if self.get_turn_count(self.game_turn) >= self.config.move_limit:
             on_move_limit()
+            return
+
+        self.move_start_time = time.time()
+        self._timer_launch(on_timer, on_timeout)
 
     def stop_timer(self):
         if self.timer:

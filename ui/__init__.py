@@ -48,32 +48,6 @@ class App:
         if self._model.config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
             self._apply_random_move()
 
-    def end_game(self):
-        self._stop_game()
-
-        score_p1 = self._model.game.board.get_score(Color.BLACK)
-        score_p2 = self._model.game.board.get_score(Color.WHITE)
-
-        print("Game Over")
-        if score_p1 > score_p2:
-            print(F"{Color.BLACK} Wins!")
-        elif score_p2 > score_p1:
-            print(F"{Color.WHITE} Wins!")
-        else:
-            print("Tie!")
-
-        # TODO: Change to better implementation
-        time_p1 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.BLACK)) - 1,
-                                                     Color.BLACK)
-
-        time_p2 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.WHITE)) - 1,
-                                                     Color.WHITE)
-
-        if time_p1 < time_p2:
-            print(F"{Color.BLACK} has the best aggregate time: {time_p1:.2f} seconds")
-        elif time_p2 < time_p1:
-            print(F"{Color.WHITE} has the best aggregate time: {time_p2:.2f} seconds")
-
     def _stop_game(self):
         if self.paused:
             self._set_pause(False)
@@ -104,6 +78,38 @@ class App:
         self._view.render(self._model)
         self._start_game()
 
+    def end_game(self):
+        self._stop_game()
+
+        score_p1 = self._model.game.board.get_score(Color.BLACK)
+        score_p2 = self._model.game.board.get_score(Color.WHITE)
+
+        print("Game Over")
+        if score_p1 > score_p2:
+            print(F"{Color.BLACK} Wins!")
+        elif score_p2 > score_p1:
+            print(F"{Color.WHITE} Wins!")
+        else:
+            print("Tie!")
+
+        # TODO: Change to better implementation
+        time_p1 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.BLACK)) - 1,
+                                                     Color.BLACK)
+
+        time_p2 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.WHITE)) - 1,
+                                                     Color.WHITE)
+
+        if time_p1 < time_p2:
+            print(F"{Color.BLACK} has the best aggregate time: {time_p1:.2f} seconds")
+        elif time_p2 < time_p1:
+            print(F"{Color.WHITE} has the best aggregate time: {time_p2:.2f} seconds")
+
+    def _set_timeout_move(self, move: Move):
+        """
+        Sets the timeout move for current player.
+        """
+        self._model.timeout_move = move
+
     def _select_cell(self, cell: Hex):
         """
         Selects the given cell.
@@ -116,6 +122,21 @@ class App:
         move = self._model.select_cell(cell)
         if move:
             self._apply_move(move)
+
+    def _advance_turn(self, advance_next_turn):
+        """
+        Advances the game to the next player and starts the agent if the player is a computer.
+        :param advance_next_turn: a callable for the model to start the turn
+        :return:
+        """
+        debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
+
+        advance_next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
+                          self._apply_timeout_move,
+                          self.end_game)
+
+        if self._model.config.get_player_type(self._model.game_turn) is PlayerType.COMPUTER:
+            self._process_agent_move()
 
     def _process_agent_move(self):
         """
@@ -132,12 +153,11 @@ class App:
             self._agent.search(self._model.game_board,
                                player_color,
                                self._set_timeout_move,
-                               lambda: self._update_dispatcher.put(self._apply_timeout_move))
+                               self._apply_timeout_move)
 
     def _apply_move(self, move: Move):
         """
-        Applies the given move to the game board, updating both the model and
-        view accordingly.
+        Applies the given move to the game board, updating both the model and view accordingly.
         :param move: the Move to apply
         :return: None
         """
@@ -148,13 +168,12 @@ class App:
             move = StateGenerator.generate_random_move(self._model.game_board, self._model.game_turn)
 
         debug.Debug.log(F"Apply Move: {move}, {self._model.game_turn}", debug.DebugType.Game)
-        self._view.apply_move(move, board=self._model.game_board, on_end=self._process_agent_move)
-        self._model.apply_move(move,
-                               self._dispatch_timer_update,
-                               lambda: self._update_dispatcher.put(self._apply_timeout_move),
-                               self.end_game)
+
+        advance_next_turn = self._model.apply_move(move)
+        self._view.apply_move(move,
+                              board=self._model.game_board,
+                              on_end=lambda: self._update_dispatcher.put(lambda: self._advance_turn(advance_next_turn)))
         self._update_dispatcher.put(lambda: self._view.render(self._model))
-        debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 
     def _apply_random_move(self):
         """
@@ -170,12 +189,6 @@ class App:
         """
         self._agent.stop()
         self._apply_move(self._model.timeout_move)
-
-    def _set_timeout_move(self, move: Move):
-        """
-        Sets the timeout move for current player.
-        """
-        self._model.timeout_move = move
 
     def _apply_config(self, config: config.Config):
         """
@@ -206,13 +219,13 @@ class App:
         action(*args, **kwargs)
         self._view.render(self._model)
 
-    def _dispatch_timer_update(self, time_remaining: float):
+    def _update_timer(self, time_remaining: float):
         """
         Queues a time to render to timer on the next update frame.
         :param time: a float in seconds
         """
         time = timedelta(seconds=time_remaining)
-        self._update_dispatcher.put(lambda: self._view.update_timer(time))
+        self._view.update_timer(time)
 
     def _update(self):
         """

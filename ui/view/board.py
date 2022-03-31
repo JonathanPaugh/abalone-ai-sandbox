@@ -240,7 +240,9 @@ class BoardView:
         :return: None
         """
         self._clear_marble(marble)
-        self._marbles.remove(marble)
+
+        if marble in self._marbles:
+            self._marbles.remove(marble)
 
     def _redraw_marble(self, marble, selected=False, focused=False, highlighted=False):
         """
