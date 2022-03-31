@@ -21,9 +21,10 @@ class Marble:
     object_ids: list
     selected: bool = False
     focused: bool = False
+    highlighted: bool = False
 
 
-def render_marble(canvas, pos, color, size, selected=False, focused=False):
+def render_marble(canvas, pos, color, size, selected=False, focused=False, highlighted=False):
     """
     Renders a marble using the given paramters.
     :param canvas: the Canvas to render to
@@ -32,6 +33,7 @@ def render_marble(canvas, pos, color, size, selected=False, focused=False):
     :param size: an int denoting how large the marble should be drawn
     :param selected: a bool denoting whether or not to draw the marble as selected
     :param focused: a bool denoting whether or not to draw the marble as focused
+    :param highlighted: a bool denoting whether or not to draw the marble as highlighted
     :return: a list[int] of Tk object ids
     """
 
@@ -50,7 +52,19 @@ def render_marble(canvas, pos, color, size, selected=False, focused=False):
         width=2,
     ))
 
-    # marble outline
+    # marble highlight outline
+    if highlighted:
+        RING_WIDTH = 2
+        RING_SIZE = s / 2 + 2
+        marble_shape_ids.append(canvas.create_oval(
+            x - RING_SIZE, y - RING_SIZE,
+            x + RING_SIZE, y + RING_SIZE,
+            fill="",
+            outline=palette.COLOR_YELLOW,
+            width=RING_WIDTH,
+        ))
+
+    # marble selection outline
     if focused:
         RING_WIDTH = 3
         RING_MARGIN = 2

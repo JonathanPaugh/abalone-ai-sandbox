@@ -128,7 +128,7 @@ class BoardView:
         canvas = self._canvas
 
         marble_items = []
-        for cell, color in model.game_board.enumerate(): # TODO(?): demeter
+        for cell, color in model.game_board.enumerate():
             pos = self._find_marble_pos(cell)
             self._render_cell(canvas, pos)
             if color:
@@ -188,11 +188,19 @@ class BoardView:
         is_marble_selected = model.selection and marble.cell in model.selection.to_array()
         is_marble_focused = (model.selection
             and marble.cell == (model.selection.end or model.selection.start))
+        is_marble_highlighted = (model.history
+            and marble.cell in model.history[-1].move.get_destinations())
+
         if (is_marble_selected != marble.selected
-        or is_marble_focused != marble.focused):
+        or is_marble_focused != marble.focused
+        or is_marble_highlighted != marble.highlighted):
             marble.selected = is_marble_selected
             marble.focused = is_marble_focused
-            self._redraw_marble(marble, selected=is_marble_selected, focused=is_marble_focused)
+            marble.highlighted = is_marble_highlighted
+            self._redraw_marble(marble,
+                selected=is_marble_selected,
+                focused=is_marble_focused,
+                highlighted=is_marble_highlighted)
 
     def _update_marble(self, marble, anims):
         marble_cell = marble.cell
@@ -234,7 +242,7 @@ class BoardView:
         self._clear_marble(marble)
         self._marbles.remove(marble)
 
-    def _redraw_marble(self, marble, selected=False, focused=False):
+    def _redraw_marble(self, marble, selected=False, focused=False, highlighted=False):
         """
         Destroys and redraws a marble.
         Used for redrawing different marble states.
@@ -251,6 +259,7 @@ class BoardView:
             size=MARBLE_SIZE,
             selected=selected,
             focused=focused,
+            highlighted=highlighted,
         )
 
     def _render_cell(self, canvas, pos):
