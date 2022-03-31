@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 class DebugType(Enum):
     Base = auto()
+    Warning = auto()
     Game = auto()
     Agent = auto()
 
@@ -10,7 +11,8 @@ class DebugType(Enum):
 class Debug:
     # Turn to false if you want to turn off logging for something
     ACTIVE_DEBUG_TYPES = {
-        DebugType.Base: False,
+        DebugType.Base: True,
+        DebugType.Warning: True,
         DebugType.Game: True,
         DebugType.Agent: False,
     }

@@ -7,6 +7,8 @@ from core.constants import BOARD_SIZE, WIN_SCORE
 from core.hex import Hex
 from lib.clamp import clamp_01, clamp
 from lib.remap import remap_01, remap
+from ui import debug
+from ui.debug import DebugType, Debug
 
 
 class Heuristic:
@@ -34,28 +36,14 @@ class Heuristic:
     MAX_MARBLE_COUNT = 14
 
     DYNAMIC_TURN_MAX = 30
-    _dynamic_turn_count = 0
+    _get_turn_count = None
 
     @classmethod
-    def increment_dynamic_turn_count(cls):
+    def set_turn_count_handler(cls, get_turn_count):
         """
-        Increments the internal dynamic turn count value by 1.
+        Sets the turn count handler for dynamic heuristics.
         """
-        cls._dynamic_turn_count = clamp(0, cls.DYNAMIC_TURN_MAX, cls._dynamic_turn_count + 1)
-
-    @classmethod
-    def decrement_dynamic_turn_count(cls):
-        """
-        Increments the internal dynamic turn count value by 1.
-        """
-        cls._dynamic_turn_count = clamp(0, cls.DYNAMIC_TURN_MAX, cls._dynamic_turn_count - 1)
-
-    @classmethod
-    def reset_dynamic_turn_count(cls):
-        """
-        Resets the dynamic turn count.
-        """
-        cls._dynamic_turn_count = 0
+        cls._get_turn_count = lambda: clamp(0, cls.DYNAMIC_TURN_MAX, get_turn_count())
 
     @classmethod
     def weighted(cls, board: Board, player: Color) -> float:
@@ -122,6 +110,12 @@ class Heuristic:
         manhattan_score, manhattan_opponent_score, \
         adjacency_score, adjacency_opponent_score = cls._composite_normalized(board, player)
 
+        turn_count = 0
+        if cls._get_turn_count:
+            turn_count = cls._get_turn_count()
+        else:
+            Debug.log("Warning: Dynamic turn count not setup", DebugType.Warning)
+
         weight_initial_score = cls.WEIGHT_SCORE / 2
         weight_final_score = cls.WEIGHT_SCORE
 
@@ -132,15 +126,15 @@ class Heuristic:
         weight_final_normalized_opponent_manhattan = cls.WEIGHT_NORMALIZED_OPPONENT_MANHATTAN \
                                                      + (cls.WEIGHT_NORMALIZED_MANHATTAN * 0.90)
 
-        weight_normalized_score = remap(cls._dynamic_turn_count, 0, cls.DYNAMIC_TURN_MAX,
+        weight_normalized_score = remap(turn_count, 0, cls.DYNAMIC_TURN_MAX,
                                         weight_initial_score,
                                         weight_final_score)
 
-        weight_normalized_manhattan = remap(cls._dynamic_turn_count, 0, cls.DYNAMIC_TURN_MAX,
+        weight_normalized_manhattan = remap(turn_count, 0, cls.DYNAMIC_TURN_MAX,
                                             weight_initial_normalized_manhattan,
                                             weight_final_normalized_manhattan)
 
-        weight_normalized_opponent_manhattan = remap(cls._dynamic_turn_count, 0, cls.DYNAMIC_TURN_MAX,
+        weight_normalized_opponent_manhattan = remap(turn_count, 0, cls.DYNAMIC_TURN_MAX,
                                                      weight_initial_normalized_opponent_manhattan,
                                                      weight_final_normalized_opponent_manhattan)
 

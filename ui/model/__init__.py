@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 from agent.state_generator import StateGenerator
 from core.board import Board
+from core.color import Color
 from core.game import Game
 from core.move import Move
 from core.hex import HexDirection
@@ -61,6 +62,13 @@ class Model:
         """
         return self.config
 
+    def get_turn_count(self, player: Color):
+        """
+        Gets the turn count for a player.
+        :return: the turn count
+        """
+        return len(self.history.get_player_history(player))
+
     def select_cell(self, cell: Hex):
         """
         Selects the given cell.
@@ -112,11 +120,11 @@ class Model:
         new_board = Board.create_from_data(layout)
         new_history = GameHistory()
 
-        for item in self.history[2:-2]:
+        for item in self.history[:-1]:
             new_board.apply_move(item.move)
-            new_history.append(GameHistoryItem(item.time_start, item.move))
+            new_history.append(GameHistoryItem(item.time_start, item.time_end, item.move))
 
-        last_move = self.history[-2].move
+        last_move = self.history[-1].move
 
         self.game.set_board(new_board)
         self.history = new_history

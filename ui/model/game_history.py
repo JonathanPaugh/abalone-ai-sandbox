@@ -4,6 +4,8 @@ Generic interface for game history.
 
 from dataclasses import dataclass
 
+from core.color import Color
+
 
 class GameHistoryItem:
     """
@@ -74,7 +76,13 @@ class GameHistory:
         """
         return self._history.pop()
 
-    def get_player_history(self, player):
+    def get_player_history(self, player: Color):
+        if player == player.BLACK:
+            return self._history[0::2]
+        else:
+            return self._history[1::2]
+
+    def get_player_history_string(self, player: Color):
         """
         Gets a string of player 1 history.
         :return: a String
@@ -82,7 +90,7 @@ class GameHistory:
         history_string = ""
         player_1_history = self._history[0::2]
         player_2_history = self._history[1::2]
-        if player == 1:
+        if player == Color.BLACK:
             history = player_1_history
         else:
             history = player_2_history
@@ -94,7 +102,7 @@ class GameHistory:
                 str(history[i].move) + "\n"
         return history_string
 
-    def get_player_total_time(self, past_move, player):
+    def get_player_total_time(self, past_move, player: Color):
         """
         Gets the total time for player 1.
         """
@@ -102,7 +110,7 @@ class GameHistory:
         player_2_history = self._history[1::2]
         total_time = 0
         for i in range(0, past_move + 1):
-            if player == 1:
+            if player == Color.BLACK:
                 total_time += player_1_history[i].time_end - player_1_history[i].time_start
             else:
                 total_time += player_2_history[i].time_end - player_2_history[i].time_start

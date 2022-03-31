@@ -1,11 +1,11 @@
 """
 Defines the game representation.
 """
-from agent.heuristics.heuristic import Heuristic
 from core.board import Board
 from core.board_layout import BoardLayout
 from core.color import Color
 import ui.model.config as config
+from ui.debug import DebugType, Debug
 
 
 class Game:
@@ -17,9 +17,6 @@ class Game:
     def __init__(self, starting_layout: BoardLayout = config.Config.DEFAULT_LAYOUT):
         self._board = BoardLayout.setup_board(starting_layout)
         self._turn = Color.BLACK
-
-        self.temporary_move_count = [0, 0]  # Will be removed when history is implemented
-        Heuristic.reset_dynamic_turn_count()
 
     def set_board(self, board: Board):
         self._board = board
@@ -48,6 +45,7 @@ class Game:
         """
 
         if self._turn != move.get_player(self._board):
+            Debug.log("Warning: Tried to apply move for the wrong player", DebugType.Warning)
             return False
 
         self._board.apply_move(move)
@@ -59,21 +57,7 @@ class Game:
         """
         Makes the game to progress to the next turn.
         """
-        if self._turn == Color.BLACK:
-            self.temporary_move_count[0] += 1
-        else:
-            self.temporary_move_count[1] += 1
-
-        Heuristic.increment_dynamic_turn_count()  # Temp
-
         self._turn = Color.next(self._turn)
 
     def prev_turn(self):
-        if self._turn == Color.WHITE:
-            self.temporary_move_count[0] -= 1
-        else:
-            self.temporary_move_count[1] -= 1
-
-        Heuristic.decrement_dynamic_turn_count()  # Temp
-
         self._turn = Color.next(self._turn)

@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from datetime import timedelta
 from time import sleep
+
+from agent.heuristics.heuristic import Heuristic
 from agent.state_generator import StateGenerator
 from core.move import Move
 from core.player_type import PlayerType
@@ -196,6 +198,7 @@ class App:
         Runs the application.
         :return: None
         """
+        Heuristic.set_turn_count_handler(lambda: self._model.get_turn_count(self._model.game_turn))
         self._view.open(
             get_config=lambda: self._model.config,
             can_open_settings=lambda: True,  # STUB: this should go through an `askokcancel` if game is running

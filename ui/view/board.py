@@ -381,4 +381,5 @@ class BoardView:
                     ))(marble)
                 ))
 
-        self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
+        if self._anims:
+            self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
