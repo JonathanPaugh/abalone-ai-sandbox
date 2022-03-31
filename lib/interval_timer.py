@@ -52,6 +52,7 @@ class IntervalTimer(threading.Thread):
             start_time = time.time()
 
         if self.on_complete and not self.interrupted:
+            self.on_interval(0)
             self.on_complete()
 
     def _get_progress(self, remaining_time):

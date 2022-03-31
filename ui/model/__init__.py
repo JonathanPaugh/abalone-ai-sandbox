@@ -180,11 +180,9 @@ class Model:
         move_end_time = time.time()
         self.history.append(GameHistoryItem(self.move_start_time, move_end_time, move))
 
-        return self.next_turn
-
     def next_turn(self, on_timer: callable, on_timeout: callable, on_move_limit: callable):
         """
-        Stores starting move time and starts timer for the move.
+        Stores starting time and starts timer for the move.
         :param on_timer: the callable for each timer tick
         :param on_timeout: the callable for when timer is complete
         :param on_move_limit: the callable for when move limit is reached

@@ -123,17 +123,16 @@ class App:
         if move:
             self._apply_move(move)
 
-    def _advance_turn(self, advance_next_turn):
+    def _advance_turn(self):
         """
         Advances the game to the next player and starts the agent if the player is a computer.
-        :param advance_next_turn: a callable for the model to start the turn
         :return:
         """
         debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 
-        advance_next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
-                          self._apply_timeout_move,
-                          self.end_game)
+        self._model.next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
+                              self._apply_timeout_move,
+                              self.end_game)
 
         if self._model.config.get_player_type(self._model.game_turn) is PlayerType.COMPUTER:
             self._process_agent_move()
@@ -169,10 +168,10 @@ class App:
 
         debug.Debug.log(F"Apply Move: {move}, {self._model.game_turn}", debug.DebugType.Game)
 
-        advance_next_turn = self._model.apply_move(move)
         self._view.apply_move(move,
                               board=self._model.game_board,
-                              on_end=lambda: self._update_dispatcher.put(lambda: self._advance_turn(advance_next_turn)))
+                              on_end=lambda: self._update_dispatcher.put(self._advance_turn))
+        self._model.apply_move(move)
         self._update_dispatcher.put(lambda: self._view.render(self._model))
 
     def _apply_random_move(self):
