@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from agent.state_generator import StateGenerator
 from core.board import Board
 from core.color import Color
+from core.constants import WIN_SCORE
 from core.game import Game
 from core.move import Move
 from core.hex import HexDirection
@@ -180,16 +181,17 @@ class Model:
         move_end_time = time.time()
         self.history.append(GameHistoryItem(self.move_start_time, move_end_time, move))
 
-    def next_turn(self, on_timer: callable, on_timeout: callable, on_move_limit: callable):
+    def next_turn(self, on_timer: callable, on_timeout: callable, on_game_end: callable):
         """
         Stores starting time and starts timer for the move.
         :param on_timer: the callable for each timer tick
         :param on_timeout: the callable for when timer is complete
-        :param on_move_limit: the callable for when move limit is reached
+        :param on_game_end: the callable for when move limit is reached
         :return: None
         """
-        if self.get_turn_count(self.game_turn) >= self.config.move_limit:
-            on_move_limit()
+        if self.get_turn_count(self.game_turn) >= self.config.move_limit \
+           or self.game.board.get_score(Color.next(self.game_turn)) >= WIN_SCORE:
+            on_game_end()
             return
 
         self.move_start_time = time.time()
