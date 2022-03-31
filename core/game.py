@@ -37,6 +37,13 @@ class Game:
         """
         return self._turn
 
+    def set_turn(self, player: Color):
+        """
+        Sets the color representing whose turn it is.
+        :param player: a Color
+        """
+        self._turn = player
+
     def apply_move(self, move) -> bool:
         """
         Applies the given move to the game board.
@@ -49,15 +56,12 @@ class Game:
             return False
 
         self._board.apply_move(move)
-        self.next_turn()
+        self._next_turn()
 
         return True
 
-    def next_turn(self):
+    def _next_turn(self):
         """
         Makes the game to progress to the next turn.
         """
-        self._turn = Color.next(self._turn)
-
-    def prev_turn(self):
         self._turn = Color.next(self._turn)

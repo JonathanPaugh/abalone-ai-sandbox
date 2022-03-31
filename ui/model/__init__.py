@@ -14,6 +14,7 @@ from core.hex import HexDirection
 from core.player_type import PlayerType
 from core.selection import Selection
 from lib.interval_timer import IntervalTimer
+from ui.debug import DebugType, Debug
 from ui.model.game_history import GameHistory, GameHistoryItem
 from ui.constants import FPS
 from ui.model.config import Config
@@ -120,17 +121,20 @@ class Model:
         new_board = Board.create_from_data(layout)
         new_history = GameHistory()
 
-        for item in self.history[:-1]:
+        for item in self.history[:-2]:
             new_board.apply_move(item.move)
             new_history.append(GameHistoryItem(item.time_start, item.time_end, item.move))
 
-        last_move = self.history[-1].move
+        if len(self.history) > 1:
+            last_move = self.history[-2].move
+        else:
+            last_move = self.history[0].move
+            Debug.log("Warning: Cannot undo first turn", DebugType.Warning)
 
         self.game.set_board(new_board)
         self.history = new_history
 
-        self.game.prev_turn()
-        self.game.prev_turn()
+        self.game.set_turn(last_move.get_player(self.game_board))
 
         on_undo(last_move)
 
