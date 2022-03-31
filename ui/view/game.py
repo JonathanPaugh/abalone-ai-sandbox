@@ -1,3 +1,4 @@
+
 """
 Defines the game view.
 """
@@ -50,6 +51,7 @@ class GameUI:
         self._history_1 = ""
         self._history_2 = ""
 
+
     @property
     def animating(self):
         """
@@ -87,8 +89,10 @@ class GameUI:
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
         self._move_count_1.set(str(model.get_turn_count(Color.BLACK)))
         self._move_count_2.set(str(model.get_turn_count(Color.WHITE)))
-        self._mount_history(self.frame, model.history.get_player_history_string(Color.BLACK), 1)
-        self._mount_history(self.frame, model.history.get_player_history_string(Color.BLACK), 2)
+        self._history_1.delete(1.0, tkinter.END)
+        self._history_2.delete(1.0, tkinter.END)
+        self._history_1.insert(tkinter.INSERT, model.history.get_player_history_string(Color.BLACK))
+        self._history_2.insert(tkinter.INSERT, model.history.get_player_history_string(Color.WHITE))
 
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
@@ -103,21 +107,21 @@ class GameUI:
         self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
         self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1, 1)
         self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2, 2)
-        self._mount_history(parent, 1, 1)
-        self._mount_history(parent, 2, 2)
+        self._mount_history_1(parent)
+        self._mount_history_2(parent)
         self._mount_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
 
 
-    def _mount_history(self, parent, value, column):
+    def _mount_history_1(self, parent):
         """
         Renders the match history for player 1 for the GUI portion.
         :param parent: the tkinter container
         :return:
         """
         frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=column, row=2)
-        text_area = ScrolledText(frame,
+        frame.grid(column=1, row=2)
+        self._history_1 = ScrolledText(frame,
                                  background=self.COLOR_BACKGROUND_SECONDARY,
                                  foreground=self.COLOR_FOREGROUND_PRIMARY,
                                  insertbackground=self.COLOR_FOREGROUND_PRIMARY,
@@ -126,10 +130,26 @@ class GameUI:
                                  height=15,
                                  font=self.FONT_HISTORY
                                  )
+        self._history_1.grid(column=0, pady=(20, 20), padx=10)
 
-        text_area.grid(column=0, pady=(20, 20), padx=10)
-        text_area.insert(tkinter.INSERT, value)
-        text_area.configure(state='disabled')
+    def _mount_history_2(self, parent):
+        """
+        Renders the match history for player 2 for the GUI portion.
+        :param parent: the tkinter container
+        :return:
+        """
+        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
+        frame.grid(column=2, row=2)
+        self._history_2 = ScrolledText(frame,
+                                 background=self.COLOR_BACKGROUND_SECONDARY,
+                                 foreground=self.COLOR_FOREGROUND_PRIMARY,
+                                 insertbackground=self.COLOR_FOREGROUND_PRIMARY,
+                                 wrap=WORD,
+                                 width=15,
+                                 height=15,
+                                 font=self.FONT_HISTORY
+                                 )
+        self._history_2.grid(column=0, pady=(20, 20), padx=10)
 
     def _mount_buttonbar(self, parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings):
         """
