@@ -59,11 +59,10 @@ class View:
         if on_close and config:
             on_close(config)
 
-    def open(self, on_click_board, can_open_settings, on_confirm_settings, get_config):
+    def open(self, get_config, can_open_settings, on_open_settings, on_confirm_settings, **kwargs):
         """
         Opens the view window.
         Mounts child widgets and binds event handlers.
-        :param **kwargs: app-specific event handlers
         :return: None
         """
 
@@ -75,11 +74,11 @@ class View:
         ))
 
         self._game_view.mount(self._window,
-            on_click_board=on_click_board,
             on_click_settings=lambda: (
                 not self._settings_view and can_open_settings()
-                    and self._open_settings(get_config(), on_close=on_confirm_settings)
+                and (self._open_settings(get_config(), on_close=on_confirm_settings) or on_open_settings())
             ),
+            **kwargs
         )
 
     def update(self):

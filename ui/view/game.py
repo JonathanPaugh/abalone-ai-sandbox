@@ -46,6 +46,7 @@ class GameUI:
         self._score_2 = None
         self._move_count_1 = None
         self._move_count_2 = None
+        self._paused = None
         self._history_1 = ""
         self._history_2 = ""
 
@@ -78,16 +79,20 @@ class GameUI:
         :param model: the model to render
         :return: None
         """
-        print("Times render called")
         self._board_view.render(model)
+
+        self._paused.set("Resume" if model.timer and model.timer.paused else "Pause")  # Kinda hacky
 
         self._score_1.set(str(model.game_board.get_score(Color.BLACK)))
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
-        self._move_count_1.set(str(model.game.temporary_move_count[0]))
-        self._move_count_2.set(str(model.game.temporary_move_count[1]))
-        self._mount_history(model.history.get_player_history(1), model.history.get_player_history(2))
+        self._move_count_1.set(str(model.get_turn_count(Color.BLACK)))
+        self._move_count_2.set(str(model.get_turn_count(Color.WHITE)))
+        self._mount_history(model.history.get_player_history_string(Color.BLACK),
+                            model.history.get_player_history_string(Color.WHITE))
 
-    def _mount_widgets(self, parent, on_click_settings, on_click_board):
+    def _mount_widgets(self, parent,
+                       on_click_undo=None, on_click_pause=None, on_click_stop=None,
+                       on_click_reset=None, on_click_settings=None, on_click_board=None):
         """
         Renders all components required for the GUI.
         :param parent: the tkinter container
@@ -95,7 +100,7 @@ class GameUI:
         :return: None
         """
 
-        self._mount_buttonbar(parent, on_click_settings)
+        self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
         self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1)
         self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2)
         self._mount_history_1(parent, 1)
@@ -113,7 +118,7 @@ class GameUI:
         self._mount_history_1(self.frame, history1)
         self._mount_history_2(self.frame, history2)
 
-    def _mount_buttonbar(self, parent, on_click_settings):
+    def _mount_buttonbar(self, parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings):
         """
         Renders the button bar.
         :param parent: the tkinter container
@@ -127,8 +132,8 @@ class GameUI:
         frame.columnconfigure(1, weight=1)
         frame.columnconfigure(2, weight=1)
         frame.columnconfigure(3, weight=1)
-        frame.columnconfigure(4, minsize=460)
-        frame.columnconfigure(5, weight=1)
+        frame.columnconfigure(4, weight=1)
+        frame.columnconfigure(5, minsize=460)
         frame.columnconfigure(6, weight=1)
 
         self._timer_text = StringVar(frame, "00:00.00")
@@ -136,14 +141,15 @@ class GameUI:
               textvariable=self._timer_text,
               font=(self.FONT_FAMILY_PRIMARY, 25),
               foreground=self.COLOR_FOREGROUND_PRIMARY,
-              background=self.COLOR_BACKGROUND_SECONDARY
-              ).grid(column=0, row=0)
+              background=self.COLOR_BACKGROUND_SECONDARY).grid(column=0, row=0)
 
-        self._mount_buttonbar_button(frame, 1, "Pause")
-        self._mount_buttonbar_button(frame, 2, "Reset")
-        self._mount_buttonbar_button(frame, 3, "Undo")
-        self._mount_buttonbar_button(frame, 5, "Settings", command=on_click_settings)
-        self._mount_buttonbar_button(frame, 6, "Stop")
+        self._paused = StringVar(frame, "Pause")
+
+        self._mount_buttonbar_button(frame, 1, "Undo", command=on_click_undo)
+        self._mount_buttonbar_button(frame, 2, "", textvariable=self._paused, command=on_click_pause)
+        self._mount_buttonbar_button(frame, 3, "Stop", command=on_click_stop)
+        self._mount_buttonbar_button(frame, 4, "Reset", command=on_click_reset)
+        self._mount_buttonbar_button(frame, 6, "Settings", command=on_click_settings)
 
         for widget in frame.winfo_children():
             widget.grid(padx=4, pady=0)

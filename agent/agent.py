@@ -23,6 +23,9 @@ class Agent:
         """
         self._launch_thread(board, player, on_find, on_complete)
 
+    def toggle_paused(self):
+        self._search.paused = not self._search.paused
+
     def set_heuristic_type(self, heuristic_type: HeuristicType):
         """
         Sets the heuristic type to be used by the search.
@@ -36,6 +39,7 @@ class Agent:
         """
         if self._thread and self._thread.running:
             self._thread.stop()
+
         self._thread = None
 
     def _launch_thread(self, board: Board, player: Color, on_find: callable, on_complete: callable):
@@ -46,7 +50,6 @@ class Agent:
         """
         if self._thread and self._thread.is_alive():
             self._thread.stop()
-            raise Exception("Agent thread attempted to start while previous thread still alive")
 
         self._thread = AgentThread(self._search, board, player, on_find, on_complete)
         self._thread.start()

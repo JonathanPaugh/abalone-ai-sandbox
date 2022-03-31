@@ -1,4 +1,5 @@
 import math
+from time import sleep
 
 from agent.heuristics.heuristic import Heuristic
 from agent.heuristics.heuristic_type import HeuristicType
@@ -8,7 +9,7 @@ from core.color import Color
 from core.constants import MAX_SELECTION_SIZE
 from core.move import Move
 from ui.debug import Debug, DebugType
-
+import ui.constants
 
 class Search:
     DEPTH_LIMIT = 2
@@ -20,8 +21,8 @@ class Search:
         self.prune_count = 0
         self.node_count = 0
         self.on_find = None
-
         self.heuristic_type = HeuristicType.WEIGHTED_NORMALIZED
+        self.paused = False
 
     def set_heuristic_type(self, heuristic_type: HeuristicType):
         """
@@ -66,6 +67,9 @@ class Search:
         """
         if self.interrupt:
             raise TimeoutException()
+
+        while self.paused:
+            sleep(1 / ui.constants.FPS)
 
         if depth <= 0:
             self.node_count += 1
@@ -113,6 +117,9 @@ class Search:
         """
         if self.interrupt:
             raise TimeoutException()
+
+        while self.paused:
+            sleep(1 / ui.constants.FPS)
 
         if depth <= 0:
             self.node_count += 1
