@@ -2,7 +2,7 @@
 Defines the game view.
 """
 import tkinter
-from tkinter import Frame, Label, Button, WORD, StringVar, NSEW
+from tkinter import Frame, Label, Button, WORD, StringVar
 from tkinter.scrolledtext import ScrolledText
 from datetime import timedelta
 
@@ -46,7 +46,9 @@ class GameUI:
         self._score_2 = None
         self._move_count_1 = None
         self._move_count_2 = None
-
+        self._paused = None
+        self._history_1 = ""
+        self._history_2 = ""
 
     @property
     def animating(self):
@@ -77,17 +79,20 @@ class GameUI:
         :param model: the model to render
         :return: None
         """
-        print("Times render called")
         self._board_view.render(model)
+
+        self._paused.set("Resume" if model.timer and model.timer.paused else "Pause")  # Kinda hacky
 
         self._score_1.set(str(model.game_board.get_score(Color.BLACK)))
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
-        self._move_count_1.set(str(model.game.temporary_move_count[0]))
-        self._move_count_2.set(str(model.game.temporary_move_count[1]))
-        self._mount_history(self.frame, model.history.get_player_history(1), 1)
-        self._mount_history(self.frame, model.history.get_player_history(2), 2)
+        self._move_count_1.set(str(model.get_turn_count(Color.BLACK)))
+        self._move_count_2.set(str(model.get_turn_count(Color.WHITE)))
+        self._mount_history(self.frame, model.history.get_player_history_string(Color.BLACK), 1)
+        self._mount_history(self.frame, model.history.get_player_history_string(Color.BLACK), 2)
 
-    def _mount_widgets(self, parent, on_click_settings, on_click_board):
+    def _mount_widgets(self, parent,
+                       on_click_undo=None, on_click_pause=None, on_click_stop=None,
+                       on_click_reset=None, on_click_settings=None, on_click_board=None):
         """
         Renders all components required for the GUI.
         :param parent: the tkinter container
@@ -95,135 +100,13 @@ class GameUI:
         :return: None
         """
 
-        self._mount_buttonbar(parent, on_click_settings)
+        self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
         self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1, 1)
         self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2, 2)
         self._mount_history(parent, 1, 1)
         self._mount_history(parent, 2, 2)
         self._mount_board(self.frame, on_click=on_click_board)
         self._configure_grid(parent)
-
-    def _mount_buttonbar(self, parent, on_click_settings):
-        """
-        Renders the button bar.
-        :param parent: the tkinter container
-        :param kwargs: dictionary of arguments
-        :return: a frame
-        """
-        frame = Frame(parent, borderwidth=1, relief="solid", background=self.COLOR_BACKGROUND_SECONDARY)
-        frame.grid(column=0, row=0, columnspan=5, padx=(20, 0))
-
-        frame.columnconfigure(0, weight=1)
-        frame.columnconfigure(1, weight=1)
-        frame.columnconfigure(2, weight=1)
-        frame.columnconfigure(3, weight=1)
-        frame.columnconfigure(4, minsize=460)
-        frame.columnconfigure(5, weight=1)
-        frame.columnconfigure(6, weight=1)
-
-        self._timer_text = StringVar(frame, "00:00.00")
-        Label(frame,
-              textvariable=self._timer_text,
-              font=(self.FONT_FAMILY_PRIMARY, 25),
-              foreground=self.COLOR_FOREGROUND_PRIMARY,
-              background=self.COLOR_BACKGROUND_SECONDARY
-              ).grid(column=0, row=0)
-
-        self._mount_buttonbar_button(frame, 1, "Pause")
-        self._mount_buttonbar_button(frame, 2, "Reset")
-        self._mount_buttonbar_button(frame, 3, "Undo")
-        self._mount_buttonbar_button(frame, 5, "Settings", command=on_click_settings)
-        self._mount_buttonbar_button(frame, 6, "Stop")
-
-        for widget in frame.winfo_children():
-            widget.grid(padx=4, pady=0)
-
-        return frame
-
-    def _mount_buttonbar_button(self, parent, col, label, **kwargs):
-        """
-
-        :param parent: the tkinter container
-        :param col: grid column
-        :param label: a string
-        :param kwargs: dictionary of arguments
-        :return: None
-        """
-        Button(parent, text=label, fg=self.COLOR_FOREGROUND_PRIMARY,
-               bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=col, row=0)
-
-    def _mount_score_player1(self, parent, player, colour, row, column):
-        """
-        Renders a score board.
-        :param parent: the tkinter container
-        :return: a frame
-        """
-        self._score_1 = StringVar(parent, "0")
-        self._move_count_1 = StringVar(parent, "0")
-        frame = self._mount_score_board(parent, colour, player, row, column)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              textvariable=self._score_1,
-              font=self.FONT_MEDIUM).grid(column=2, row=row)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              textvariable=self._move_count_1,
-              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
-
-        return frame
-
-    def _mount_score_player2(self, parent, player, colour, row, column):
-        """
-        Renders a score board.
-        :param parent: the tkinter container
-        :return: a frame
-        """
-        self._score_2 = StringVar(parent, "0")
-        self._move_count_2 = StringVar(parent, "0")
-        frame = self._mount_score_board(parent, colour, player, row, column)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              textvariable=self._score_2,
-              font=self.FONT_MEDIUM).grid(column=2, row=row)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              textvariable=self._move_count_2,
-              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
-        return frame
-
-    def _mount_score_board(self, parent, colour, player, row, column):
-        """
-        Defines and renders the text for displaying static items for score and move.
-        """
-        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
-        frame.grid(column=column, row=1, padx=5, pady=5)
-        self._mount_score_heading(frame, 0, player, colour)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
-        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
-              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
-        self._mount_score_grid(frame)
-
-        return frame
-
-    def _mount_score_heading(self, parent, row, label, colour):
-        """
-
-        :param parent: the tkinter container
-        :param row: a grid row
-        :param label: a string
-        :return: none
-        """
-        Label(parent, background=self.COLOR_BACKGROUND_SECONDARY, foreground=colour, text=label,
-              font=self.FONT_LARGE).grid(column=1, row=row, columnspan=2)
-
-    def _mount_score_grid(self, parent):
-        """
-        Defines and renders the grid for displaying score.
-        Renders the score grid with
-        :param parent: the tkinter container
-        :return: none
-        """
-        parent.columnconfigure(0, minsize=45)  # creates empty space
-        parent.columnconfigure(1, weight=8)
-        parent.columnconfigure(2, weight=8)
-        parent.columnconfigure(3, minsize=45)  # creates empty space
 
 
     def _mount_history(self, parent, value, column):
@@ -248,8 +131,131 @@ class GameUI:
         text_area.insert(tkinter.INSERT, value)
         text_area.configure(state='disabled')
 
+    def _mount_buttonbar(self, parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings):
+        """
+        Renders the button bar.
+        :param parent: the tkinter container
+        :param kwargs: dictionary of arguments
+        :return: a frame
+        """
+        frame = Frame(parent, borderwidth=1, relief="solid", background=self.COLOR_BACKGROUND_SECONDARY)
+        frame.grid(column=0, row=0, columnspan=5, padx=(20, 0))
+
+        frame.columnconfigure(0, weight=1)
+        frame.columnconfigure(1, weight=1)
+        frame.columnconfigure(2, weight=1)
+        frame.columnconfigure(3, weight=1)
+        frame.columnconfigure(4, weight=1)
+        frame.columnconfigure(5, minsize=460)
+        frame.columnconfigure(6, weight=1)
+
+        self._timer_text = StringVar(frame, "00:00.00")
+        Label(frame,
+              textvariable=self._timer_text,
+              font=(self.FONT_FAMILY_PRIMARY, 25),
+              foreground=self.COLOR_FOREGROUND_PRIMARY,
+              background=self.COLOR_BACKGROUND_SECONDARY).grid(column=0, row=0)
+
+        self._paused = StringVar(frame, "Pause")
+
+        self._mount_buttonbar_button(frame, 1, "Undo", command=on_click_undo)
+        self._mount_buttonbar_button(frame, 2, "", textvariable=self._paused, command=on_click_pause)
+        self._mount_buttonbar_button(frame, 3, "Stop", command=on_click_stop)
+        self._mount_buttonbar_button(frame, 4, "Reset", command=on_click_reset)
+        self._mount_buttonbar_button(frame, 6, "Settings", command=on_click_settings)
+
+        for widget in frame.winfo_children():
+            widget.grid(padx=4, pady=0)
 
         return frame
+
+    def _mount_buttonbar_button(self, parent, col, label, **kwargs):
+        """
+        :param parent: the tkinter container
+        :param col: grid column
+        :param label: a string
+        :param kwargs: dictionary of arguments
+        :return: None
+        """
+        Button(parent, text=label, fg=self.COLOR_FOREGROUND_PRIMARY,
+               bg=self.COLOR_BACKGROUND_SECONDARY, **kwargs).grid(column=col, row=0)
+
+
+    def _mount_score_player1(self, parent, player, colour, row, column):
+        """
+        Renders a score board.
+        :param parent: the tkinter container
+        :return: a frame
+        """
+        self._score_1 = StringVar(parent, "0")
+        self._move_count_1 = StringVar(parent, "0")
+        frame = self._mount_score_board(parent, colour, player, row, column)
+        self._score_1 = StringVar(parent, "0")
+        self._move_count_1 = StringVar(parent, "0")
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              textvariable=self._score_1,
+              font=self.FONT_MEDIUM).grid(column=2, row=row)
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              textvariable=self._move_count_1,
+              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
+
+        return frame
+
+    def _mount_score_player2(self, parent, player, colour, row, column):
+        """
+        Renders a score board.
+        :param parent: the tkinter container
+        :return: a frame
+        """
+        self._score_2 = StringVar(parent, "0")
+        self._move_count_2 = StringVar(parent, "0")
+        frame = self._mount_score_board(parent, colour, player, row, column)
+        self._score_2 = StringVar(parent, "0")
+        self._move_count_2 = StringVar(parent, "0")
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              textvariable=self._score_2,
+              font=self.FONT_MEDIUM).grid(column=2, row=row)
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              textvariable=self._move_count_2,
+              font=self.FONT_MEDIUM).grid(column=2, row=row + 1)
+        return frame
+
+    def _mount_score_board(self, parent, colour, player, row, column):
+        """
+        Defines and renders the text for displaying static items for score and move.
+        """
+        frame = Frame(parent, background=self.COLOR_BACKGROUND_SECONDARY, borderwidth=1, relief="solid")
+        frame.grid(column=column, row=1, padx=5, pady=5)
+        self._mount_score_heading(frame, 0, player, colour)
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              text="Score:", font=self.FONT_MEDIUM).grid(column=1, row=row)
+        Label(frame, background=self.COLOR_BACKGROUND_SECONDARY, foreground=self.COLOR_FOREGROUND_PRIMARY,
+              text="Moves:", font=self.FONT_MEDIUM).grid(column=1, row=row + 1)
+        self._mount_score_grid(frame)
+
+        return frame
+    def _mount_score_heading(self, parent, row, label, colour):
+        """
+        :param parent: the tkinter container
+        :param row: a grid row
+        :param label: a string
+        :return: none
+        """
+        Label(parent, background=self.COLOR_BACKGROUND_SECONDARY, foreground=colour, text=label,
+              font=self.FONT_LARGE).grid(column=1, row=row, columnspan=2)
+
+    def _mount_score_grid(self, parent):
+        """
+        Defines and renders the grid for displaying score.
+        Renders the score grid with
+        :param parent: the tkinter container
+        :return: none
+        """
+        parent.columnconfigure(0, minsize=45)  # creates empty space
+        parent.columnconfigure(1, weight=8)
+        parent.columnconfigure(2, weight=8)
+        parent.columnconfigure(3, minsize=45)  # creates empty space
+
 
     def _mount_board(self, parent, on_click):
         """
