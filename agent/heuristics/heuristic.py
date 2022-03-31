@@ -51,10 +51,10 @@ class Heuristic:
         Calculates a heuristic value using 6 base heuristics and individually weighting them.
         :return: The heuristic value.
         """
-        _, _, \
         score, score_opponent, \
         manhattan_score, manhattan_opponent_score, \
-        adjacency_score, adjacency_opponent_score = cls._composite(board, player)
+        adjacency_score, adjacency_opponent_score, \
+        _, _ = cls._composite(board, player)
 
         return cls.WEIGHT_SCORE * score \
                + cls.WEIGHT_OPPONENT_SCORE * score_opponent \
