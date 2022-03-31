@@ -31,6 +31,7 @@ class Model:
     paused: bool = False
     selection: Selection = None
     timer: IntervalTimer = None
+    prev_move_start = time.time()
     timeout_move: Move = None
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
@@ -156,7 +157,9 @@ class Model:
         :return: None
         """
         self.game.apply_move(move)
-        self.history.append(GameHistoryItem(time.time(), move))
+        current_time = time.time()
+        self.history.append(GameHistoryItem(self.prev_move_start, current_time, move))
+        self.prev_move_start = time.time()
         self.selection = None
         self._timer_launch(on_timer, on_timeout)
 
@@ -184,14 +187,14 @@ class Model:
 
     def _timer_on_interval(self, on_timer: callable, progress: float):
         """
-        Converts timer progress into time remaining and calls on_timer() passing it the value.
+        Converts timer progress into time remaining and calls on_timer().
         """
         time_remaining = self.timer.total_time * progress
         on_timer(time_remaining)
 
     def _timer_on_complete(self, on_timeout: callable):
         """
-        Calls on_timeout() and resets timeout move after.
+        Calls on_timeout().
         Sets timeout move to a random generated one if unset.
         """
         if not self.timeout_move:
