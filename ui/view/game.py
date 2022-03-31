@@ -46,6 +46,7 @@ class GameUI:
         self._score_2 = None
         self._move_count_1 = None
         self._move_count_2 = None
+        self._paused = None
         self._history_1 = ""
         self._history_2 = ""
 
@@ -80,12 +81,16 @@ class GameUI:
         """
         self._board_view.render(model)
 
+        self._paused.set("Resume" if model.timer and model.timer.paused else "Pause")  # Kinda hacky
+
         self._score_1.set(str(model.game_board.get_score(Color.BLACK)))
         self._score_2.set(str(model.game_board.get_score(Color.WHITE)))
         self._move_count_1.set(str(model.get_turn_count(Color.BLACK)))
         self._move_count_2.set(str(model.get_turn_count(Color.WHITE)))
         # self._mount_history(model.history.get_player_history_string(Color.BLACK),
         #                     model.history.get_player_history_string(Color.WHITE))
+
+
 
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
@@ -138,11 +143,12 @@ class GameUI:
               textvariable=self._timer_text,
               font=(self.FONT_FAMILY_PRIMARY, 25),
               foreground=self.COLOR_FOREGROUND_PRIMARY,
-              background=self.COLOR_BACKGROUND_SECONDARY
-              ).grid(column=0, row=0)
+              background=self.COLOR_BACKGROUND_SECONDARY).grid(column=0, row=0)
+
+        self._paused = StringVar(frame, "Pause")
 
         self._mount_buttonbar_button(frame, 1, "Undo", command=on_click_undo)
-        self._mount_buttonbar_button(frame, 2, "Pause", command=on_click_pause)
+        self._mount_buttonbar_button(frame, 2, "", textvariable=self._paused, command=on_click_pause)
         self._mount_buttonbar_button(frame, 3, "Stop", command=on_click_stop)
         self._mount_buttonbar_button(frame, 4, "Reset", command=on_click_reset)
         self._mount_buttonbar_button(frame, 6, "Settings", command=on_click_settings)

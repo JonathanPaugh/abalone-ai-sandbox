@@ -48,20 +48,25 @@ class App:
             self._apply_random_move()
 
     def _stop_game(self):
+        if self.paused:
+            self._set_pause(False)
         self._model.stop_timer()
         self._agent.stop()
         self._update_dispatcher.clear()
+
+    def _set_pause(self, pause: bool):
+        pause != self.paused and self._toggle_pause()
 
     def _toggle_pause(self):
         self.paused = not self.paused
         self._model.timer.toggle_pause()
         self._agent.toggle_paused()
+        self._view.render(self._model)
 
     def _undo(self):
         self._stop_game()
         self._model.undo(self._apply_undo_move)
         self._view.clear_game_board()
-        self._view.render(self._model)
 
     def _reset_game(self):
         self._stop_game()
@@ -202,16 +207,25 @@ class App:
         self._view.open(
             get_config=lambda: self._model.config,
             can_open_settings=lambda: True,  # STUB: this should go through an `askokcancel` if game is running
+            on_open_settings=lambda: (
+                self._dispatch(self._set_pause, True),
+            ),
             on_confirm_settings=lambda config: (
                 self._dispatch(self._apply_config, config),
             ),
             on_click_board=lambda cell: (
                 self._dispatch(self._select_cell, cell),
             ),
-            on_click_undo=self._undo,
-            on_click_pause=self._toggle_pause,
-            on_click_stop=self._stop_game,
-            on_click_reset=self._reset_game
+            on_click_undo=lambda: (
+                self._dispatch(self._undo),
+            ),
+            on_click_pause=lambda: (
+                self._dispatch(self._toggle_pause)
+            ),
+            on_click_stop=lambda: (
+                self._dispatch(self._stop_game),
+            ),
+            on_click_reset=self._reset_game,
         )
         self._view.render(self._model)
         self._start_game()
