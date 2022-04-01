@@ -23,14 +23,10 @@ class Search:
         Starts the search.
         """
         self._stopped = False
-        exhausted = True
         try:
             self._search(board, color, on_find)
         except StopIteration:
-            exhausted = False
-            Debug.log("receive interrupt")
-
-        print(f"search result: {'exhausted' if exhausted else 'timeout'}")
+            pass
 
     def stop(self):
         """
