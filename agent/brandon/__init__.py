@@ -41,9 +41,26 @@ class ConsumerThread(Thread):
             sleep(1 / FPS)
 
 
-def search_process(queue, search, board, color):
-    search.start(board, color, lambda move: queue.put((move, False)))
-    queue.put((None, True))
+class SearchProcess(Process):
+
+    def __init__(self, queue, search, board, color):
+        super().__init__()
+        self._queue = queue
+        self._search = search
+        self._board = board
+        self._color = color
+
+    def _on_find(self, move):
+        self._queue.put((move, False))
+
+    def run(self):
+        queue = self._queue
+        search = self._search
+        board = self._board
+        color = self._color
+
+        search.start(board, color, self._on_find)
+        queue.put((None, True))
 
 
 class SearchManager(BaseManager): pass
@@ -69,7 +86,7 @@ class BrandonAgent(BaseAgent):
         thread.start()
         self._thread = thread
 
-        process = Process(target=search_process, args=(queue, self._search, board, player))
+        process = SearchProcess(queue, self._search, board, player)
         process.daemon = True
         process.start()
         self._process = process
