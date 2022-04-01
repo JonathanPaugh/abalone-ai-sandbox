@@ -64,8 +64,8 @@ class Search:
             move_score = -self._negamax(move_board, color, 1, -inf, -alpha, -1)
             if move_score > alpha:
                 alpha = move_score
-                Debug.log(f"new best move {move} ({move_score:.2f})")
                 on_find(move)
+                Debug.log(f"new best move {move}/{move_score:.2f}")
 
     def _negamax(self, board, color, depth, alpha, beta, perspective):
         self._handle_interrupts()
