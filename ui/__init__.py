@@ -9,10 +9,10 @@ from time import sleep
 
 from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.state_generator import StateGenerator
+from agent.brandon import BrandonAgent as Agent
 from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
-from agent.brandon import BrandonAgent as Agent
 from lib.dispatcher import Dispatcher
 from ui.model import Model, GameHistoryItem
 from ui.view import View
