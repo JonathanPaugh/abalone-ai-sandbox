@@ -1,9 +1,9 @@
 import math
 from time import sleep
 
-from agent.heuristics.heuristic import Heuristic
-from agent.heuristics.heuristic_type import HeuristicType
 from agent.state_generator import StateGenerator
+from agent.heuristics.heuristic_jonathan import Heuristic
+from ui.model.heuristic_type import HeuristicType
 from core.board import Board
 from core.color import Color
 from core.constants import MAX_SELECTION_SIZE

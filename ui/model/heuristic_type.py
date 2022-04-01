@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from numbers import Number
 
-from agent.heuristics.heuristic import Heuristic
+from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.heuristics.heuristic_brandon import heuristic as heuristic_brandon
 
 from core.board import Board
