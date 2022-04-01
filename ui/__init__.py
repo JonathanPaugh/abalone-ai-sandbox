@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from datetime import timedelta
 from time import sleep
 
-from agent.heuristics.heuristic import Heuristic
+from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.state_generator import StateGenerator
 from core.color import Color
 from core.move import Move

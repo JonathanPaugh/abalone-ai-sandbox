@@ -1,4 +1,4 @@
-from agent.heuristics.heuristic_type import HeuristicType
+from ui.model.heuristic_type import HeuristicType
 from core.board_layout import BoardLayout
 from core.color import Color
 from core.player_type import PlayerType

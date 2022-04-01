@@ -1,10 +1,10 @@
 from tkinter import Toplevel, OptionMenu, StringVar, Entry, CENTER
 from tkinter.ttk import Frame, Label, Button
 
-from agent.heuristics.heuristic_type import HeuristicType
-from core.player_type import PlayerType
-from ui.model.config import Config
 from core.board_layout import BoardLayout
+from core.player_type import PlayerType
+from ui.model.heuristic_type import HeuristicType
+from ui.model.config import Config
 
 
 class SettingsUI:

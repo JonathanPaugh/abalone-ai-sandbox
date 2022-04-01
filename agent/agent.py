@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from agent.agent_thread import AgentThread
-from agent.heuristics.heuristic_type import HeuristicType
+from ui.model.heuristic_type import HeuristicType
 from agent.search import Search
 from ui.debug import Debug, DebugType
 

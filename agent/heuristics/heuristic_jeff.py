@@ -1,4 +1,4 @@
-from agent.heuristics.heuristic import Heuristic
+from agent.heuristics.heuristic_jonathan import Heuristic
 from core.color import Color
 
 
