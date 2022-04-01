@@ -12,7 +12,7 @@ from agent.state_generator import StateGenerator
 from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
-from agent.agent import Agent
+from agent.default import Agent
 from lib.dispatcher import Dispatcher
 from ui.model import Model, GameHistoryItem
 from ui.view import View
@@ -148,7 +148,7 @@ class App:
 
         if player_type is PlayerType.COMPUTER:
             self._agent.set_heuristic_type(config.get_player_heuristic_type(player_color))
-            self._agent.search(self._model.game_board,
+            self._agent.start(self._model.game_board,
                                player_color,
                                self._set_timeout_move,
                                lambda: self._update_dispatcher.put(self._apply_timeout_move))

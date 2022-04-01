@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from agent.agent_thread import AgentThread
+from agent import BaseAgent
+from agent.default.agent_thread import AgentThread
+from agent.default.search import Search
 from ui.model.heuristic_type import HeuristicType
-from agent.search import Search
 from ui.debug import Debug, DebugType
 
 if TYPE_CHECKING:
@@ -11,12 +12,12 @@ if TYPE_CHECKING:
     from core.color import Color
 
 
-class Agent:
+class Agent(BaseAgent):
     def __init__(self):
         self._search = Search()
         self._thread = None
 
-    def search(self, board: Board, player: Color, on_find: callable, on_complete: callable):
+    def start(self, board: Board, player: Color, on_find: callable, on_complete: callable):
         """
         Start the search using a board and a player as a starting state.
         :param on_find: A function that gets called everytime a better move is found.
