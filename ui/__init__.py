@@ -59,10 +59,7 @@ class App:
         if self.paused:
             self._set_pause(False)
         self._model.stop_timer()
-
-        for agent in self._agents.values():
-            agent.stop()
-
+        self._stop_agents()
         self._update_dispatcher.clear()
 
     def _set_pause(self, pause: bool):
@@ -71,10 +68,7 @@ class App:
     def _toggle_pause(self):
         self.paused = not self.paused
         self._model.toggle_pause()
-
-        for agent in self._agents.values():
-            agent.toggle_paused()
-
+        self._toggle_agents_paused()
         self._view.render(self._model)
 
     def _undo(self):
@@ -203,9 +197,7 @@ class App:
         Applies the currently set timeout move for current player.
         Waits for agent to stop running before applying.
         """
-        for agent in self._agents.values():
-            agent.stop()
-
+        self._stop_agents()
         self._apply_move(self._model.timeout_move)
 
     def _apply_config(self, config: config.Config):
@@ -300,5 +292,18 @@ class App:
         self._view.render(self._model)
         self._start_game()
         self._run_main_loop()
+        self._stop_agents()
+
+    def _stop_agents(self):
+        self._rally_agents(lambda agent: agent.toggle_paused())
+
+    def _toggle_agents_paused(self):
+        self._rally_agents(lambda agent: agent.stop())
+
+    def _rally_agents(self, callback: callable):
+        """
+        Performs `callback` on all agents.
+        """
         for agent in self._agents.values():
-            agent.stop()
+            if agent:
+                callback(agent)
