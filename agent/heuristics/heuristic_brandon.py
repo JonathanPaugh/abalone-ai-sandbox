@@ -2,12 +2,12 @@ from core.hex import Hex
 from core.constants import BOARD_SIZE
 
 
-WEIGHT_SCORE = 15
-WEIGHT_SCORE_OPPONENT = 25
+WEIGHT_SCORE = 20
+WEIGHT_SCORE_OPPONENT = 30
 WEIGHT_CENTRALIZATION = 1
 WEIGHT_CENTRALIZATION_OPPONENT = 0.5
-WEIGHT_ADJACENCY = 0.05
-WEIGHT_ADJACENCY_OPPONENT = 0.025
+WEIGHT_ADJACENCY = 0.1
+WEIGHT_ADJACENCY_OPPONENT = 0.05
 
 
 def heuristic(board, color):
@@ -30,7 +30,7 @@ def heuristic(board, color):
         cell_adjacency = sum([
             board[n] == cell_color if n in board else 0
                 for n in Hex.neighbors(cell)
-        ])
+        ]) / 2
         cell_adjacency = pow(cell_adjacency, 2)
 
         if cell_color == color:

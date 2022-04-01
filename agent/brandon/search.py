@@ -5,6 +5,7 @@ from core.board import Board
 from core.color import Color
 from agent.state_generator import StateGenerator
 from ui.constants import FPS
+from ui.debug import Debug
 
 
 class Search:
@@ -36,9 +37,11 @@ class Search:
             self._handle_interrupts()
             move_board = deepcopy(board)
             move_board.apply_move(move)
+
             move_score = -self._negamax(move_board, color, 1, -inf, -alpha, -1)
             if move_score > alpha:
                 alpha = move_score
+                Debug.log(f"new best move {move} ({move_score:.2f})")
                 on_find(move)
 
     def _negamax(self, board, color, depth, alpha, beta, perspective):

@@ -1,7 +1,7 @@
 from enum import Enum
 
-from agent.default import Agent as DefaultAgent
-from agent.brandon import BrandonAgent
+from agent.default.agent import DefaultAgent
+from agent.brandon.agent import BrandonAgent
 
 
 class AgentType(Enum):
