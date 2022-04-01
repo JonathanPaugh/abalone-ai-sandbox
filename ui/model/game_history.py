@@ -72,48 +72,45 @@ class GameHistory:
         return Color.BLACK if len(self._history) % 2 == 0 else Color.WHITE
 
     def get_player_history(self, player: Color):
-        if player == player.BLACK:
+        if player == Color.BLACK:
             return self._history[0::2]
         else:
             return self._history[1::2]
 
+    def get_player_total_time(self, player: Color, offset: int = 0):
+        """
+        Gets the total time for a player.
+        """
+        history = self.get_player_history(player)
+        total_time = 0
+        for i in range(0, len(history) - offset):
+            total_time += history[i].time_end - history[i].time_start
+
+        return total_time
+
     def get_player_history_string(self, player: Color):
         """
-        Gets a string of player 1 history.
+        Gets a string of complete player history.
         :return: a String
         """
+        history = self.get_player_history(player)
         history_string = ""
-        player_1_history = self._history[0::2]
-        player_2_history = self._history[1::2]
-        if player == Color.BLACK:
-            history = player_1_history
-        else:
-            history = player_2_history
         for i in range(0, len(history)):
+            history_item = history[len(history) - i - 1]
             history_string += \
-                str(len(history) - i) + ". " + str(history[len(history) - 1 - i].move) + "\n" + \
-                self.get_player_total_time_string(len(history) - i - 2, player) + " >>> " + \
-                self.get_player_total_time_string(len(history) - i - 1, player) + "\n" + \
-                str(format(history[len(history) - i - 1].time_end - history[len(history) - i - 1].time_start,
-                           '.2f'), ) + "\n\n"
+                F"{len(history) - i}. {history_item.move}"  \
+                + "\n" \
+                + self.get_player_total_time_string(player, i + 1) \
+                + " >> " \
+                + self.get_player_total_time_string(player, i) \
+                + "\n" \
+                + F"{(history_item.time_end - history_item.time_start):.2f}" \
+                + "\n\n"
+
         return history_string
 
-    def get_player_total_time_string(self, past_move, player: Color):
+    def get_player_total_time_string(self, player: Color, offset: int = 0):
         """
-        Gets the total time for as a string.
+        Gets the total time for a player as a string.
         """
-        return format(self.get_total_time(past_move, player), ".2f")
-
-    def get_total_time(self, past_move, player: Color):
-        """
-        Gets the total time for as a string.
-        """
-        player_1_history = self._history[0::2]
-        player_2_history = self._history[1::2]
-        total_time = 0
-        for i in range(0, past_move + 1):
-            if player == Color.BLACK:
-                total_time += player_1_history[i].time_end - player_1_history[i].time_start
-            else:
-                total_time += player_2_history[i].time_end - player_2_history[i].time_start
-        return total_time
+        return format(self.get_player_total_time(player, offset), ".2f")

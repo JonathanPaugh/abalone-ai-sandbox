@@ -92,12 +92,8 @@ class App:
         else:
             print("Tie!")
 
-        # TODO: Change to better implementation
-        time_p1 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.BLACK)) - 1,
-                                                     Color.BLACK)
-
-        time_p2 = self._model.history.get_total_time(len(self._model.history.get_player_history(Color.WHITE)) - 1,
-                                                     Color.WHITE)
+        time_p1 = self._model.history.get_player_total_time(Color.BLACK)
+        time_p2 = self._model.history.get_player_total_time(Color.WHITE)
 
         if time_p1 < time_p2:
             print(F"{Color.BLACK} has the best aggregate time: {time_p1:.2f} seconds")
