@@ -31,6 +31,7 @@ class SettingsUI:
         self.config = config or Config.from_default()
         self._window = None
         self._on_close = on_close
+        self._destroyed = False
 
     def open(self):
         """
@@ -45,9 +46,19 @@ class SettingsUI:
         self._mount(frame)
         return self
 
-    def cancel(self):
-        self._on_close(None)
+    def destroy(self):
+        if self._destroyed:
+            return
+
+        self._destroyed = True
         self._window.destroy()
+
+    def cancel(self):
+        if self._destroyed:
+            return
+
+        self._on_close(None)
+        self.destroy()
 
     def _mount(self, parent):
         """
@@ -82,7 +93,7 @@ class SettingsUI:
                 HeuristicType(heuristic_type_p1.get()),
                 HeuristicType(heuristic_type_p2.get()),
             )),
-            self._window.destroy(),
+            self.destroy(),
         )).grid(column=0, row=7, columnspan=5)
 
         self._configure_grid(parent)

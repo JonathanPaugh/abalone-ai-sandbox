@@ -201,6 +201,7 @@ class App:
         """
         self._model.apply_config(config)
         self._reset_game()
+        self._view.render(self._model)
 
     def _apply_undo_item(self, item: GameHistoryItem):
         if not item or not item.move:
@@ -264,7 +265,8 @@ class App:
                 self._dispatch(self._set_pause, True),
             ),
             on_confirm_settings=lambda config: (
-                self._dispatch(self._apply_config, config),
+                self._update_dispatcher.put(lambda: self._dispatch(self._apply_config, config)),
+                self._dispatch(self._set_pause, False),
             ),
             on_click_board=lambda cell: (
                 self._dispatch(self._select_cell, cell),
