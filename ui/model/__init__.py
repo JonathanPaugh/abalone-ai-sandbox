@@ -169,17 +169,16 @@ class Model:
         """
         self.config = config
 
-    def apply_move(self, move: Move) -> callable:
+    def apply_move(self, move: Move):
         """
         Applies the given move to the game board.
         :param move: the move to apply
-        :return: a callable that starts the next move
         """
         self.selection = None
-        self.game.apply_move(move)
 
-        move_end_time = time.time()
-        self.history.append(GameHistoryItem(self.move_start_time, move_end_time, move))
+        self.stop_timer()
+        self.game.apply_move(move)
+        self.history.append(GameHistoryItem(self.move_start_time, time.time(), move))
 
     def next_turn(self, on_timer: callable, on_timeout: callable, on_game_end: callable):
         """

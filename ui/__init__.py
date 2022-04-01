@@ -40,6 +40,7 @@ class App:
         self._agent = Agent()
         self._update_dispatcher = Dispatcher()
         self.paused = False
+        self.allow_move = True
 
     def _start_game(self):
         """
@@ -127,11 +128,13 @@ class App:
         debug.Debug.log(F"--- Next Turn: {self._model.game_turn} ---", debug.DebugType.Game)
 
         self._model.next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
-                              self._apply_timeout_move,
+                              lambda: self._update_dispatcher.put(self._apply_timeout_move),
                               self.end_game)
 
         if self._model.config.get_player_type(self._model.game_turn) is PlayerType.COMPUTER:
             self._process_agent_move()
+
+        self.allow_move = True
 
     def _process_agent_move(self):
         """
@@ -148,7 +151,7 @@ class App:
             self._agent.search(self._model.game_board,
                                player_color,
                                self._set_timeout_move,
-                               self._apply_timeout_move)
+                               lambda: self._update_dispatcher.put(self._apply_timeout_move))
 
     def _apply_move(self, move: Move):
         """
@@ -156,6 +159,11 @@ class App:
         :param move: the Move to apply
         :return: None
         """
+        if not self.allow_move:
+            return
+
+        self.allow_move = False
+
         if not move:
             debug.Debug.log(F"Warning: Apply move called with empty move, generating random move",
                             debug.DebugType.Warning)
