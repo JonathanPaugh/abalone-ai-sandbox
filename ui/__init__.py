@@ -16,7 +16,7 @@ from lib.dispatcher import Dispatcher
 from ui.model import Model, GameHistoryItem
 from ui.view import View
 from ui.constants import FPS
-import ui.model.config as config
+from ui.model.config import Config
 import ui.debug
 
 if TYPE_CHECKING:
@@ -200,7 +200,7 @@ class App:
         self._stop_agents()
         self._apply_move(self._model.timeout_move)
 
-    def _apply_config(self, config: config.Config):
+    def _apply_config(self, config: Config):
         """
         Applies the given config and starts a new game.
         :param config: the new Config to use
@@ -295,10 +295,10 @@ class App:
         self._stop_agents()
 
     def _stop_agents(self):
-        self._rally_agents(lambda agent: agent.toggle_paused())
+        self._rally_agents(lambda agent: agent.stop())
 
     def _toggle_agents_paused(self):
-        self._rally_agents(lambda agent: agent.stop())
+        self._rally_agents(lambda agent: agent.toggle_paused())
 
     def _rally_agents(self, callback: callable):
         """

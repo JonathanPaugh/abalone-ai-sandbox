@@ -9,6 +9,9 @@ from ui.debug import Debug
 
 
 class Search:
+    """
+    An interface around Abalone search logic.
+    """
 
     def __init__(self):
         self.heuristic = None
@@ -16,17 +19,30 @@ class Search:
         self._paused = False
 
     def start(self, board: Board, color: Color, on_find: callable):
+        """
+        Starts the search.
+        """
         self._stopped = False
+        exhausted = True
         try:
             self._search(board, color, on_find)
         except StopIteration:
-            pass
+            exhausted = False
+            Debug.log("receive interrupt")
+
+        print(f"search result: {'exhausted' if exhausted else 'timeout'}")
 
     def stop(self):
+        """
+        Stops the search.
+        """
         self._paused = False
         self._stopped = True
 
     def toggle_paused(self):
+        """
+        Pauses or unpauses the search.
+        """
         self._paused = not self._paused
 
     def _search(self, board: Board, color: Color, on_find: callable):
@@ -58,7 +74,7 @@ class Search:
             move_board = deepcopy(board)
             move_board.apply_move(move)
 
-            move_score = -self._negamax(board, color, depth - 1, -beta, -alpha, -perspective)
+            move_score = -self._negamax(move_board, color, depth - 1, -beta, -alpha, -perspective)
             if move_score > best_score:
                 best_score = move_score
 
