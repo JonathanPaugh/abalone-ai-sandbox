@@ -12,7 +12,7 @@ from agent.state_generator import StateGenerator
 from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
-from agent.default import Agent
+from agent.brandon import BrandonAgent as Agent
 from lib.dispatcher import Dispatcher
 from ui.model import Model, GameHistoryItem
 from ui.view import View

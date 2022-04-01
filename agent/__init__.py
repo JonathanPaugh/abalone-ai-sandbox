@@ -7,7 +7,7 @@ from core.color import Color
 
 class BaseAgent(ABC):
     """
-    An interface for an Abalone agent.
+    An abstract class for an Abalone agent.
     """
 
     @abstractmethod
