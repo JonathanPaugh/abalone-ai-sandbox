@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from agent import BaseAgent
+from agent.base import BaseAgent
 from agent.default.agent_thread import AgentThread
 from agent.default.search import Search
 from ui.model.heuristic_type import HeuristicType

@@ -9,7 +9,6 @@ from time import sleep
 
 from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.state_generator import StateGenerator
-from agent.brandon import BrandonAgent as Agent
 from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
@@ -37,7 +36,7 @@ class App:
     def __init__(self):
         self._model = Model()
         self._view = View()
-        self._agent = Agent()
+        self._agents = None
         self._update_dispatcher = Dispatcher()
         self.paused = False
         self.allow_move = True
@@ -46,14 +45,24 @@ class App:
         """
         Starts the game by applying a random move to the first player.
         """
-        if self._model.config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
+        config = self._model.config
+
+        self._agents = {
+            Color.BLACK: config.agent_type_p1.create() if config.player_type_p1 is PlayerType.COMPUTER else None,
+            Color.WHITE: config.agent_type_p2.create() if config.player_type_p2 is PlayerType.COMPUTER else None,
+        }
+
+        if config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
             self._apply_random_move()
 
     def _stop_game(self):
         if self.paused:
             self._set_pause(False)
         self._model.stop_timer()
-        self._agent.stop()
+
+        for agent in self._agents.values():
+            agent.stop()
+
         self._update_dispatcher.clear()
 
     def _set_pause(self, pause: bool):
@@ -62,7 +71,10 @@ class App:
     def _toggle_pause(self):
         self.paused = not self.paused
         self._model.toggle_pause()
-        self._agent.toggle_paused()
+
+        for agent in self._agents.values():
+            agent.toggle_paused()
+
         self._view.render(self._model)
 
     def _undo(self):
@@ -147,11 +159,12 @@ class App:
         player_type = config.get_player_type(player_color)
 
         if player_type is PlayerType.COMPUTER:
-            self._agent.set_heuristic_type(config.get_player_heuristic_type(player_color))
-            self._agent.start(self._model.game_board,
-                               player_color,
-                               self._set_timeout_move,
-                               lambda: self._update_dispatcher.put(self._apply_timeout_move))
+            agent = self._agents[player_color]
+            agent.set_heuristic_type(config.get_player_heuristic_type(player_color))
+            agent.start(self._model.game_board,
+                        player_color,
+                        self._set_timeout_move,
+                        lambda: self._update_dispatcher.put(self._apply_timeout_move))
 
     def _apply_move(self, move: Move):
         """
@@ -190,7 +203,9 @@ class App:
         Applies the currently set timeout move for current player.
         Waits for agent to stop running before applying.
         """
-        self._agent.stop()
+        for agent in self._agents.values():
+            agent.stop()
+
         self._apply_move(self._model.timeout_move)
 
     def _apply_config(self, config: config.Config):
@@ -285,4 +300,5 @@ class App:
         self._view.render(self._model)
         self._start_game()
         self._run_main_loop()
-        self._agent.stop()
+        for agent in self._agents.values():
+            agent.stop()

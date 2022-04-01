@@ -4,6 +4,7 @@ from tkinter.ttk import Frame, Label, Button
 from core.board_layout import BoardLayout
 from core.player_type import PlayerType
 from ui.model.heuristic_type import HeuristicType
+from ui.model.agent_type import AgentType
 from ui.model.config import Config
 
 
@@ -82,6 +83,8 @@ class SettingsUI:
 
         heuristic_type_p1, heuristic_type_p2 = self._mount_heuristic_types(parent, 6)
 
+        agent_type_p1, agent_type_p2 = self._mount_agent_types(parent, 7)
+
         Button(parent, text="Confirm", command=lambda: (
             self._on_close(Config(
                 next((v for k, v in self.STARTING_LAYOUT_MAP.items() if layout.get() == k), starting_layout),
@@ -92,9 +95,11 @@ class SettingsUI:
                 float(time_limit_p2.get()),
                 HeuristicType(heuristic_type_p1.get()),
                 HeuristicType(heuristic_type_p2.get()),
+                AgentType(agent_type_p1.get()),
+                AgentType(agent_type_p2.get()),
             )),
             self.destroy(),
-        )).grid(column=0, row=7, columnspan=5)
+        )).grid(column=0, row=8, columnspan=5)
 
         self._configure_grid(parent)
 
@@ -138,6 +143,13 @@ class SettingsUI:
         p1 = self._mount_dropdown(parent, row, 1, "e", self.config.heuristic_type_p1.value, *options)
         self._mount_label(parent, row, 2, "", "Heuristic Type")
         p2 = self._mount_dropdown(parent, row, 3, "w", self.config.heuristic_type_p2.value, *options)
+        return p1, p2
+
+    def _mount_agent_types(self, parent, row):
+        options = [agent_type.value for agent_type in AgentType]
+        p1 = self._mount_dropdown(parent, row, 1, "e", self.config.agent_type_p1.value, *options)
+        self._mount_label(parent, row, 2, "", "Agent Type")
+        p2 = self._mount_dropdown(parent, row, 3, "w", self.config.agent_type_p2.value, *options)
         return p1, p2
 
     def _mount_label(self, parent, row, col, anchor, label):

@@ -1,6 +1,6 @@
 from threading import Thread
 
-from agent import BaseAgent
+from agent.base import BaseAgent
 from agent.brandon.search import Search
 from core.board import Board
 from core.color import Color
