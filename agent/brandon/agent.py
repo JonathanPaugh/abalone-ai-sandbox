@@ -18,6 +18,10 @@ class BrandonAgent(BaseAgent):
         self._search = Search()
         self._thread = None
 
+    @property
+    def is_searching(self):
+        return self._thread is not None and self._thread.is_alive()
+
     def start(self, board: Board, player: Color, on_find: callable, on_complete: callable):
         thread = Thread(target=agent_thread, args=(self._search, board, player, on_find, on_complete))
         thread.daemon = True

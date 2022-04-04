@@ -17,6 +17,10 @@ class DefaultAgent(BaseAgent):
         self._search = Search()
         self._thread = None
 
+    @property
+    def is_searching(self):
+        return self._thread is not None and self._thread.is_alive()
+
     def start(self, board: Board, player: Color, on_find: callable, on_complete: callable):
         """
         Start the search using a board and a player as a starting state.

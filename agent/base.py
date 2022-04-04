@@ -11,6 +11,12 @@ class BaseAgent(ABC):
     """
 
     @abstractmethod
+    def is_searching(self) -> bool:
+        """
+        Determine if the agent search thread is alive.
+        """
+
+    @abstractmethod
     def start(self, board: Board, player: Color, on_find: callable, on_complete: callable):
         """
         Start the search using a board and a player as a starting state.

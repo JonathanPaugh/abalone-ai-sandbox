@@ -4,7 +4,6 @@ Defines the game representation.
 from core.board import Board
 from core.board_layout import BoardLayout
 from core.color import Color
-import ui.model.config as config
 from ui.debug import DebugType, Debug
 
 

@@ -28,6 +28,10 @@ class Search:
         self._stopped = False
         self._paused = False
 
+    @property
+    def stopped(self):
+        return self._stopped
+
     def start(self, board: Board, color: Color, on_find: callable):
         """
         Starts the search.
