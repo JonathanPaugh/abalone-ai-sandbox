@@ -166,7 +166,7 @@ class App:
         if isinstance(agent, PonderingAgent):
             print(self._model.refutation_table,
                 Zobrist.create_board_hash(self._model.game_board),
-                agent_move)
+                str(agent_move))
 
         if agent_move:
             self._update_dispatcher.put(lambda: self._apply_move(agent_move))
@@ -250,9 +250,9 @@ class App:
         :param config: the new Config to use
         :return: None
         """
-        self._apply_heuristic_config(config)
         self._model.apply_config(config)
         self._reset_game()
+        self._apply_heuristic_config(config)
         self._view.render(self._model)
 
     def _apply_heuristic_config(self, config: Config = None):
