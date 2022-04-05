@@ -160,11 +160,9 @@ class App:
             return
 
         agent = self._agents[player_color]
-        agent_move = agent.get_refutation_move(self._model.game_board)
-
-        if isinstance(agent, PonderingAgent):
-            print(Zobrist.create_board_hash(self._model.game_board),
-                "->", str(agent_move))
+        agent_move = (agent.get_refutation_move(self._model.game_board)
+            if isinstance(agent, PonderingAgent)
+            else None)  # can we assume that every agent has a refutation table?
 
         if agent_move:
             self._update_dispatcher.put(lambda: self._apply_move(agent_move))

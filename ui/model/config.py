@@ -6,24 +6,21 @@ from ui.model.heuristic_type import HeuristicType
 from ui.model.agent_type import AgentType
 
 
-DEFAULT_LAYOUT = BoardLayout.BELGIAN_DAISY
-
-
 @dataclass
 class Config:
     """
     Config defines the customization settings for the program.
     """
 
-    layout: BoardLayout = DEFAULT_LAYOUT
+    layout: BoardLayout = BoardLayout.BELGIAN_DAISY
     move_limit: int = 40
-    player_type_p1: PlayerType = PlayerType.HUMAN
+    player_type_p1: PlayerType = PlayerType.COMPUTER
     player_type_p2: PlayerType = PlayerType.COMPUTER
     time_limit_p1: float = 10.0
     time_limit_p2: float = 10.0
-    heuristic_type_p1: HeuristicType = HeuristicType.WEIGHTED_NORMALIZED
+    heuristic_type_p1: HeuristicType = HeuristicType.BRANDON
     heuristic_type_p2: HeuristicType = HeuristicType.BRANDON
-    agent_type_p1: AgentType = AgentType.DEFAULT
+    agent_type_p1: AgentType = AgentType.BRANDON
     agent_type_p2: AgentType = AgentType.BRANDON_PONDERER
 
     @classmethod

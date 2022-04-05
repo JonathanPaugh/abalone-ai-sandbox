@@ -49,9 +49,9 @@ class Search:
         except StopIteration:
             exhausted = False
 
-        print(f"search result: {'exhausted' if exhausted else 'interrupted'}")
+        Debug.log(f"search result: {'exhausted' if exhausted else 'interrupted'}")
 
-        tt_hit_rate = self.__debug_num_tt_hits / self.__debug_num_tt_reads
+        tt_hit_rate = self.__debug_num_tt_hits / (self.__debug_num_tt_reads or 1)
         tt_hit_percent = tt_hit_rate * 100
         Debug.log(f"transposition table size: {len(self._transposition_table)} nodes")
         Debug.log(f"transposition table hit rate:"
@@ -95,17 +95,21 @@ class Search:
         self._handle_interrupts()
 
         self.__debug_num_tt_reads += 1
-        if board_hash in self._transposition_table: # and self._transposition_table[board_hash].depth >= depth:
+        cached_entry = (self._transposition_table[board_hash]
+            if board_hash in self._transposition_table
+            else None)
+
+        if cached_entry:
             self.__debug_num_tt_hits += 1
-            cached_entry = self._transposition_table[board_hash]
             if cached_entry.type == TranspositionTable.EntryType.PV:
                 return cached_entry.score
             elif cached_entry.type == TranspositionTable.EntryType.CUT:
                 alpha = max(alpha, cached_entry.score)
             elif cached_entry.type == TranspositionTable.EntryType.ALL:
                 beta = min(beta, cached_entry.score)
-        else:
-            cached_entry = None
+
+            if alpha >= beta:
+                return cached_entry.score
 
         if depth == 0:
             return self.heuristic.call(board, color) * perspective

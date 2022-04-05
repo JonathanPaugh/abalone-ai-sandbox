@@ -20,7 +20,6 @@ from core.selection import Selection
 from ui.model.game_history import GameHistory, GameHistoryItem
 from ui.model.config import Config
 from ui.constants import FPS
-from ui.debug import DebugType, Debug
 
 if TYPE_CHECKING:
     from core.hex import Hex

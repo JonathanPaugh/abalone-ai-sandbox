@@ -101,6 +101,7 @@ class BrandonPonderer(PonderingAgent):
 
     def ponder(self, board: Board, player: Color,
                on_find: callable = None, on_complete: callable = None):
+        self.clear_refutation_table()
         thread = self._create_ponder_search_thread(board, player, on_find, on_complete)
         self._search_mode = self.SearchMode.PONDER_SEARCH
         self._start_search(thread)
