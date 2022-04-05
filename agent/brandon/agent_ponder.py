@@ -1,3 +1,4 @@
+from math import inf
 from copy import deepcopy
 from threading import Thread
 
@@ -13,11 +14,33 @@ from ui.debug import Debug, DebugType
 
 
 def search_worker(search, board, color, on_find, on_complete):
-    search.start(board, color, on_find)
+    """
+    Manages the default search task.
+    :param search: a Search instance
+    :param board: a Board
+    :param color: a Color
+    :param on_find: a Callable[Move]
+    :param on_complete: a Callable
+    """
+    search.start(board, color, on_find=on_find)
     on_complete()
 
 def ponder_worker(search, refutation_table, board, color, on_find, on_complete):
-    NUM_PREDICTIONS = 2
+    """
+    Manages the pondering search task.
+    Caches a defined number of refutations for each opponent move.
+    :param search: a Search instance
+    :param refutation_table: a dict[Board, Move]
+    :param board: a Board
+    :param color: a Color
+    :param on_find: a Callable[Move, Move] mapping predictions to refutations
+    :param on_complete: a Callable
+    """
+
+    # The number of predictions i.e. refutations to cache.
+    # More predictions result in a higher hit rate but will keep the thread busy.
+    # Probably best as `inf` in competitive settings to maximize transposition table hits.
+    NUM_PREDICTIONS = 3
 
     # find x amount of most likely moves (ordered by heuristic)
     opponent_moves = StateGenerator.enumerate_board(board, color)
@@ -26,7 +49,9 @@ def ponder_worker(search, refutation_table, board, color, on_find, on_complete):
         move_board.apply_move(move),
         search.heuristic.call(move_board, color)
     )[-1], reverse=True)
-    opponent_moves = opponent_moves[:NUM_PREDICTIONS]
+
+    if NUM_PREDICTIONS != inf:
+        opponent_moves = opponent_moves[:NUM_PREDICTIONS]
 
     # determine refutations for each opponent move
     for opponent_move in opponent_moves:
@@ -38,7 +63,7 @@ def ponder_worker(search, refutation_table, board, color, on_find, on_complete):
             nonlocal best_move
             best_move = move
 
-        exhausted = search.start(agent_board, Color.next(color), set_best_move)
+        exhausted = search.start(agent_board, Color.next(color), on_find=set_best_move)
         if exhausted and best_move:
             Debug.log(f"set refutation for {opponent_move} -> {best_move}", DebugType.Agent)
             opponent_hash = Zobrist.create_board_hash(agent_board)

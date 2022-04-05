@@ -37,14 +37,14 @@ class Search:
     def stopped(self):
         return self._stopped
 
-    def start(self, board: Board, color: Color, on_find: callable):
+    def start(self, board: Board, color: Color, depth: int = 2, on_find: callable = None):
         """
         Starts the search.
         :return: a bool denoting whether the search was completed or not
         """
         self._stopped = False
         try:
-            self._search(board, color, on_find)
+            self._search(board, color, depth, on_find)
             exhausted = True
         except StopIteration:
             exhausted = False
@@ -73,7 +73,7 @@ class Search:
         """
         self._paused = not self._paused
 
-    def _search(self, board: Board, color: Color, on_find: callable):
+    def _search(self, board: Board, color: Color, depth: int, on_find: callable = None):
         moves = StateGenerator.enumerate_board(board, color)
         moves = self._order_moves(board, moves)
         alpha = -inf
@@ -85,10 +85,11 @@ class Search:
             move_board.apply_move(move)
             move_hash = Zobrist.update_board_hash(root_hash, board, move)
 
-            move_score = -self._negamax(move_board, move_hash, color, 1, -inf, -alpha, -1)
+            move_score = -self._negamax(move_board, move_hash, color, depth - 1, -inf, -alpha, -1)
             if move_score > alpha:
                 alpha = move_score
-                on_find(move)
+                if on_find:
+                    on_find(move)
                 Debug.log(f"new best move {move}/{move_score:.2f}")
 
     def _negamax(self, board, board_hash, color, depth, alpha, beta, perspective):

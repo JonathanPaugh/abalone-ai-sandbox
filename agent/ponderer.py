@@ -9,7 +9,8 @@ from ui.debug import Debug, DebugType
 
 class PonderingAgent(BaseAgent):
     """
-    A base class for agents with pondering capabilities.
+    An abstract base class for agents with pondering capabilities.
+    Exposes an interface around a refutation table for mapping boards to refutation moves.
     """
 
     class SearchMode(Enum):
@@ -24,6 +25,11 @@ class PonderingAgent(BaseAgent):
         self._refutation_table = {}
 
     def get_refutation_move(self, board):
+        """
+        Gets the refutation move for the given board.
+        :param board: a Board
+        :return: a Move if refutation move is cached else None
+        """
         board_hash = Zobrist.create_board_hash(board)
 
         if board_hash in self._refutation_table:
@@ -38,10 +44,18 @@ class PonderingAgent(BaseAgent):
             else None)
 
     def set_refutation_move(self, board, refutation_move):
+        """
+        Sets the refutation move for the given board.
+        :param board: a Board
+        :param refutation_move: a Move
+        """
         board_hash = Zobrist.create_board_hash(board)
         self._refutation_table[board_hash] = refutation_move
 
     def clear_refutation_table(self):
+        """
+        Clears the refutation table.
+        """
         self._refutation_table.clear()
 
     @abstractmethod
