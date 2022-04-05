@@ -3,6 +3,7 @@ from enum import Enum, auto
 from core.board import Board
 from core.color import Color
 from agent.base import BaseAgent
+from agent.zobrist import Zobrist
 
 
 class PonderingAgent(BaseAgent):
@@ -16,6 +17,20 @@ class PonderingAgent(BaseAgent):
         """
         NORMAL_SEARCH = auto()
         PONDER_SEARCH = auto()
+
+    def __init__(self):
+        super().__init__()
+        self._refutation_table = {}
+
+    def get_refutation_move(self, board):
+        board_hash = Zobrist.create_board_hash(board)
+        return (self._refutation_table[board_hash]
+            if board_hash in self._refutation_table
+            else None)
+
+    def set_refutation_move(self, board, refutation_move):
+        board_hash = Zobrist.create_board_hash(board)
+        self._refutation_table[board_hash] = refutation_move
 
     @abstractmethod
     def ponder(self, board: Board, player: Color,

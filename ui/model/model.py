@@ -38,7 +38,6 @@ class Model:
     timer: IntervalTimer = None
     move_start_time = None
     timeout_move: Move = None
-    refutation_table: dict[Move, Move] = field(default_factory=dict)
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
     config: Config = field(default_factory=Config.from_default)
@@ -202,19 +201,6 @@ class Model:
     def stop_timer(self):
         if self.timer:
             self.timer.stop()
-
-    def get_refutation_move(self, board):
-        board_hash = Zobrist.create_board_hash(board)
-        return (self.refutation_table[board_hash]
-            if board_hash in self.refutation_table
-            else None)
-
-    def set_refutation_move(self, board, refutation):
-        board_hash = Zobrist.create_board_hash(board)
-        self.refutation_table[board_hash] = refutation
-
-    def clear_refutation_table(self):
-        self.refutation_table.clear()
 
     def _timer_launch(self, on_timer: callable, on_timeout: callable):
         """

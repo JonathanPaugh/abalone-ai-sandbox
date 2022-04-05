@@ -160,13 +160,11 @@ class App:
             return
 
         agent = self._agents[player_color]
-
-        agent_move = self._model.get_refutation_move(self._model.game_board)
+        agent_move = agent.get_refutation_move(self._model.game_board)
 
         if isinstance(agent, PonderingAgent):
-            print(self._model.refutation_table,
-                Zobrist.create_board_hash(self._model.game_board),
-                str(agent_move))
+            print(Zobrist.create_board_hash(self._model.game_board),
+                "->", str(agent_move))
 
         if agent_move:
             self._update_dispatcher.put(lambda: self._apply_move(agent_move))
@@ -190,17 +188,7 @@ class App:
         if next_agent.is_searching or not isinstance(next_agent, PonderingAgent):
             return
 
-        self._model.clear_refutation_table()
-        next_agent.ponder(board=self._model.game_board,
-                          player=player_color,
-                          on_find=lambda move, refutation: (
-                              move_board := deepcopy(self._model.game_board),
-                              move_board.apply_move(move),
-                              self._set_refutation_move(move_board, refutation)
-                          ))
-
-    def _set_refutation_move(self, opponent_move: Move, agent_move: Move):
-        self._model.set_refutation_move(opponent_move, agent_move)
+        next_agent.ponder(board=self._model.game_board, player=player_color)
 
     def _apply_move(self, move: Move):
         """
@@ -213,7 +201,7 @@ class App:
 
         self.allow_move = False
 
-        self._stop_agents()
+        self._notify_agents(move)
 
         if not move:
             Debug.log(F"Warning: Apply move called with empty move, generating random move",
@@ -348,6 +336,9 @@ class App:
 
     def _stop_agents(self):
         self._rally_agents(lambda agent: agent.stop())
+
+    def _notify_agents(self, move):
+        self._rally_agents(lambda agent: agent.apply_move(move))
 
     def _toggle_agents_paused(self):
         self._rally_agents(lambda agent: agent.toggle_paused())

@@ -4,18 +4,22 @@ from threading import Thread
 from agent.ponderer import PonderingAgent
 from agent.brandon.search import Search
 from agent.state_generator import StateGenerator
+from agent.zobrist import Zobrist
 from core.board import Board
 from core.color import Color
+from core.move import Move
 from ui.model.heuristic_type import HeuristicType
+from ui.debug import Debug, DebugType
 
 
 def search_worker(search, board, color, on_find, on_complete):
     search.start(board, color, on_find)
     on_complete()
 
-def ponder_worker(search, board, color, on_find, on_complete):
+def ponder_worker(search, refutation_table, board, color, on_find, on_complete):
     NUM_PREDICTIONS = 2
 
+    # find x amount of most likely moves (ordered by heuristic)
     opponent_moves = StateGenerator.enumerate_board(board, color)
     opponent_moves.sort(key=lambda move: (
         move_board := deepcopy(board),
@@ -24,6 +28,7 @@ def ponder_worker(search, board, color, on_find, on_complete):
     )[-1], reverse=True)
     opponent_moves = opponent_moves[:NUM_PREDICTIONS]
 
+    # determine refutations for each opponent move
     for opponent_move in opponent_moves:
         agent_board = deepcopy(board)
         agent_board.apply_move(opponent_move)
@@ -35,8 +40,11 @@ def ponder_worker(search, board, color, on_find, on_complete):
 
         exhausted = search.start(agent_board, Color.next(color), set_best_move)
         if exhausted and best_move:
-            print("set refutation for", opponent_move, "->", best_move)
-            on_find(opponent_move, best_move)
+            Debug.log(f"set refutation for {opponent_move} -> {best_move}", DebugType.Agent)
+            opponent_hash = Zobrist.create_board_hash(agent_board)
+            refutation_table[opponent_hash] = best_move
+            if on_find:
+                on_find(opponent_move, best_move)
 
         if search.stopped:
             break
@@ -46,8 +54,12 @@ def ponder_worker(search, board, color, on_find, on_complete):
 
 
 class BrandonPonderer(PonderingAgent):
+    """
+    Demonstrates usage of the pondering agent interface.
+    """
 
     def __init__(self):
+        super().__init__()
         self._search = Search()
         self._search_mode = None
         self._thread = None
@@ -70,6 +82,7 @@ class BrandonPonderer(PonderingAgent):
                                      on_find: callable, on_complete: callable):
         return Thread(target=ponder_worker, args=(
             self._search,
+            self._refutation_table,
             board,
             player,
             on_find,
@@ -86,7 +99,8 @@ class BrandonPonderer(PonderingAgent):
         self._search_mode = self.SearchMode.NORMAL_SEARCH
         self._start_search(thread)
 
-    def ponder(self, board: Board, player: Color, on_find: callable, on_complete: callable = None):
+    def ponder(self, board: Board, player: Color,
+               on_find: callable = None, on_complete: callable = None):
         thread = self._create_ponder_search_thread(board, player, on_find, on_complete)
         self._search_mode = self.SearchMode.PONDER_SEARCH
         self._start_search(thread)
@@ -97,6 +111,9 @@ class BrandonPonderer(PonderingAgent):
 
     def toggle_paused(self):
         self._search.toggle_paused()
+
+    def apply_move(self, move: Move):
+        self.stop()
 
     def set_heuristic_type(self, heuristic_type: HeuristicType):
         self._search.heuristic = heuristic_type
