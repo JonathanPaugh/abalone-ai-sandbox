@@ -42,6 +42,21 @@ class Move:
 
         return False
 
+    def get_back(self) -> Hex:
+        """
+        :return: Cell in back of selection relative to move direction.
+        :precondition: Move is inline.
+        """
+        if not self.is_inline():
+            return None
+
+        test_cell = self.selection.start.add(self.direction.value)
+
+        if test_cell in self.selection.to_array():
+            return self.selection.start
+
+        return self.selection.end
+
     def get_front(self) -> Hex:
         """
         :return: Cell in front of selection relative to move direction.
