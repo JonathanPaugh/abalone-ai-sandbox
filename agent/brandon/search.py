@@ -22,7 +22,11 @@ class Search:
             + WEIGHT_SUMITO * move.is_sumito(board))
 
     @classmethod
-    def _order_moves(cls, board, moves):
+    def _order_moves(cls, board, moves, best_move=None):
+        if best_move:
+            # list principal variation first
+            return [best_move, *[move for move in moves if move != best_move]]
+
         return sorted(moves, key=lambda move: cls._estimate_move_score(board, move), reverse=True)
 
     def __init__(self):
@@ -75,13 +79,14 @@ class Search:
 
     def _search(self, board: Board, color: Color, depth: int, on_find: callable = None):
         moves = StateGenerator.enumerate_board(board, color)
-        moves = self._order_moves(board, moves)
         root_hash = Zobrist.create_board_hash(board)
+        best_move = None
 
         for d in range(1, depth + 1):
             alpha = -inf
             time_start = time()
 
+            moves = self._order_moves(board, moves, best_move)
             for move in moves:
                 self._handle_interrupts()
                 move_board = deepcopy(board)
@@ -91,6 +96,7 @@ class Search:
                 move_score = -self._negamax(move_board, move_hash, color, d - 1, -inf, -alpha, -1)
                 if move_score > alpha:
                     alpha = move_score
+                    best_move = move
                     if on_find:
                         on_find(move)
                     Debug.log(f"new best move {move}/{move_score:.2f}")
