@@ -47,7 +47,9 @@ class Board(HexGrid):
         """
         super().__init__(size=BOARD_SIZE)
         self._layout = None
-        self._items = None
+        self.__items = None
+        self.__items_dirty = None
+        self.__items_nonempty = None
 
     @property
     def layout(self) -> list[list[int]]:
@@ -60,16 +62,46 @@ class Board(HexGrid):
     def enumerate(self) -> list[tuple[Hex, Color]]:
         """
         Returns all positions and values on the game board a la `enumerate`.
-        :return: a list of (Hex, T) tuples
+        :return: a list of (Hex, Color) tuples
         """
-        if not self._items:
-            self._items = []
+        if not self.__items:
+            items = []
             for r, line in enumerate(self._data):
                 for q, val in enumerate(line):
                     q += self.offset(r)
                     item = (Hex(q, r), val)
-                    self._items.append(item)
-        return self._items
+                    items.append(item)
+            self.__items = items
+
+        if self.__items_dirty:
+            self.__items_dirty = False
+            items = self.__items
+            i = 0
+            for r, line in enumerate(self._data):
+                for q, val in enumerate(line):
+                    q += self.offset(r)
+                    item = (Hex(q, r), val)
+                    items[i] = item
+                    i += 1
+
+        return self.__items
+
+    def enumerate_nonempty(self) -> list[tuple[Hex, Color]]:
+        """
+        Enumerates all non-empty (cell, value) pairs.
+        :return: a list of (Hex, Color) tuples
+        """
+        if not self.__items_nonempty:
+            items = []
+            for r, line in enumerate(self._data):
+                for q, val in enumerate(line):
+                    if val is None:
+                        continue
+                    q += self.offset(r)
+                    item = (Hex(q, r), val)
+                    items.append(item)
+            self.__items_nonempty = items
+        return self.__items_nonempty
 
     def cell_in_bounds(self, cell: Hex) -> bool:
         """
@@ -271,5 +303,15 @@ class Board(HexGrid):
         super().__setitem__(cell, value)
         if cell in self:
             # mark enumeration struct as in need of recalculation
+
             # TODO(B): only change the value for the associated item
-            self._items = None
+            # how to reliably generate a linear index for an item by cell?
+            # most likely isn't possible for non-empty cells without linear
+            # search -- though still more performant than regenerating the
+            # entire board cache
+            self.__items_dirty = True
+
+            # TODO(B): possible mem optimization -- use dirty flag here as well
+            # length of nonempty sequence can be determined by current length
+            # plus delta (+1 if `None`->`not None`, -1 if `not None`->`None`)
+            self.__items_nonempty = None
