@@ -1,5 +1,5 @@
 from math import inf
-from time import sleep
+from time import time, sleep
 from copy import deepcopy
 from core.board import Board
 from core.color import Color
@@ -76,21 +76,26 @@ class Search:
     def _search(self, board: Board, color: Color, depth: int, on_find: callable = None):
         moves = StateGenerator.enumerate_board(board, color)
         moves = self._order_moves(board, moves)
-        alpha = -inf
         root_hash = Zobrist.create_board_hash(board)
 
-        for move in moves:
-            self._handle_interrupts()
-            move_board = deepcopy(board)
-            move_board.apply_move(move)
-            move_hash = Zobrist.update_board_hash(root_hash, board, move)
+        for d in range(1, depth + 1):
+            alpha = -inf
+            time_start = time()
 
-            move_score = -self._negamax(move_board, move_hash, color, depth - 1, -inf, -alpha, -1)
-            if move_score > alpha:
-                alpha = move_score
-                if on_find:
-                    on_find(move)
-                Debug.log(f"new best move {move}/{move_score:.2f}")
+            for move in moves:
+                self._handle_interrupts()
+                move_board = deepcopy(board)
+                move_board.apply_move(move)
+                move_hash = Zobrist.update_board_hash(root_hash, board, move)
+
+                move_score = -self._negamax(move_board, move_hash, color, d - 1, -inf, -alpha, -1)
+                if move_score > alpha:
+                    alpha = move_score
+                    if on_find:
+                        on_find(move)
+                    Debug.log(f"new best move {move}/{move_score:.2f}")
+
+            Debug.log(f"complete search at depth {d} in {time() - time_start:.2f}s")
 
     def _negamax(self, board, board_hash, color, depth, alpha, beta, perspective):
         self._handle_interrupts()
