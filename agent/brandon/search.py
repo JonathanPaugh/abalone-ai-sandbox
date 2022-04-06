@@ -36,6 +36,9 @@ class Search:
         self._transposition_table = {}
         self.__debug_num_tt_reads = 0
         self.__debug_num_tt_hits = 0
+        self.__debug_num_nodes_enumerated = 0
+        self.__debug_num_nodes_pruned = 0
+        self.__debug_num_plies_expanded = 0
 
     @property
     def stopped(self):
@@ -54,13 +57,7 @@ class Search:
             exhausted = False
 
         Debug.log(f"search result: {'exhausted' if exhausted else 'interrupted'}")
-
-        tt_hit_rate = self.__debug_num_tt_hits / (self.__debug_num_tt_reads or 1)
-        tt_hit_percent = tt_hit_rate * 100
-        Debug.log(f"transposition table size: {len(self._transposition_table)} nodes")
-        Debug.log(f"transposition table hit rate:"
-            f" {self.__debug_num_tt_hits}/{self.__debug_num_tt_reads}"
-            f" ({tt_hit_percent:.2f}%)")
+        self.__print_debug_report()
 
         return exhausted
 
@@ -79,12 +76,15 @@ class Search:
 
     def _search(self, board: Board, color: Color, depth: int, on_find: callable = None):
         moves = StateGenerator.enumerate_board(board, color)
+        self.__debug_num_nodes_enumerated += len(moves)
+
         root_hash = Zobrist.create_board_hash(board)
         best_move = None
 
         for d in range(1, depth + 1):
-            alpha = -inf
             time_start = time()
+            alpha = -inf
+            self.__debug_num_plies_expanded += 1
 
             moves = self._order_moves(board, moves, best_move)
             for move in moves:
@@ -132,6 +132,9 @@ class Search:
         true_color = color if perspective == 1 else Color.next(color)
 
         moves = StateGenerator.enumerate_board(board, true_color)
+        self.__debug_num_nodes_enumerated += len(moves)
+        self.__debug_num_plies_expanded += 1
+
         for move in moves:
             move_board = deepcopy(board)
             move_board.apply_move(move)
@@ -144,6 +147,7 @@ class Search:
 
             alpha = max(alpha, best_score)
             if alpha >= beta:
+                self.__debug_num_nodes_pruned += len(moves) - moves.index(move) - 1
                 break
 
         if board_hash in self._transposition_table:
@@ -171,3 +175,21 @@ class Search:
 
         if self._stopped:
             raise StopIteration
+
+    def __print_debug_report(self):
+        tt_hit_rate = self.__debug_num_tt_hits / (self.__debug_num_tt_reads or 1)
+        tt_hit_percent = tt_hit_rate * 100
+        Debug.log(f"transposition table size: {len(self._transposition_table)} nodes")
+        Debug.log(f"transposition table hit rate:"
+            f" {self.__debug_num_tt_hits}/{self.__debug_num_tt_reads}"
+            f" ({tt_hit_percent:.2f}%)")
+
+        prune_rate = self.__debug_num_nodes_pruned / (self.__debug_num_nodes_enumerated or 1)
+        prune_percent = prune_rate * 100
+        Debug.log(f"nodes enumerated: {self.__debug_num_nodes_enumerated}")
+        Debug.log(f"nodes pruned: {self.__debug_num_nodes_pruned} ({prune_percent:.2f}%)")
+
+        num_nodes_explored = self.__debug_num_nodes_enumerated - self.__debug_num_nodes_pruned
+        effective_branching_factor = num_nodes_explored / self.__debug_num_plies_expanded
+        actual_branching_factor = self.__debug_num_nodes_enumerated / self.__debug_num_plies_expanded
+        Debug.log(f"effective branching factor: {effective_branching_factor:.2f}/{actual_branching_factor:.2f}")
