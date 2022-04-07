@@ -315,3 +315,11 @@ class Board(HexGrid):
             # length of nonempty sequence can be determined by current length
             # plus delta (+1 if `None`->`not None`, -1 if `not None`->`None`)
             self.__items_nonempty = None
+
+    def copy_state(self, board):
+        data = self._data
+        for r, line in enumerate(board._data):
+            for q, val in enumerate(line):
+                data[r][q] = val
+        self.__items = None
+        self.__items_nonempty = None

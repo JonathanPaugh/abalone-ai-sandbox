@@ -46,37 +46,42 @@ def ponder_worker(search, refutation_table, board, color, on_find, on_complete):
     # Probably best as `inf` in competitive settings to maximize transposition table hits.
     NUM_PREDICTIONS = 3
 
+    temp_board = deepcopy(board)
+    def find_move_score(move):
+        temp_board.apply_move(move)
+        move_score = search.heuristic.call(temp_board, color)
+        temp_board.copy_state(board)
+        return move_score
+
     # find x amount of most likely moves (ordered by heuristic)
     opponent_moves = StateGenerator.enumerate_board(board, color)
-    opponent_moves.sort(key=lambda move: (
-        move_board := deepcopy(board),
-        move_board.apply_move(move),
-        search.heuristic.call(move_board, color)
-    )[-1], reverse=True)
+    opponent_moves.sort(key=find_move_score, reverse=True)
 
     if NUM_PREDICTIONS != inf:
         opponent_moves = opponent_moves[:NUM_PREDICTIONS]
 
+    best_move = None
+    def set_best_move(move):
+        nonlocal best_move
+        best_move = move
+
     # determine refutations for each opponent move
     for opponent_move in opponent_moves:
-        agent_board = deepcopy(board)
-        agent_board.apply_move(opponent_move)
+        temp_board.apply_move(opponent_move)
 
         best_move = None
-        def set_best_move(move):
-            nonlocal best_move
-            best_move = move
-
-        exhausted = search.start(agent_board, Color.next(color), on_find=set_best_move)
+        exhausted = search.start(temp_board, Color.next(color), on_find=set_best_move)
         if exhausted and best_move:
             Debug.log(f"set refutation for {opponent_move} -> {best_move}", DebugType.Agent)
-            opponent_hash = Zobrist.create_board_hash(agent_board)
+            opponent_hash = Zobrist.create_board_hash(temp_board)
             refutation_table[opponent_hash] = best_move
             if on_find:
                 on_find(opponent_move, best_move)
 
         if search.stopped:
             break
+
+        temp_board.copy_state(board)
 
     if on_complete:
         on_complete()

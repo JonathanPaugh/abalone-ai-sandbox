@@ -102,6 +102,7 @@ class Search:
 
         root_hash = Zobrist.create_board_hash(board)
         best_move = None
+        temp_board = deepcopy(board)
 
         for d in range(1, depth + 1):
             time_start = time()
@@ -113,12 +114,11 @@ class Search:
 
             for move in moves:
                 self._handle_interrupts()
-                move_board = deepcopy(board)
-                move_board.apply_move(move)
+                temp_board.apply_move(move)
                 move_hash = Zobrist.update_board_hash(root_hash, board, move)
 
                 move_score = -self._negascout(
-                    board=move_board,
+                    board=temp_board,
                     board_hash=move_hash,
                     color=color,
                     depth=d - 1,
@@ -127,7 +127,6 @@ class Search:
                     perspective=-1,
                     is_pv=is_first_move
                 )
-                is_first_move = False
 
                 if move_score > alpha:
                     alpha = move_score
@@ -135,6 +134,9 @@ class Search:
                     if on_find:
                         on_find(move)
                     Debug.log(f"new best move {move}/{move_score:.2f}")
+
+                temp_board.copy_state(board)
+                is_first_move = False
 
             Debug.log(f"complete search at depth {d} in {time() - time_start:.2f}s")
 
@@ -175,6 +177,7 @@ class Search:
         best_score = -inf
         best_move = cached_entry.move if cached_entry else None
         true_color = color if perspective == 1 else Color.next(color)
+        temp_board = deepcopy(board)
 
         moves = StateGenerator.enumerate_board(board, true_color)
         moves = self._order_moves(board, moves, best_move)
@@ -183,12 +186,11 @@ class Search:
 
         is_first_move = True
         for move in moves:
-            move_board = deepcopy(board)
-            move_board.apply_move(move)
+            temp_board.apply_move(move)
             move_hash = Zobrist.update_board_hash(board_hash, board, move)
 
             move_score = -self._negascout(
-                board=move_board,
+                board=temp_board,
                 board_hash=move_hash,
                 color=color,
                 depth=depth - 1,
@@ -197,7 +199,6 @@ class Search:
                 perspective=-perspective,
                 is_pv=is_first_move
             )
-            is_first_move = False
 
             if move_score > best_score:
                 best_score = move_score
@@ -207,6 +208,9 @@ class Search:
             if alpha >= beta:
                 self.__debug_num_nodes_pruned += len(moves) - moves.index(move) - 1
                 break
+
+            temp_board.copy_state(board)
+            is_first_move = False
 
         if board_hash in self._transposition_table:
             cached_entry = self._transposition_table[board_hash]
