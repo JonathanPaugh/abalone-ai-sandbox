@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from datetime import timedelta
 from time import sleep
 import json
-import os
 import traceback
 
 from agent.heuristics.heuristic_jonathan import Heuristic
@@ -375,7 +374,7 @@ class App:
             starting_layout = BoardLayout[starting_layout_str]
             game_history = GameHistory.decode(game_history_str)
             self._load_game_state(starting_layout, game_history)
-            Debug.log(f"Previous data dump loaded successfully", DebugType.Game)
+            Debug.log("Previous data dump loaded successfully", DebugType.Game)
         except Exception:
             Debug.log(f"WARNING: {DEBUG_FILEPATH} is corrupted", DebugType.Warning)
             Debug.log(traceback.format_exc(), DebugType.Warning)
