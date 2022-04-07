@@ -1,16 +1,34 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
+from core.hex import Hex, HexDirection
+from core.selection import Selection
 
 if TYPE_CHECKING:
     from core.board import Board, Color
-    from core.hex import Hex, HexDirection
-    from selection import Selection
 
 
 class Move:
+
+    @staticmethod
+    def decode_cell(cell_str):
+        col = int(cell_str[1]) - 1
+        row = 9 - (ord(cell_str[0]) - 65) - 1
+        return Hex(col, row)
+
+    @classmethod
+    def decode(cls, move_str):
+        direction, start, end = move_str[1:-1].split(", ")
+        return Move(
+            selection=Selection(cls.decode_cell(start), cls.decode_cell(end)),
+            direction=HexDirection[direction],
+        )
+
     def __init__(self, selection: Selection, direction: HexDirection):
         self.selection = selection
         self.direction = direction
+
+    def __str__(self):
+        return f"({self.direction.name}, {self.selection})"
 
     def is_single(self) -> bool:
         """
@@ -99,7 +117,3 @@ class Move:
         :return: List of the cells in the move selection.
         """
         return self.selection.to_array()
-
-    def __str__(self):
-        string = F"({self.direction.name}, {self.selection})"
-        return string

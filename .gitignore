@@ -5,3 +5,4 @@ __pycache__
 *.input
 *.move
 *.board
+debug.json
