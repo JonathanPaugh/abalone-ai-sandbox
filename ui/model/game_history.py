@@ -10,11 +10,18 @@ class GameHistoryItem:
     """
     A game history item.
     """
-    def __init__(self, time_start: float, time_end: float, move: Move):
+    def __init__(self, time_start: float, time_end: float, duration_paused: float, move: Move):
         time_start = time_start or time_end
         self.time_start = time_start
         self.time_end = time_end
+        self.paused_duration = duration_paused
         self.move = move
+
+    def get_time_taken(self):
+        time_delta = self.time_end - self.time_start
+        if self.paused_duration > 0:
+            time_delta -= self.paused_duration
+        return time_delta
 
 
 class GameHistory:
@@ -38,7 +45,7 @@ class GameHistory:
         # and calculates time taken for the first move for each player.
         self._history = []
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> GameHistoryItem:
         """
         Gets the item at the specified index.
         :param index: an int
@@ -84,7 +91,7 @@ class GameHistory:
         history = self.get_player_history(player)
         total_time = 0
         for i in range(0, len(history) - offset):
-            total_time += history[i].time_end - history[i].time_start
+            total_time += history[i].get_time_taken()
 
         return total_time
 
@@ -104,7 +111,7 @@ class GameHistory:
                 + " >> " \
                 + self.get_player_total_time_string(player, i) \
                 + "\n" \
-                + F"{(history_item.time_end - history_item.time_start):.2f}" \
+                + F"{(history_item.get_time_taken()):.2f}" \
                 + "\n\n"
 
         return history_string
