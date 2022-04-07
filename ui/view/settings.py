@@ -6,6 +6,7 @@ from core.player_type import PlayerType
 from ui.model.heuristic_type import HeuristicType
 from ui.model.agent_type import AgentType
 from ui.model.config import Config
+from ui.view.colors.themes import ThemeLibrary
 
 
 class SettingsUI:
@@ -75,15 +76,17 @@ class SettingsUI:
 
         move_limit = self._mount_move_limit(parent, 2)
 
-        self._mount_player_labels(parent, 3)
+        theme = self._mount_themes(parent, 3)
 
-        player_type_p1, player_type_p2 = self._mount_player_types(parent, 4)
+        self._mount_player_labels(parent, 4)
 
-        time_limit_p1, time_limit_p2 = self._mount_time_limits(parent, 5)
+        player_type_p1, player_type_p2 = self._mount_player_types(parent, 5)
 
-        heuristic_type_p1, heuristic_type_p2 = self._mount_heuristic_types(parent, 6)
+        time_limit_p1, time_limit_p2 = self._mount_time_limits(parent, 6)
 
-        agent_type_p1, agent_type_p2 = self._mount_agent_types(parent, 7)
+        heuristic_type_p1, heuristic_type_p2 = self._mount_heuristic_types(parent, 7)
+
+        agent_type_p1, agent_type_p2 = self._mount_agent_types(parent, 8)
 
         Button(parent, text="Confirm", command=lambda: (
             self._on_close(Config(
@@ -97,9 +100,10 @@ class SettingsUI:
                 HeuristicType(heuristic_type_p2.get()),
                 AgentType(agent_type_p1.get()),
                 AgentType(agent_type_p2.get()),
+                ThemeLibrary.get_theme_by_name(theme.get()),
             )),
             self.destroy(),
-        )).grid(column=0, row=8, columnspan=5)
+        )).grid(column=0, row=9, columnspan=5)
 
         self._configure_grid(parent)
 
@@ -120,6 +124,12 @@ class SettingsUI:
     def _mount_player_labels(self, parent, row):
         Label(parent, text="Blue Player", font=self.FONT_HEADING, justify=CENTER).grid(column=1, row=row, pady=(8, 4))
         Label(parent, text="Red Player", font=self.FONT_HEADING, justify=CENTER).grid(column=3, row=row, pady=(8, 4))
+
+    def _mount_themes(self, parent, row):
+        self._mount_label(parent, row, 1, "e", "Theme")
+        theme_selected = self.config.theme.value.name
+        theme_names = [t.value.name for t in ThemeLibrary]
+        return self._mount_dropdown(parent, row, 3, "w", theme_selected, *theme_names)
 
     def _mount_move_limit(self, parent, row):
         self._mount_label(parent, row, 1, "e", "Move Limit")

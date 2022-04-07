@@ -4,6 +4,8 @@ from core.color import Color
 from core.player_type import PlayerType
 from ui.model.heuristic_type import HeuristicType
 from ui.model.agent_type import AgentType
+from ui.view.colors.themes import Theme
+from ui.constants import DEFAULT_THEME
 
 
 @dataclass
@@ -20,8 +22,9 @@ class Config:
     time_limit_p2: float = 10.0
     heuristic_type_p1: HeuristicType = HeuristicType.BRANDON_OFFENSIVE
     heuristic_type_p2: HeuristicType = HeuristicType.BRANDON_DEFENSIVE
-    agent_type_p1: AgentType = AgentType.BRANDON_PONDERER
-    agent_type_p2: AgentType = AgentType.BRANDON
+    agent_type_p1: AgentType = AgentType.BRANDON
+    agent_type_p2: AgentType = AgentType.BRANDON_PONDERER
+    theme: Theme = DEFAULT_THEME
 
     @classmethod
     def from_default(cls):
