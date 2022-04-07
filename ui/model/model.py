@@ -200,17 +200,18 @@ class Model:
         :param on_timer: the callable for each timer tick
         :param on_timeout: the callable for when timer is complete
         :param on_game_end: the callable for when move limit is reached
-        :return: None
+        :return: If the game successfully moved to the next turn
         """
         if self.get_turn_count(self.game_turn) >= self.config.move_limit \
            or self.game.board.get_score(Color.next(self.game_turn)) >= WIN_SCORE:
             on_game_end()
-            return
+            return False
 
         self.move_start_time = time.time()
         self.move_paused_duration = 0
 
         self._timer_launch(on_timer, on_timeout)
+        return True
 
     def stop_timer(self):
         if self.timer:
