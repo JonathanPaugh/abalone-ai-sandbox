@@ -87,13 +87,26 @@ class Search:
             self.__debug_num_plies_expanded += 1
 
             moves = self._order_moves(board, moves, best_move)
+            is_first_move = True
+
             for move in moves:
                 self._handle_interrupts()
                 move_board = deepcopy(board)
                 move_board.apply_move(move)
                 move_hash = Zobrist.update_board_hash(root_hash, board, move)
 
-                move_score = -self._negamax(move_board, move_hash, color, d - 1, -inf, -alpha, -1)
+                move_score = -self._negascout(
+                    board=move_board,
+                    board_hash=move_hash,
+                    color=color,
+                    depth=d - 1,
+                    alpha=alpha,
+                    beta=inf,
+                    perspective=-1,
+                    is_principal_variation=is_first_move
+                )
+                is_first_move = False
+
                 if move_score > alpha:
                     alpha = move_score
                     best_move = move
@@ -102,6 +115,16 @@ class Search:
                     Debug.log(f"new best move {move}/{move_score:.2f}")
 
             Debug.log(f"complete search at depth {d} in {time() - time_start:.2f}s")
+
+    def _negascout(self, board, board_hash, color, depth, alpha, beta, perspective, is_principal_variation=False):
+        if is_principal_variation:
+            return self._negamax(board, board_hash, color, depth, -beta, -alpha, perspective)
+
+        move_score = self._negamax(board, board_hash, color, depth, -alpha - 1, -alpha, perspective)
+        if alpha < move_score < beta:
+            return self._negamax(board, board_hash, color, depth, -beta, -move_score, perspective)
+
+        return move_score
 
     def _negamax(self, board, board_hash, color, depth, alpha, beta, perspective):
         self._handle_interrupts()
@@ -128,19 +151,32 @@ class Search:
 
         alpha_old = alpha
         best_score = -inf
-        best_move = None
+        best_move = cached_entry.move if cached_entry else None
         true_color = color if perspective == 1 else Color.next(color)
 
         moves = StateGenerator.enumerate_board(board, true_color)
+        moves = self._order_moves(board, moves, best_move)
         self.__debug_num_nodes_enumerated += len(moves)
         self.__debug_num_plies_expanded += 1
 
+        is_first_move = True
         for move in moves:
             move_board = deepcopy(board)
             move_board.apply_move(move)
             move_hash = Zobrist.update_board_hash(board_hash, board, move)
 
-            move_score = -self._negamax(move_board, move_hash, color, depth - 1, -beta, -alpha, -perspective)
+            move_score = -self._negascout(
+                board=move_board,
+                board_hash=move_hash,
+                color=color,
+                depth=depth - 1,
+                alpha=alpha,
+                beta=beta,
+                perspective=-perspective,
+                is_principal_variation=is_first_move
+            )
+            is_first_move = False
+
             if move_score > best_score:
                 best_score = move_score
                 best_move = move
@@ -177,17 +213,17 @@ class Search:
             raise StopIteration
 
     def __print_debug_report(self):
+        prune_rate = self.__debug_num_nodes_pruned / (self.__debug_num_nodes_enumerated or 1)
+        prune_percent = prune_rate * 100
+        Debug.log(f"nodes enumerated: {self.__debug_num_nodes_enumerated}")
+        Debug.log(f"nodes pruned: {self.__debug_num_nodes_pruned} ({prune_percent:.2f}%)")
+
         tt_hit_rate = self.__debug_num_tt_hits / (self.__debug_num_tt_reads or 1)
         tt_hit_percent = tt_hit_rate * 100
         Debug.log(f"transposition table size: {len(self._transposition_table)} nodes")
         Debug.log(f"transposition table hit rate:"
             f" {self.__debug_num_tt_hits}/{self.__debug_num_tt_reads}"
             f" ({tt_hit_percent:.2f}%)")
-
-        prune_rate = self.__debug_num_nodes_pruned / (self.__debug_num_nodes_enumerated or 1)
-        prune_percent = prune_rate * 100
-        Debug.log(f"nodes enumerated: {self.__debug_num_nodes_enumerated}")
-        Debug.log(f"nodes pruned: {self.__debug_num_nodes_pruned} ({prune_percent:.2f}%)")
 
         num_nodes_explored = self.__debug_num_nodes_enumerated - self.__debug_num_nodes_pruned
         effective_branching_factor = num_nodes_explored / self.__debug_num_plies_expanded
