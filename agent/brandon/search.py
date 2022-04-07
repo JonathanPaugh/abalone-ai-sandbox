@@ -25,6 +25,19 @@ class Search:
         return (len(move.get_cells())
             + WEIGHT_SUMITO * move.is_sumito(board))
 
+    @staticmethod
+    def _is_quiescent(board):
+        """
+        Determines if the given board has adjacent opposing marbles.
+        :param board: a Board
+        """
+        for cell, color in board.enumerate_nonempty():
+            for neighbor in cell.neighbors_se():
+                neighbor_color = board[neighbor] if neighbor in board else None
+                if neighbor_color and neighbor_color != color:
+                    return False
+        return True
+
     @classmethod
     def _order_moves(cls, board, moves, best_move=None):
         if best_move:
@@ -81,6 +94,9 @@ class Search:
         self._paused = not self._paused
 
     def _search(self, board: Board, color: Color, depth: int, on_find: callable = None):
+        if self._is_quiescent(board) and depth > 1:
+            return self._search(board, color, depth=1, on_find=on_find)
+
         moves = StateGenerator.enumerate_board(board, color)
         self.__debug_num_nodes_enumerated += len(moves)
 
@@ -236,5 +252,5 @@ class Search:
         num_nodes_explored = self.__debug_num_nodes_enumerated - self.__debug_num_nodes_pruned
         branching_factor = self.__debug_num_nodes_enumerated / self.__debug_num_plies_expanded
         effective_branching_factor = num_nodes_explored / self.__debug_num_plies_expanded
-        Debug.log("effective branching factor:"
+        Debug.log("effective branching factor: "
                   f"{effective_branching_factor:.2f}/{branching_factor:.2f}")
