@@ -62,6 +62,7 @@ class GameUI:
         self._history_1 = ""
         self._history_2 = ""
         self._cached_turn_indicators = {}
+        self._cached_score_headings = {}
 
 
     @property
@@ -108,6 +109,16 @@ class GameUI:
 
         self._update_turn_indicators(model)
 
+    def _find_color_by_marble(self, marble):
+        color = lighten_color(self._theme.get_color_by_key(marble))
+
+        # lighten black again for readability
+        # TODO: un-hardcode this
+        if self._theme is ThemeLibrary.MONOCHROME:
+            color = lighten_color(color)
+
+        return color
+
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
                        on_click_reset=None, on_click_settings=None, on_click_board=None):
@@ -120,19 +131,11 @@ class GameUI:
 
         self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
 
-        color_black = lighten_color(self._theme.get_color_by_key(Color.BLACK))
-        color_white = lighten_color(self._theme.get_color_by_key(Color.WHITE))
-
-        # lighten black again for readability
-        # TODO: un-hardcode this
-        if self._theme is ThemeLibrary.MONOCHROME:
-            color_black = lighten_color(color_black)
-
         self._mount_score_player1(parent, "Player 1",
-            colour=color_black,
+            colour=self._find_color_by_marble(Color.BLACK),
             row=1, column=1)
         self._mount_score_player2(parent, "Player 2",
-            colour=color_white,
+            colour=self._find_color_by_marble(Color.WHITE),
             row=2, column=2)
 
         self._mount_history_1(parent)
@@ -300,6 +303,7 @@ class GameUI:
 
         score_heading = self._mount_score_heading(frame_heading, player, colour)
         score_heading.pack(side="left", padx=2)
+        self._cached_score_headings[player_color] = score_heading
 
         return frame_score
 
@@ -400,3 +404,9 @@ class GameUI:
     def apply_config(self, config):
         self._theme = config.theme
         self._board_view.apply_config(config)
+
+        self._cached_score_headings[Color.BLACK].config(
+            foreground=self._find_color_by_marble(Color.BLACK))
+
+        self._cached_score_headings[Color.WHITE].config(
+            foreground=self._find_color_by_marble(Color.WHITE))
