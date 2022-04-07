@@ -1,3 +1,7 @@
+"""
+Defines pondering agent implementation logic.
+"""
+
 from math import inf
 from copy import deepcopy
 from threading import Thread

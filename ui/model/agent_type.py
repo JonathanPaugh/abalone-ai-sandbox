@@ -7,7 +7,7 @@ from agent.brandon.agent_ponder import BrandonPonderer
 
 class AgentType(Enum):
     DEFAULT = "Default"
-    BRANDON = "2-ply negamax"
+    BRANDON = "2-ply negascout"
     BRANDON_PONDERER = "Ponderer"
 
     def create(self):

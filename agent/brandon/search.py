@@ -1,3 +1,7 @@
+"""
+Defines common search logic for Brandon's agent.
+"""
+
 from math import inf
 from time import time, sleep
 from copy import deepcopy
@@ -42,6 +46,10 @@ class Search:
 
     @property
     def stopped(self):
+        """
+        Gets whether or not the search is stopped.
+        :return: a bool
+        """
         return self._stopped
 
     def start(self, board: Board, color: Color, depth: int = 2, on_find: callable = None):
@@ -56,9 +64,7 @@ class Search:
         except StopIteration:
             exhausted = False
 
-        Debug.log(f"search result: {'exhausted' if exhausted else 'interrupted'}")
-        self.__print_debug_report()
-
+        self.__print_debug_report(exhausted)
         return exhausted
 
     def stop(self):
@@ -103,7 +109,7 @@ class Search:
                     alpha=alpha,
                     beta=inf,
                     perspective=-1,
-                    is_principal_variation=is_first_move
+                    is_pv=is_first_move
                 )
                 is_first_move = False
 
@@ -116,8 +122,8 @@ class Search:
 
             Debug.log(f"complete search at depth {d} in {time() - time_start:.2f}s")
 
-    def _negascout(self, board, board_hash, color, depth, alpha, beta, perspective, is_principal_variation=False):
-        if is_principal_variation:
+    def _negascout(self, board, board_hash, color, depth, alpha, beta, perspective, is_pv=False):
+        if is_pv:
             return self._negamax(board, board_hash, color, depth, -beta, -alpha, perspective)
 
         move_score = self._negamax(board, board_hash, color, depth, -alpha - 1, -alpha, perspective)
@@ -173,7 +179,7 @@ class Search:
                 alpha=alpha,
                 beta=beta,
                 perspective=-perspective,
-                is_principal_variation=is_first_move
+                is_pv=is_first_move
             )
             is_first_move = False
 
@@ -212,7 +218,9 @@ class Search:
         if self._stopped:
             raise StopIteration
 
-    def __print_debug_report(self):
+    def __print_debug_report(self, exhausted):
+        Debug.log(f"search result: {'exhausted' if exhausted else 'interrupted'}")
+
         prune_rate = self.__debug_num_nodes_pruned / (self.__debug_num_nodes_enumerated or 1)
         prune_percent = prune_rate * 100
         Debug.log(f"nodes enumerated: {self.__debug_num_nodes_enumerated}")
@@ -226,6 +234,7 @@ class Search:
             f" ({tt_hit_percent:.2f}%)")
 
         num_nodes_explored = self.__debug_num_nodes_enumerated - self.__debug_num_nodes_pruned
+        branching_factor = self.__debug_num_nodes_enumerated / self.__debug_num_plies_expanded
         effective_branching_factor = num_nodes_explored / self.__debug_num_plies_expanded
-        actual_branching_factor = self.__debug_num_nodes_enumerated / self.__debug_num_plies_expanded
-        Debug.log(f"effective branching factor: {effective_branching_factor:.2f}/{actual_branching_factor:.2f}")
+        Debug.log("effective branching factor:"
+                  f"{effective_branching_factor:.2f}/{branching_factor:.2f}")
