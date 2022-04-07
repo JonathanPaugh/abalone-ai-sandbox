@@ -22,6 +22,7 @@ from ui.constants import FPS
 
 if TYPE_CHECKING:
     from core.hex import Hex
+    from core.board_layout import BoardLayout
 
 
 @dataclass  # TODO(?): un-dataclass for field privacy
@@ -149,7 +150,7 @@ class Model:
 
         return next_item
 
-    def load_game_state(self, starting_layout, game_history):
+    def load_game_state(self, starting_layout: BoardLayout, game_history: GameHistory):
         """
         Loads game state from a given layout and history.
         :param starting_layout: a BoardLayout
