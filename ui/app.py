@@ -6,12 +6,10 @@ from typing import TYPE_CHECKING
 
 from datetime import timedelta
 from time import sleep
-from copy import deepcopy
 
 from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.state_generator import StateGenerator
 from agent.ponderer import PonderingAgent
-from agent.zobrist import Zobrist
 from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
@@ -55,6 +53,7 @@ class App:
             Color.WHITE: config.agent_type_p2.create() if config.player_type_p2 is PlayerType.COMPUTER else None,
         }
 
+        self._apply_heuristic_config(config)
         if config.get_player_type(self._model.game_turn) == PlayerType.COMPUTER:
             self._apply_random_move()
 
