@@ -149,6 +149,21 @@ class Model:
 
         return next_item
 
+    def load_game_state(self, starting_layout, game_history):
+        """
+        Loads game state from a given layout and history.
+        :param starting_layout: a BoardLayout
+        :param game_history: a GameHistory
+        """
+        board = Board.create_from_data(starting_layout.value)
+        for item in game_history:
+            board.apply_move(item.move)
+
+        self.game.set_board(board)
+        self.game.set_turn(game_history.infer_player_turn())
+        self.config.layout = starting_layout
+        self.history = game_history
+
     def reset(self):
         """
         Resets the model to the default state.

@@ -8,7 +8,7 @@ from datetime import timedelta
 from time import sleep
 import json
 import os
-import sys
+import traceback
 
 from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.state_generator import StateGenerator
@@ -23,7 +23,7 @@ from ui.model.model import Model, GameHistoryItem
 from ui.model.config import Config
 from ui.view import View
 from ui.debug import Debug, DebugType
-from ui.constants import FPS, DEBUG_FILEPATH
+from ui.constants import FPS, DEBUG_FILEPATH, DEBUG_LOADS_ON_START
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -297,6 +297,7 @@ class App:
         Runs the main loop of the application.
         :return: None
         """
+        self._view.render(self._model)
         while not self._view.done:
             self._update()
             sleep(1 / FPS)
@@ -306,7 +307,8 @@ class App:
         Runs the application.
         :return: None
         """
-        self._read_history_dump()
+        if DEBUG_LOADS_ON_START:
+            self._read_history_dump()
 
         Heuristic.set_turn_count_handler(lambda: self._model.get_turn_count(self._model.game_turn))
         self._view.open(
@@ -371,12 +373,11 @@ class App:
             starting_layout_str, game_history_str = json.loads(file_buffer)
             starting_layout = BoardLayout[starting_layout_str]
             game_history = GameHistory.decode(game_history_str)
+            self._load_game_state(starting_layout, game_history)
         except Exception:
-            Debug.log(sys.exc_info(), DebugType.Warning)
+            Debug.log(traceback.format_exc(), DebugType.Warning)
             Debug.log(f"WARNING: {DEBUG_FILEPATH} is corrupted, removing...", DebugType.Warning)
             os.remove(DEBUG_FILEPATH)  # remove corrupted file
-
-        # self._model.apply_history(history)
 
     def _write_history_dump(self):
         starting_layout = self._model.config.layout.name
@@ -384,3 +385,6 @@ class App:
         file_buffer = json.dumps([starting_layout, str(game_history)], separators=(",", ":"))
         with open(DEBUG_FILEPATH, mode="w", encoding="utf-8") as file:
             file.write(file_buffer)
+
+    def _load_game_state(self, starting_layout, game_history):
+        self._model.load_game_state(starting_layout, game_history)
