@@ -22,10 +22,7 @@ def heuristic(board, color):
     heuristic_adjacency = 0
     heuristic_adjacency_opponent = 0
 
-    for cell, cell_color in board.enumerate():
-        if cell_color is None:
-            continue
-
+    for cell, cell_color in board.enumerate_nonempty():
         cell_centralization = BOARD_RADIUS - Hex.manhattan(cell, BOARD_CENTER)
         cell_adjacency = sum([
             board[n] == cell_color if n in board else 0

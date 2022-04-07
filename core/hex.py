@@ -9,8 +9,10 @@ from core.constants import BOARD_MAX_COLS
 from lib.hex.axial_hex import AxialHex
 from lib.lerp import lerp
 
+
 # neighbor cache to avoid neighborhood recalculation
 HEX_NEIGHBORS = {}
+HEX_NEIGHBORS_SE = {}
 
 
 class Hex(AxialHex):
@@ -48,6 +50,16 @@ class Hex(AxialHex):
             HEX_NEIGHBORS[self_tuple] = [self.add(d.value) for d in HexDirection]
         return HEX_NEIGHBORS[self_tuple]
 
+    def neighbors_se(self):
+        """
+        Finds the SW/SE/E neighbors of this cell.
+        :return: a list[Hex]
+        """
+        self_tuple = (self.x, self.y)
+        if self_tuple not in HEX_NEIGHBORS_SE:
+            HEX_NEIGHBORS_SE[self_tuple] = [self.add(d.value) for d in NEIGHBORS_SE]
+        return HEX_NEIGHBORS_SE[self_tuple]
+
 
 class HexDirection(Enum):
     """
@@ -77,3 +89,5 @@ class HexDirection(Enum):
         :return: a HexDirection
         """
         return next((d for d in HexDirection if d.value == direction), None)
+
+NEIGHBORS_SE = (HexDirection.SW, HexDirection.SE, HexDirection.E)

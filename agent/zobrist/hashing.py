@@ -14,9 +14,8 @@ def create_board_hash(board):
     Creates a Zobrist hash with the given board.
     """
     board_hash = 0
-    for cell, cell_state in board.enumerate():
-        if cell_state is not None:
-            board_hash ^= _get_piece_mask(cell, cell_state)
+    for cell, cell_state in board.enumerate_nonempty():
+        board_hash ^= _get_piece_mask(cell, cell_state)
     return board_hash
 
 def update_board_hash(hash, board, move):
