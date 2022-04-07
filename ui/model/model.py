@@ -35,8 +35,12 @@ class Model:
     paused: bool = False
     selection: Selection = None
     timer: IntervalTimer = None
-    move_start_time = None
     timeout_move: Move = None
+
+    move_start_time = None
+    move_paused_start_time = None
+    move_paused_duration = 0
+
     history: GameHistory = field(default_factory=GameHistory)
     game: Game = field(default_factory=Game)
     config: Config = field(default_factory=Config.from_default)
@@ -151,6 +155,8 @@ class Model:
 
         self.paused = False
         self.move_start_time = None
+        self.move_paused_start_time = None
+        self.move_paused_duration = 0
         self.timeout_move = None
         self.selection = None
 
@@ -159,6 +165,13 @@ class Model:
 
     def toggle_pause(self):
         self.paused = not self.paused
+
+        if self.paused:
+            self.move_paused_start_time = time.time()
+        else:
+            self.move_paused_duration += time.time() - self.move_paused_start_time
+            self.move_paused_start_time = None
+
         if self.timer:
             self.timer.toggle_pause()
 
@@ -179,7 +192,7 @@ class Model:
 
         self.stop_timer()
         self.game.apply_move(move)
-        self.history.append(GameHistoryItem(self.move_start_time, time.time(), move))
+        self.history.append(GameHistoryItem(self.move_start_time, time.time(), self.move_paused_duration, move))
 
     def next_turn(self, on_timer: callable, on_timeout: callable, on_game_end: callable):
         """
@@ -187,15 +200,18 @@ class Model:
         :param on_timer: the callable for each timer tick
         :param on_timeout: the callable for when timer is complete
         :param on_game_end: the callable for when move limit is reached
-        :return: None
+        :return: If the game successfully moved to the next turn
         """
         if self.get_turn_count(self.game_turn) >= self.config.move_limit \
            or self.game.board.get_score(Color.next(self.game_turn)) >= WIN_SCORE:
             on_game_end()
-            return
+            return False
 
         self.move_start_time = time.time()
+        self.move_paused_duration = 0
+
         self._timer_launch(on_timer, on_timeout)
+        return True
 
     def stop_timer(self):
         if self.timer:

@@ -136,9 +136,10 @@ class App:
         """
         Debug.log(F"--- Next Turn: {self._model.game_turn} ---", DebugType.Game)
 
-        self._model.next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
-                              lambda: self._update_dispatcher.put(self._apply_timeout_move),
-                              self.end_game)
+        if not self._model.next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
+                                     lambda: self._update_dispatcher.put(self._apply_timeout_move),
+                                     self.end_game):
+            return
 
         if self._model.config.get_player_type(self._model.game_turn) is PlayerType.COMPUTER:
             self._process_agent_move()

@@ -5,6 +5,7 @@ from core.board import Board
 from core.board_layout import BoardLayout
 from core.color import Color
 from ui.debug import DebugType, Debug
+from ui.model import config
 
 
 class Game:
