@@ -4,14 +4,14 @@ from core.color import Color
 import ui.view.colors.palette as palette
 
 
-class ThemeKey(Enum):
+class ThemeColor(Enum):
     """
     Enumerates possible theme color names.
     """
     MARBLE_BLACK = auto()
     MARBLE_WHITE = auto()
     BOARD_CELL = auto()
-    BACKGROUND = auto()
+    BOARD_BACKGROUND = auto()
 
 @dataclass(frozen=True)
 class Theme:
@@ -23,13 +23,13 @@ class Theme:
 
     def __post_init__(self):
         # sugar to avoid internal mappings
-        self.colors[Color.BLACK] = self.colors[ThemeKey.MARBLE_BLACK]
-        self.colors[Color.WHITE] = self.colors[ThemeKey.MARBLE_WHITE]
+        self.colors[Color.BLACK] = self.colors[ThemeColor.MARBLE_BLACK]
+        self.colors[Color.WHITE] = self.colors[ThemeColor.MARBLE_WHITE]
 
     def get_color_by_key(self, key):
         """
         Gets a color from the given key.
-        :param key: a ThemeKey
+        :param key: a ThemeColor
         :return: a str
         """
         return self.colors[key] if key in self.colors else None
@@ -39,18 +39,18 @@ class ThemeLibrary(Enum):
     Enumerates the list of application themes.
     """
 
-    DEFAULT = Theme("Blue & Red", colors={
-        ThemeKey.MARBLE_BLACK: palette.COLOR_BLUE,
-        ThemeKey.MARBLE_WHITE: palette.COLOR_RED,
-        ThemeKey.BOARD_CELL: palette.COLOR_GRAY_200,
-        ThemeKey.BACKGROUND: palette.COLOR_GRAY_400,
+    DEFAULT = Theme("Default (Blue/Red)", colors={
+        ThemeColor.MARBLE_BLACK: palette.COLOR_BLUE,
+        ThemeColor.MARBLE_WHITE: palette.COLOR_RED,
+        ThemeColor.BOARD_CELL: palette.COLOR_GRAY_200,
+        ThemeColor.BOARD_BACKGROUND: palette.COLOR_GRAY_400,
     })
 
-    MONOCHROME = Theme("Black & White", colors={
-        ThemeKey.MARBLE_BLACK: palette.COLOR_CHARCOAL,
-        ThemeKey.MARBLE_WHITE: palette.COLOR_SILVER,
-        ThemeKey.BOARD_CELL: palette.COLOR_GRAY_200,
-        ThemeKey.BACKGROUND: palette.COLOR_GRAY_400,
+    MONOCHROME = Theme("Monochrome (Black/White)", colors={
+        ThemeColor.MARBLE_BLACK: palette.COLOR_CHARCOAL,
+        ThemeColor.MARBLE_WHITE: palette.COLOR_SILVER,
+        ThemeColor.BOARD_CELL: palette.COLOR_RED_200,
+        ThemeColor.BOARD_BACKGROUND: palette.COLOR_RED_400,
     })
 
     @classmethod
@@ -65,7 +65,7 @@ class ThemeLibrary(Enum):
     def get_color_by_key(self, key):
         """
         Gets a color from the given key.
-        :param key: a ThemeKey
+        :param key: a ThemeColor
         :return: a str
         """
         return self.value.get_color_by_key(key)

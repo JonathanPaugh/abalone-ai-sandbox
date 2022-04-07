@@ -14,7 +14,7 @@ from core.hex import Hex
 from core.color import Color
 
 import ui.view.colors.palette as palette
-from ui.view.colors.themes import ThemeKey
+from ui.view.colors.themes import ThemeColor
 from ui.view.anims.hex_tween import HexTweenAnim
 from ui.view.marble import Marble, render_marble
 from ui.constants import (
@@ -100,7 +100,6 @@ class BoardView:
     """
 
     PADDING = 8
-    COLOR_PLAYER_NONE = palette.COLOR_GRAY_700
 
     def __init__(self):
         self._canvas = None
@@ -274,7 +273,7 @@ class BoardView:
         canvas.create_oval(
             x - MARBLE_SIZE / 2, y - MARBLE_SIZE / 2,
             x + MARBLE_SIZE / 2, y + MARBLE_SIZE / 2,
-            fill=BoardView.COLOR_PLAYER_NONE,
+            fill=self._theme.get_color_by_key(ThemeColor.BOARD_CELL),
             outline="",
         )
 
@@ -395,5 +394,9 @@ class BoardView:
             self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
 
     def apply_config(self, config):
+        """
+        Applies the given config to the board.
+        :param config: a Config instance
+        """
         self._theme = config.theme
-        print("set theme to", self._theme)
+        self.clear()

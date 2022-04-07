@@ -122,4 +122,8 @@ class View:
         self._game_view.apply_move(*args, **kwargs)
 
     def apply_config(self, config):
+        """
+        Applies the given config to the view.
+        :param config: a Config instance
+        """
         self._game_view.apply_config(config)

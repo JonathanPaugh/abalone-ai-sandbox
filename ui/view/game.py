@@ -12,7 +12,7 @@ import ui.constants as constants
 from ui.view.board import BoardView
 import ui.view.colors.palette as palette
 from ui.view.colors.transform import lighten_color, darken_color
-from ui.view.colors.themes import ThemeLibrary
+from ui.view.colors.themes import ThemeLibrary, ThemeColor
 from ui.view.marble import render_marble
 
 
@@ -63,7 +63,7 @@ class GameUI:
         self._history_2 = ""
         self._cached_turn_indicators = {}
         self._cached_score_headings = {}
-
+        self._cached_canvas = None
 
     @property
     def animating(self):
@@ -339,8 +339,13 @@ class GameUI:
         self._board_view = board_view
 
         canvas = board_view.mount(parent, on_click)
-        canvas.configure(background=self.COLOR_BACKGROUND_SECONDARY)
+        canvas.configure(
+            background=self._theme.get_color_by_key(ThemeColor.BOARD_BACKGROUND),
+            highlightthickness=1, highlightbackground="#000",
+        )
         canvas.grid(column=0, row=1, rowspan=2, padx=20, pady=10)
+        self._cached_canvas = canvas
+
         return canvas
 
     def _configure_grid(self, parent):
@@ -402,6 +407,11 @@ class GameUI:
         self._board_view.apply_move(*args, **kwargs)
 
     def apply_config(self, config):
+        """
+        Applies the given config to the board.
+        :param config: a Config instance
+        """
+
         self._theme = config.theme
         self._board_view.apply_config(config)
 
@@ -410,3 +420,6 @@ class GameUI:
 
         self._cached_score_headings[Color.WHITE].config(
             foreground=self._find_color_by_marble(Color.WHITE))
+
+        self._cached_canvas.config(
+            background=self._theme.get_color_by_key(ThemeColor.BOARD_BACKGROUND))
