@@ -11,7 +11,8 @@ from core.color import Color
 import ui.constants as constants
 from ui.view.board import BoardView
 import ui.view.colors.palette as palette
-from ui.view.colors.transform import darken_color
+from ui.view.colors.transform import lighten_color, darken_color
+from ui.view.colors.themes import ThemeLibrary
 from ui.view.marble import render_marble
 
 
@@ -21,10 +22,8 @@ class GameUI:
     """
 
     COLOR_FOREGROUND_PRIMARY = "#FFFFFF"
-    COLOR_BACKGROUND_PRIMARY = "#36393E"
-    COLOR_BACKGROUND_SECONDARY = "#42464C"
-    COLOR_PLAYER_RED = palette.COLOR_LIGHTRED
-    COLOR_PLAYER_BLUE = palette.COLOR_LIGHTBLUE
+    COLOR_BACKGROUND_PRIMARY = palette.COLOR_GRAY_200
+    COLOR_BACKGROUND_SECONDARY = palette.COLOR_GRAY_400
 
     FONT_FAMILY_PRIMARY = "Arial"
     FONT_FAMILY_SECONDARY = "Arial"
@@ -59,6 +58,7 @@ class GameUI:
         self._move_count_1 = None
         self._move_count_2 = None
         self._paused = None
+        self._theme = constants.DEFAULT_THEME
         self._history_1 = ""
         self._history_2 = ""
         self._cached_turn_indicators = {}
@@ -119,8 +119,22 @@ class GameUI:
         """
 
         self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
-        self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1, 1)
-        self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2, 2)
+
+        color_black = lighten_color(self._theme.get_color_by_key(Color.BLACK))
+        color_white = lighten_color(self._theme.get_color_by_key(Color.WHITE))
+
+        # lighten black again for readability
+        # TODO: un-hardcode this
+        if self._theme is ThemeLibrary.MONOCHROME:
+            color_black = lighten_color(color_black)
+
+        self._mount_score_player1(parent, "Player 1",
+            colour=color_black,
+            row=1, column=1)
+        self._mount_score_player2(parent, "Player 2",
+            colour=color_white,
+            row=2, column=2)
+
         self._mount_history_1(parent)
         self._mount_history_2(parent)
         self._mount_board(self.frame, on_click=on_click_board)
@@ -365,7 +379,7 @@ class GameUI:
     def _update_turn_indicators(self, model):
         for color, canvas in self._cached_turn_indicators.items():
             canvas.delete("all")
-            marble_color = self._board_view.MARBLE_COLORS[color]
+            marble_color = self._theme.get_color_by_key(color)
             is_marble_player_turn = (model.game_turn == color)
             render_marble(
                 canvas,
@@ -382,3 +396,7 @@ class GameUI:
         :return: None
         """
         self._board_view.apply_move(*args, **kwargs)
+
+    def apply_config(self, config):
+        self._theme = config.theme
+        self._board_view.apply_config(config)

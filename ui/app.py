@@ -15,7 +15,7 @@ from core.move import Move
 from core.player_type import PlayerType
 from lib.dispatcher import Dispatcher
 from ui.model.model import Model, GameHistoryItem
-from ui.view import View
+from ui.view.view import View
 from ui.constants import FPS
 from ui.model.config import Config
 from ui.debug import Debug, DebugType
@@ -240,6 +240,7 @@ class App:
         self._model.apply_config(config)
         self._reset_game()
         self._apply_heuristic_config(config)
+        self._view.apply_config(config)
         self._view.render(self._model)
 
     def _apply_heuristic_config(self, config: Config = None):
