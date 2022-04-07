@@ -133,7 +133,7 @@ class Model:
 
         for item in self.history[:-2]:
             new_board.apply_move(item.move)
-            new_history.append(GameHistoryItem(item.time_start, item.time_end, item.move))
+            new_history.append(GameHistoryItem(item.time_start, item.time_end, item.paused_duration, item.move))
 
         if len(self.history) > 1:
             next_item = self.history[-2]
