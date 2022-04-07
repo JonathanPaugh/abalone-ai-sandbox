@@ -3,19 +3,26 @@ from core.hex import Hex
 from agent.zobrist.setup import zobrist_table, cell_table
 
 
-def _get_piece_mask(cell, cell_state):
-    return zobrist_table[_hash_piece(cell, cell_state)]
+def _get_piece_mask(cell, color):
+    piece_hash = _hash_piece(cell, color)
+    try:
+        return zobrist_table[piece_hash]
+    except KeyError:
+        return 0
 
-def _hash_piece(cell, cell_state):
-    return cell_table[cell] * cell_state.value
+def _hash_piece(cell, color):
+    try:
+        return cell_table[cell] * color.value
+    except AttributeError:
+        return 0
 
 def create_board_hash(board):
     """
     Creates a Zobrist hash with the given board.
     """
     board_hash = 0
-    for cell, cell_state in board.enumerate_nonempty():
-        board_hash ^= _get_piece_mask(cell, cell_state)
+    for cell, color in board.enumerate_nonempty():
+        board_hash ^= _get_piece_mask(cell, color)
     return board_hash
 
 def update_board_hash(hash, board, move):
