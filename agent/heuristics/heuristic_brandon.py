@@ -3,14 +3,6 @@ from core.hex import Hex
 from core.constants import BOARD_SIZE
 
 
-WEIGHT_SCORE = 15
-WEIGHT_SCORE_OPPONENT = 25
-WEIGHT_CENTRALIZATION = 1
-WEIGHT_CENTRALIZATION_OPPONENT = 1.25
-WEIGHT_ADJACENCY = 0.1
-WEIGHT_ADJACENCY_OPPONENT = 0.125
-
-
 @dataclass(frozen=True)
 class HeuristicWeights:
     """
@@ -30,11 +22,11 @@ def heuristic_offensive(board, color):
     """
     return heuristic(board, color, HeuristicWeights(
         score=15,
-        score_opponent=25,
+        score_opponent=30,
         centralization=1,
         centralization_opponent=1.25,
-        adjacency=1,
-        adjacency_opponent=1.25
+        adjacency=0.1,
+        adjacency_opponent=0.15
     ))
 
 def heuristic_defensive(board, color):
@@ -46,8 +38,8 @@ def heuristic_defensive(board, color):
         score_opponent=25,
         centralization=1,
         centralization_opponent=1,
-        adjacency=1,
-        adjacency_opponent=1.25
+        adjacency=0.1,
+        adjacency_opponent=0.125
     ))
 
 
