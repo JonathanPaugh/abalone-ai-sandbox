@@ -21,9 +21,7 @@ from lib.dispatcher import Dispatcher
 from ui.model.game_history import GameHistory
 from ui.model.model import Model, GameHistoryItem
 from ui.view.view import View
-from ui.constants import FPS
 from ui.model.config import Config
-from ui.view import View
 from ui.debug import Debug, DebugType
 from ui.constants import FPS, DEBUG_FILEPATH, DEBUG_LOADS_ON_START
 
