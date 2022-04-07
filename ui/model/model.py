@@ -22,6 +22,7 @@ from ui.constants import FPS
 
 if TYPE_CHECKING:
     from core.hex import Hex
+    from core.board_layout import BoardLayout
 
 
 @dataclass  # TODO(?): un-dataclass for field privacy
@@ -148,6 +149,21 @@ class Model:
         self.game.set_turn(self.history.infer_player_turn())
 
         return next_item
+
+    def load_game_state(self, starting_layout: BoardLayout, game_history: GameHistory):
+        """
+        Loads game state from a given layout and history.
+        :param starting_layout: a BoardLayout
+        :param game_history: a GameHistory
+        """
+        board = Board.create_from_data(starting_layout.value)
+        for item in game_history:
+            board.apply_move(item.move)
+
+        self.game.set_board(board)
+        self.game.set_turn(game_history.infer_player_turn())
+        self.config.layout = starting_layout
+        self.history = game_history
 
     def reset(self):
         """

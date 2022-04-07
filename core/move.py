@@ -1,16 +1,47 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
+from core.hex import Hex, HexDirection
+from core.selection import Selection
+from core.constants import BOARD_MAX_COLS
 
 if TYPE_CHECKING:
     from core.board import Board, Color
-    from core.hex import Hex, HexDirection
-    from selection import Selection
 
 
 class Move:
+
+    @staticmethod
+    def decode_cell(cell_str: str) -> Hex:
+        """
+        Decodes a cell string to a hex coordinate e.g. E5 -> Hex(4, 4)
+        :param cell_str: a str
+        :return: a Hex
+        """
+        CODEPOINT_A = 65
+        col = int(cell_str[1]) - 1
+        row = BOARD_MAX_COLS - ord(cell_str[0]) + CODEPOINT_A - 1
+        return Hex(col, row)
+
+    @classmethod
+    def decode(cls, move_str):
+        """
+        Decodes a move string
+        :param move_str: a str
+        :return: a Move
+        """
+        direction, start, *end = move_str[1:-1].split(", ")
+        end = end[0] if end else start
+        return Move(
+            selection=Selection(cls.decode_cell(start), cls.decode_cell(end)),
+            direction=HexDirection[direction],
+        )
+
     def __init__(self, selection: Selection, direction: HexDirection):
         self.selection = selection
         self.direction = direction
+
+    def __str__(self):
+        return f"({self.direction.name}, {self.selection})"
 
     def is_single(self) -> bool:
         """
@@ -99,7 +130,3 @@ class Move:
         :return: List of the cells in the move selection.
         """
         return self.selection.to_array()
-
-    def __str__(self):
-        string = F"({self.direction.name}, {self.selection})"
-        return string

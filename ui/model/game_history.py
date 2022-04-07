@@ -2,6 +2,7 @@
 Generic interface for game history.
 """
 
+import json
 from core.color import Color
 from core.move import Move
 
@@ -16,6 +17,9 @@ class GameHistoryItem:
         self.time_end = time_end
         self.paused_duration = duration_paused
         self.move = move
+
+    def __str__(self):
+        return f'[{self.time_start},{self.time_end},{self.paused_duration},"{self.move}"]'
 
     def get_time_taken(self):
         time_delta = self.time_end - self.time_start
@@ -40,10 +44,21 @@ class GameHistory:
     (i.e. the more space-efficient implementation)
     """
 
-    def __init__(self):
+    @staticmethod
+    def decode(history_str):
+        history_items = []
+        history_data = json.loads(history_str)
+
+        for history_item_data in history_data:
+            history_item_data[-1] = Move.decode(history_item_data[-1])
+            history_items.append(GameHistoryItem(*history_item_data))
+
+        return GameHistory(history_items)
+
+    def __init__(self, history=None):
         # Initial history items get the initial time to subtract from
         # and calculates time taken for the first move for each player.
-        self._history = []
+        self._history = history or []
 
     def __getitem__(self, index) -> GameHistoryItem:
         """
@@ -59,6 +74,9 @@ class GameHistory:
         :return: an int
         """
         return len(self._history)
+
+    def __str__(self):
+        return f"[{','.join(map(str, self._history))}]"
 
     def append(self, item):
         """

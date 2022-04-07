@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING
 
 from datetime import timedelta
 from time import sleep
+import json
+import os
+import traceback
 
 from agent.heuristics.heuristic_jonathan import Heuristic
 from agent.state_generator import StateGenerator
@@ -13,12 +16,16 @@ from agent.ponderer import PonderingAgent
 from core.color import Color
 from core.move import Move
 from core.player_type import PlayerType
+from core.board_layout import BoardLayout
 from lib.dispatcher import Dispatcher
+from ui.model.game_history import GameHistory
 from ui.model.model import Model, GameHistoryItem
 from ui.view.view import View
 from ui.constants import FPS
 from ui.model.config import Config
+from ui.view import View
 from ui.debug import Debug, DebugType
+from ui.constants import FPS, DEBUG_FILEPATH, DEBUG_LOADS_ON_START
 
 if TYPE_CHECKING:
     from core.hex import Hex
@@ -293,6 +300,7 @@ class App:
         Runs the main loop of the application.
         :return: None
         """
+        self._view.render(self._model)
         while not self._view.done:
             self._update()
             sleep(1 / FPS)
@@ -302,6 +310,9 @@ class App:
         Runs the application.
         :return: None
         """
+        if DEBUG_LOADS_ON_START:
+            self._read_history_dump()
+
         Heuristic.set_turn_count_handler(lambda: self._model.get_turn_count(self._model.game_turn))
         self._view.open(
             get_config=lambda: self._model.config,
@@ -329,10 +340,13 @@ class App:
             on_click_reset=self._reset_game,
         )
         self._view.render(self._model)
-        self._start_game()
-        self._apply_heuristic_config()
-        self._run_main_loop()
-        self._stop_agents()
+
+        try:
+            self._start_game()
+            self._run_main_loop()
+            self._stop_agents()
+        finally:
+            self._write_history_dump()
 
     def _stop_agents(self):
         self._rally_agents(lambda agent: agent.stop())
@@ -350,3 +364,30 @@ class App:
         for agent in self._agents.values():
             if agent:
                 callback(agent)
+
+    def _read_history_dump(self):
+        try:
+            with open(DEBUG_FILEPATH, mode="r", encoding="utf-8") as file:
+                file_buffer = file.read()
+        except FileNotFoundError:
+            return
+
+        try:
+            starting_layout_str, game_history_str = json.loads(file_buffer)
+            starting_layout = BoardLayout[starting_layout_str]
+            game_history = GameHistory.decode(game_history_str)
+            self._load_game_state(starting_layout, game_history)
+            Debug.log(f"Previous data dump loaded successfully", DebugType.Game)
+        except Exception:
+            Debug.log(f"WARNING: {DEBUG_FILEPATH} is corrupted", DebugType.Warning)
+            Debug.log(traceback.format_exc(), DebugType.Warning)
+
+    def _write_history_dump(self):
+        starting_layout = self._model.config.layout.name
+        game_history = self._model.history
+        file_buffer = json.dumps([starting_layout, str(game_history)], separators=(",", ":"))
+        with open(DEBUG_FILEPATH, mode="w", encoding="utf-8") as file:
+            file.write(file_buffer)
+
+    def _load_game_state(self, starting_layout, game_history):
+        self._model.load_game_state(starting_layout, game_history)
