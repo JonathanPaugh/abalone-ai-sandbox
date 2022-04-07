@@ -14,12 +14,14 @@ from core.hex import Hex
 from core.color import Color
 
 import ui.view.colors.palette as palette
+from ui.view.colors.themes import ThemeColor
 from ui.view.anims.hex_tween import HexTweenAnim
 from ui.view.marble import Marble, render_marble
 from ui.constants import (
     BOARD_SIZE, BOARD_MAX_COLS,
     BOARD_CELL_SIZE, MARBLE_SIZE,
-    BOARD_WIDTH, BOARD_HEIGHT
+    BOARD_WIDTH, BOARD_HEIGHT,
+    DEFAULT_THEME,
 )
 
 
@@ -98,14 +100,10 @@ class BoardView:
     """
 
     PADDING = 8
-    COLOR_PLAYER_NONE = "#48535A"
-    MARBLE_COLORS = {
-        Color.BLACK: palette.COLOR_BLUE,
-        Color.WHITE: palette.COLOR_RED,
-    }
 
     def __init__(self):
         self._canvas = None
+        self._theme = DEFAULT_THEME
         self._marbles = []
         self._anims = []
 
@@ -142,7 +140,7 @@ class BoardView:
                 object_ids=render_marble(
                     canvas,
                     pos=pos,
-                    color=BoardView.MARBLE_COLORS[color],
+                    color=self._theme.get_color_by_key(color),
                     size=MARBLE_SIZE,
                 )
             ))
@@ -257,7 +255,7 @@ class BoardView:
         marble.object_ids = render_marble(
             self._canvas,
             pos=marble.pos,
-            color=self.MARBLE_COLORS[marble.color],
+            color=self._theme.get_color_by_key(marble.color),
             size=MARBLE_SIZE,
             selected=selected,
             focused=focused,
@@ -275,7 +273,7 @@ class BoardView:
         canvas.create_oval(
             x - MARBLE_SIZE / 2, y - MARBLE_SIZE / 2,
             x + MARBLE_SIZE / 2, y + MARBLE_SIZE / 2,
-            fill=BoardView.COLOR_PLAYER_NONE,
+            fill=self._theme.get_color_by_key(ThemeColor.BOARD_CELL),
             outline="",
         )
 
@@ -394,3 +392,11 @@ class BoardView:
 
         if self._anims:
             self._anims[-1].on_end = compose_fns(self._anims[-1].on_end, on_end)
+
+    def apply_config(self, config):
+        """
+        Applies the given config to the board.
+        :param config: a Config instance
+        """
+        self._theme = config.theme
+        self.clear()

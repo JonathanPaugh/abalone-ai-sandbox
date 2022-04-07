@@ -11,7 +11,8 @@ from core.color import Color
 import ui.constants as constants
 from ui.view.board import BoardView
 import ui.view.colors.palette as palette
-from ui.view.colors.transform import darken_color
+from ui.view.colors.transform import lighten_color, darken_color
+from ui.view.colors.themes import ThemeLibrary, ThemeColor
 from ui.view.marble import render_marble
 
 
@@ -21,10 +22,8 @@ class GameUI:
     """
 
     COLOR_FOREGROUND_PRIMARY = "#FFFFFF"
-    COLOR_BACKGROUND_PRIMARY = "#36393E"
-    COLOR_BACKGROUND_SECONDARY = "#42464C"
-    COLOR_PLAYER_RED = palette.COLOR_LIGHTRED
-    COLOR_PLAYER_BLUE = palette.COLOR_LIGHTBLUE
+    COLOR_BACKGROUND_PRIMARY = palette.COLOR_GRAY_200
+    COLOR_BACKGROUND_SECONDARY = palette.COLOR_GRAY_400
 
     FONT_FAMILY_PRIMARY = "Arial"
     FONT_FAMILY_SECONDARY = "Arial"
@@ -59,10 +58,12 @@ class GameUI:
         self._move_count_1 = None
         self._move_count_2 = None
         self._paused = None
+        self._theme = constants.DEFAULT_THEME
         self._history_1 = ""
         self._history_2 = ""
         self._cached_turn_indicators = {}
-
+        self._cached_score_headings = {}
+        self._cached_canvas = None
 
     @property
     def animating(self):
@@ -108,6 +109,16 @@ class GameUI:
 
         self._update_turn_indicators(model)
 
+    def _find_color_by_marble(self, marble):
+        color = lighten_color(self._theme.get_color_by_key(marble))
+
+        # lighten black again for readability
+        # TODO: un-hardcode this
+        if self._theme is ThemeLibrary.MONOCHROME:
+            color = lighten_color(color)
+
+        return color
+
     def _mount_widgets(self, parent,
                        on_click_undo=None, on_click_pause=None, on_click_stop=None,
                        on_click_reset=None, on_click_settings=None, on_click_board=None):
@@ -119,8 +130,14 @@ class GameUI:
         """
 
         self._mount_buttonbar(parent, on_click_undo, on_click_pause, on_click_stop, on_click_reset, on_click_settings)
-        self._mount_score_player1(parent, "Player 1", self.COLOR_PLAYER_BLUE, 1, 1)
-        self._mount_score_player2(parent, "Player 2", self.COLOR_PLAYER_RED, 2, 2)
+
+        self._mount_score_player1(parent, "Player 1",
+            colour=self._find_color_by_marble(Color.BLACK),
+            row=1, column=1)
+        self._mount_score_player2(parent, "Player 2",
+            colour=self._find_color_by_marble(Color.WHITE),
+            row=2, column=2)
+
         self._mount_history_1(parent)
         self._mount_history_2(parent)
         self._mount_board(self.frame, on_click=on_click_board)
@@ -286,6 +303,7 @@ class GameUI:
 
         score_heading = self._mount_score_heading(frame_heading, player, colour)
         score_heading.pack(side="left", padx=2)
+        self._cached_score_headings[player_color] = score_heading
 
         return frame_score
 
@@ -321,8 +339,13 @@ class GameUI:
         self._board_view = board_view
 
         canvas = board_view.mount(parent, on_click)
-        canvas.configure(background=self.COLOR_BACKGROUND_SECONDARY)
+        canvas.configure(
+            background=self._theme.get_color_by_key(ThemeColor.BOARD_BACKGROUND),
+            highlightthickness=1, highlightbackground="#000",
+        )
         canvas.grid(column=0, row=1, rowspan=2, padx=20, pady=10)
+        self._cached_canvas = canvas
+
         return canvas
 
     def _configure_grid(self, parent):
@@ -365,7 +388,7 @@ class GameUI:
     def _update_turn_indicators(self, model):
         for color, canvas in self._cached_turn_indicators.items():
             canvas.delete("all")
-            marble_color = self._board_view.MARBLE_COLORS[color]
+            marble_color = self._theme.get_color_by_key(color)
             is_marble_player_turn = (model.game_turn == color)
             render_marble(
                 canvas,
@@ -382,3 +405,21 @@ class GameUI:
         :return: None
         """
         self._board_view.apply_move(*args, **kwargs)
+
+    def apply_config(self, config):
+        """
+        Applies the given config to the board.
+        :param config: a Config instance
+        """
+
+        self._theme = config.theme
+        self._board_view.apply_config(config)
+
+        self._cached_score_headings[Color.BLACK].config(
+            foreground=self._find_color_by_marble(Color.BLACK))
+
+        self._cached_score_headings[Color.WHITE].config(
+            foreground=self._find_color_by_marble(Color.WHITE))
+
+        self._cached_canvas.config(
+            background=self._theme.get_color_by_key(ThemeColor.BOARD_BACKGROUND))
