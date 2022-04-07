@@ -15,6 +15,7 @@ from core.color import Color
 from core.move import Move
 from ui.model.heuristic_type import HeuristicType
 from ui.debug import Debug, DebugType
+from ui.constants import DEBUG
 
 
 def search_worker(search, board, color, on_find, on_complete):
@@ -44,7 +45,7 @@ def ponder_worker(search, refutation_table, board, color, on_find, on_complete):
     # The number of predictions i.e. refutations to cache.
     # More predictions result in a higher hit rate but will keep the thread busy.
     # Probably best as `inf` in competitive settings to maximize transposition table hits.
-    NUM_PREDICTIONS = 3
+    NUM_PREDICTIONS = inf
 
     temp_board = deepcopy(board)
     def find_move_score(move):
