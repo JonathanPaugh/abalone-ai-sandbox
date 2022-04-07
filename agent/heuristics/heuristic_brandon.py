@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from core.hex import Hex
 from core.constants import BOARD_SIZE
 
@@ -5,12 +6,52 @@ from core.constants import BOARD_SIZE
 WEIGHT_SCORE = 15
 WEIGHT_SCORE_OPPONENT = 25
 WEIGHT_CENTRALIZATION = 1
-WEIGHT_CENTRALIZATION_OPPONENT = 1
+WEIGHT_CENTRALIZATION_OPPONENT = 1.25
 WEIGHT_ADJACENCY = 0.1
 WEIGHT_ADJACENCY_OPPONENT = 0.125
 
 
-def heuristic(board, color):
+@dataclass(frozen=True)
+class HeuristicWeights:
+    """
+    Models heuristic weights.
+    """
+    score: int
+    score_opponent: int
+    centralization: int
+    centralization_opponent: int
+    adjacency: int
+    adjacency_opponent: int
+
+
+def heuristic_offensive(board, color):
+    """
+    An offensive heuristic.
+    """
+    return heuristic(board, color, HeuristicWeights(
+        score=15,
+        score_opponent=25,
+        centralization=1,
+        centralization_opponent=1.25,
+        adjacency=1,
+        adjacency_opponent=1.25
+    ))
+
+def heuristic_defensive(board, color):
+    """
+    A defensive heuristic.
+    """
+    return heuristic(board, color, HeuristicWeights(
+        score=15,
+        score_opponent=25,
+        centralization=1,
+        centralization_opponent=1,
+        adjacency=1,
+        adjacency_opponent=1.25
+    ))
+
+
+def heuristic(board, color, weights):
     MAX_MARBLES = 14
     BOARD_RADIUS = BOARD_SIZE - 1
     BOARD_CENTER = Hex(BOARD_RADIUS, BOARD_RADIUS)
@@ -40,10 +81,10 @@ def heuristic(board, color):
             heuristic_score -= 1
 
     return (
-        WEIGHT_SCORE * heuristic_score
-        - WEIGHT_SCORE_OPPONENT * heuristic_score_opponent
-        + WEIGHT_CENTRALIZATION * heuristic_centralization
-        - WEIGHT_CENTRALIZATION_OPPONENT * heuristic_centralization_opponent
-        + WEIGHT_ADJACENCY * heuristic_adjacency
-        - WEIGHT_ADJACENCY_OPPONENT * heuristic_adjacency_opponent
+        weights.score * heuristic_score
+        - weights.score_opponent * heuristic_score_opponent
+        + weights.centralization * heuristic_centralization
+        - weights.centralization_opponent * heuristic_centralization_opponent
+        + weights.adjacency * heuristic_adjacency
+        - weights.adjacency_opponent * heuristic_adjacency_opponent
     )

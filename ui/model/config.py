@@ -14,12 +14,12 @@ class Config:
 
     layout: BoardLayout = BoardLayout.BELGIAN_DAISY
     move_limit: int = 40
-    player_type_p1: PlayerType = PlayerType.HUMAN
+    player_type_p1: PlayerType = PlayerType.COMPUTER
     player_type_p2: PlayerType = PlayerType.COMPUTER
     time_limit_p1: float = 10.0
     time_limit_p2: float = 10.0
-    heuristic_type_p1: HeuristicType = HeuristicType.BRANDON
-    heuristic_type_p2: HeuristicType = HeuristicType.BRANDON
+    heuristic_type_p1: HeuristicType = HeuristicType.BRANDON_OFFENSIVE
+    heuristic_type_p2: HeuristicType = HeuristicType.BRANDON_DEFENSIVE
     agent_type_p1: AgentType = AgentType.BRANDON
     agent_type_p2: AgentType = AgentType.BRANDON_PONDERER
 
