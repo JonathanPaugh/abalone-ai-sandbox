@@ -29,7 +29,8 @@ class Move:
         :param move_str: a str
         :return: a Move
         """
-        direction, start, end = move_str[1:-1].split(", ")
+        direction, start, *end = move_str[1:-1].split(", ")
+        end = end[0] if end else start
         return Move(
             selection=Selection(cls.decode_cell(start), cls.decode_cell(end)),
             direction=HexDirection[direction],

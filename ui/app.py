@@ -374,6 +374,7 @@ class App:
             starting_layout = BoardLayout[starting_layout_str]
             game_history = GameHistory.decode(game_history_str)
             self._load_game_state(starting_layout, game_history)
+            Debug.log(f"Previous data dump loaded successfully", DebugType.Game)
         except Exception:
             Debug.log(f"WARNING: {DEBUG_FILEPATH} is corrupted", DebugType.Warning)
             Debug.log(traceback.format_exc(), DebugType.Warning)
