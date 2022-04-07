@@ -8,7 +8,6 @@ import time
 from dataclasses import dataclass, field
 from lib.interval_timer import IntervalTimer
 from agent.state_generator import StateGenerator
-from agent.zobrist import Zobrist
 from core.board import Board
 from core.color import Color
 from core.constants import WIN_SCORE
@@ -42,8 +41,11 @@ class Model:
     move_paused_duration = 0
 
     history: GameHistory = field(default_factory=GameHistory)
-    game: Game = field(default_factory=Game)
+    game: Game = None
     config: Config = field(default_factory=Config.from_default)
+
+    def __post_init__(self):
+        self.game = Game(starting_layout=self.config.layout)
 
     @property
     def game_board(self):
