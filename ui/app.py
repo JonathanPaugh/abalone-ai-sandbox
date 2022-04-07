@@ -139,6 +139,7 @@ class App:
         if not self._model.next_turn(lambda progress: self._update_dispatcher.put(lambda: self._update_timer(progress)),
                                      lambda: self._update_dispatcher.put(self._apply_timeout_move),
                                      self.end_game):
+            self.allow_move = True
             return
 
         if self._model.config.get_player_type(self._model.game_turn) is PlayerType.COMPUTER:
