@@ -375,9 +375,8 @@ class App:
             game_history = GameHistory.decode(game_history_str)
             self._load_game_state(starting_layout, game_history)
         except Exception:
+            Debug.log(f"WARNING: {DEBUG_FILEPATH} is corrupted", DebugType.Warning)
             Debug.log(traceback.format_exc(), DebugType.Warning)
-            Debug.log(f"WARNING: {DEBUG_FILEPATH} is corrupted, removing...", DebugType.Warning)
-            os.remove(DEBUG_FILEPATH)  # remove corrupted file
 
     def _write_history_dump(self):
         starting_layout = self._model.config.layout.name
