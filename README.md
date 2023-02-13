@@ -1,4 +1,4 @@
-# COMP3981-Team4
+# Abalone AI Sandbox
 > An AI agent for the game of [Abalone](https://en.wikipedia.org/wiki/Abalone_(board_game))
 
 This program is an ongoing project built by Team 4 for COMP 3981 (Artificial Intelligence and Machine Learning) at BCIT during the Winter 2022 semester.
